@@ -7,27 +7,37 @@ import (
 	"image/draw"
 	"image/png"
 	"os"
+
+	"github.com/avislash/sentamper/config"
 )
 
 type Processor struct {
-	mugs map[string]image.Image
+	mugs map[string]image.Image //map of base armors to mug images
 }
 
-func NewProcessor() *Processor {
-	return &Processor{}
+func NewProcessor(config config.ImageProcessorConfig) (*Processor, error) {
+	mugs := make(map[string]image.Image)
+
+	for baseArmor, mugFile := range config.GMMappings {
+		file, err := os.Open(mugFile)
+		if err != nil {
+			return nil, fmt.Errorf("Unable to open %s: %w", mugFile, err)
+		}
+		defer file.Close()
+
+		img, err := png.Decode(file)
+		if err != nil {
+			return nil, fmt.Errorf("Unable to decode image file %s: %w", mugFile, err)
+		}
+		mugs[baseArmor] = img
+	}
+	return &Processor{mugs: mugs}, nil
 }
 
 func (p *Processor) OverlayMug(sentinel image.Image, baseArmor string) (*bytes.Buffer, error) {
-	// Open the second image file
-	sentinelHandFile, err := os.Open("./mugs/trippyMug.png")
-	if err != nil {
-		panic(err)
-	}
-	defer sentinelHandFile.Close()
-
-	sentinelHand, err := png.Decode(sentinelHandFile)
-	if err != nil {
-		panic(err)
+	sentinelHand, exists := p.mugs[baseArmor]
+	if !exists {
+		return nil, fmt.Errorf("No mug file found for base armor: %s", baseArmor)
 	}
 
 	// Create a new image with the size of the larger image

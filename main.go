@@ -3,29 +3,47 @@ package main
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"os/signal"
 
+	"github.com/avislash/sentamper/config"
 	"github.com/avislash/sentamper/image"
 	"github.com/avislash/sentamper/ipfs"
 	"github.com/avislash/sentamper/metadata"
 	"github.com/bwmarrin/discordgo"
+	"gopkg.in/yaml.v3"
 )
 
 var ipfsClient *ipfs.Client
 var stamper *image.Processor
+var metadataFetcher *metadata.SentinelMetadataFetcher
 
-func main() {
+func init() {
+	var configParams config.Config
+	configFile, err := ioutil.ReadFile("config.yaml")
+	if err != nil {
+		panic(fmt.Sprintf("Failed to read in config.yaml: %s", err))
+	}
 
-	var err error
+	err = yaml.Unmarshal(configFile, &configParams)
+	if err != nil {
+		panic(fmt.Sprintf("Failed to unmarshal config.yaml: %s", err))
+	}
+
+	stamper, err = image.NewProcessor(configParams.ImageProcessorConfig)
+	if err != nil {
+		panic("Error initializing Image Processor: " + err.Error())
+	}
+
 	ipfsClient, err = ipfs.NewClient()
 	if err != nil {
 		panic("Error creating IPFS Client: " + err.Error())
 	}
+}
 
-	stamper = image.NewProcessor()
-
+func main() {
 	token := os.Getenv("DISCORD_BOT_TOKEN")
 	dg, err := discordgo.New("Bot " + token)
 	if err != nil {
