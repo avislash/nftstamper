@@ -18,7 +18,7 @@ import (
 
 var ipfsClient *ipfs.Client
 var stamper *image.Processor
-var metadataFetcher *metadata.SentinelMetadataFetcher
+var fetcher *metadata.SentinelMetadataFetcher
 
 func init() {
 	var configParams config.Config
@@ -41,6 +41,8 @@ func init() {
 	if err != nil {
 		panic("Error creating IPFS Client: " + err.Error())
 	}
+
+	fetcher = metadata.NewSentinelMetadataFetcher(configParams.MetadataEndpoint)
 }
 
 func main() {
@@ -99,49 +101,51 @@ func gmInteraction(session *discordgo.Session, interaction *discordgo.Interactio
 	if discordgo.InteractionApplicationCommand == interaction.Type {
 		cmdData := interaction.ApplicationCommandData()
 		if cmdData.Name == "gm" {
-			sentinelID := cmdData.Options[0].UintValue()
+			go func() {
+				sentinelID := cmdData.Options[0].UintValue()
 
-			fetcher := metadata.NewSentinelMetadataFetcher("https://api.appliedprimate.dev/sentinels/metadata")
-			metadata, err := fetcher.FetchMetdata(sentinelID)
-			if err != nil {
-				err := fmt.Errorf("Failed to retrieve metadata for Sentienl #%d: %w", sentinelID, err)
-				log.Println("Error: ", err)
-				sendErrorResponse(err, session, interaction)
-				return
-			}
+				metadata, err := fetcher.FetchMetdata(sentinelID)
+				if err != nil {
+					err := fmt.Errorf("Failed to retrieve metadata for Sentienl #%d: %w", sentinelID, err)
+					log.Println("Error: ", err)
+					sendErrorResponse(err, session, interaction)
+					return
+				}
 
-			sentinel, err := ipfsClient.GetSentinelFromIPFS(metadata.Image)
-			if err != nil {
-				err := fmt.Errorf("Failed to retrieve Sentinel #%d image from IPFS: %w", sentinelID, err)
-				log.Println("Error: ", err)
-				sendErrorResponse(err, session, interaction)
-				return
-			}
+				sentinel, err := ipfsClient.GetSentinelFromIPFS(metadata.Image)
+				if err != nil {
+					err := fmt.Errorf("Failed to retrieve Sentinel #%d image from IPFS: %w", sentinelID, err)
+					log.Println("Error: ", err)
+					sendErrorResponse(err, session, interaction)
+					return
+				}
 
-			buff, err := stamper.OverlayMug(sentinel, metadata.BaseArmor) //combineImages(metadata)
-			if err != nil {
-				err := fmt.Errorf("Failed to create GM image for Sentinel %d: %w ", sentinelID, err)
-				log.Println("Error: ", err)
-				sendErrorResponse(err, session, interaction)
-			}
+				buff, err := stamper.OverlayMug(sentinel, metadata.BaseArmor)
+				if err != nil {
+					err := fmt.Errorf("Failed to create GM image for Sentinel %d: %w ", sentinelID, err)
+					log.Println("Error: ", err)
+					sendErrorResponse(err, session, interaction)
+				}
 
-			file := &discordgo.File{
-				Name:        fmt.Sprintf("%s_gm_sentinel_%d.png", name, sentinelID),
-				ContentType: "image/png",
-				Reader:      buff,
-			}
-			response := &discordgo.InteractionResponse{
-				Type: discordgo.InteractionResponseChannelMessageWithSource,
-				Data: &discordgo.InteractionResponseData{
-					Content: "GM " + mention,
-					Files:   []*discordgo.File{file},
-				},
-			}
+				file := &discordgo.File{
+					Name:        fmt.Sprintf("%s_gm_sentinel_%d.png", name, sentinelID),
+					ContentType: "image/png",
+					Reader:      buff,
+				}
+				response := &discordgo.InteractionResponse{
+					Type: discordgo.InteractionResponseChannelMessageWithSource,
+					Data: &discordgo.InteractionResponseData{
+						Content: "GM " + mention,
+						Files:   []*discordgo.File{file},
+					},
+				}
 
-			if err := session.InteractionRespond(interaction.Interaction, response); err != nil {
-				log.Println("Error sending message: ", err)
-			}
+				if err := session.InteractionRespond(interaction.Interaction, response); err != nil {
+					log.Println("Error sending message: ", err)
+				}
+			}()
 		}
+
 	}
 }
 
