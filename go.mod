@@ -8,6 +8,7 @@ require (
 	github.com/ipfs/boxo v0.8.1
 	github.com/ipfs/go-ipfs-http-client v0.4.0
 	github.com/ipfs/interface-go-ipfs-core v0.7.0
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
