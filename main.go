@@ -10,7 +10,9 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"strings"
 
+	"github.com/avislash/sentamper/metadata"
 	"github.com/bwmarrin/discordgo"
 
 	"github.com/ipfs/boxo/files"
@@ -19,8 +21,8 @@ import (
 )
 
 func main() {
+
 	token := os.Getenv("DISCORD_BOT_TOKEN")
-	//fmt.Println(token)
 	dg, err := discordgo.New("Bot " + token)
 	if err != nil {
 		panic(err)
@@ -33,14 +35,31 @@ func main() {
 	defer dg.Close()
 	botID := dg.State.User.ID
 
+	minID := float64(0)
+	maxID := float64(10000)
+	sentinelID := &discordgo.ApplicationCommandOption{
+		Type:        discordgo.ApplicationCommandOptionInteger,
+		Name:        "sentinel",
+		Description: "Sentinel ID #",
+		Required:    true,
+		MinValue:    &minID,
+		MaxValue:    maxID,
+	}
 	_, err = dg.ApplicationCommandCreate(botID, "", &discordgo.ApplicationCommand{
 		Name:        "gm",
 		Description: "Responds with a GM",
+		Options:     []*discordgo.ApplicationCommandOption{sentinelID},
 	})
 
+	if err != nil {
+		panic(err)
+	}
+
 	ctx, _ := signal.NotifyContext(context.Background(), os.Interrupt)
+	log.Println("Bot started")
 	<-ctx.Done()
 	log.Println("Exit")
+	_ = sentinelID
 }
 
 func gmInteraction(session *discordgo.Session, interaction *discordgo.InteractionCreate) {
@@ -51,10 +70,28 @@ func gmInteraction(session *discordgo.Session, interaction *discordgo.Interactio
 		mention = interaction.Member.Mention()
 	}
 	if discordgo.InteractionApplicationCommand == interaction.Type {
-		if interaction.ApplicationCommandData().Name == "gm" {
-			var response *discordgo.InteractionResponse
-			buff, err := combineImages()
+		cmdData := interaction.ApplicationCommandData()
+		var response *discordgo.InteractionResponse
+		if cmdData.Name == "gm" {
+			sentinelID := cmdData.Options[0].UintValue()
 
+			fetcher := metadata.NewSentinelMetadataFetcher("https://api.appliedprimate.dev/sentinels/metadata")
+			metadata, err := fetcher.FetchMetdata(sentinelID)
+			if err != nil {
+				response = &discordgo.InteractionResponse{
+					Type: discordgo.InteractionResponseChannelMessageWithSource,
+					Data: &discordgo.InteractionResponseData{
+						Content: "Failed to create Image Due to Metadata Fetch Error: " + err.Error(),
+					},
+				}
+
+				if err := session.InteractionRespond(interaction.Interaction, response); err != nil {
+					log.Println("Error sending message: ", err)
+				}
+				return
+			}
+
+			buff, err := combineImages(metadata)
 			if err == nil {
 				file := &discordgo.File{
 					Name:        "gm.png",
@@ -84,7 +121,7 @@ func gmInteraction(session *discordgo.Session, interaction *discordgo.Interactio
 	}
 }
 
-func getSentinelFromIPFS() (image.Image, error) {
+func getSentinelFromIPFS(imagePath string) (image.Image, error) {
 	// Create a new IPFS client
 	client, err := ipfsClient.NewLocalApi()
 	if err != nil {
@@ -93,7 +130,8 @@ func getSentinelFromIPFS() (image.Image, error) {
 
 	// Sentinel CID
 	//cid := path.New("QmVttt4xLfRkGXAgMDqvLXXgse4GWTczHXBWpYJrSgyZeu") //trippy sentinel
-	cid := path.New("QmY7xvucdb7DqSRvWEpotPPM3yUKijMgN5BMTWtLeKyqFG")
+	//cid := path.New("QmY7xvucdb7DqSRvWEpotPPM3yUKijMgN5BMTWtLeKyqFG")
+	cid := path.New(strings.TrimPrefix(imagePath, "ipfs://"))
 	// Retrieve the file from IPFS
 	node, err := client.Unixfs().Get(context.Background(), cid)
 	if err != nil {
@@ -111,8 +149,8 @@ func getSentinelFromIPFS() (image.Image, error) {
 	return sentinel, nil
 }
 
-func combineImages() (*bytes.Buffer, error) {
-	sentinel, err := getSentinelFromIPFS()
+func combineImages(sentinelMetadata metadata.SentinelMetadata) (*bytes.Buffer, error) {
+	sentinel, err := getSentinelFromIPFS(sentinelMetadata.Image)
 	if err != nil {
 		return nil, err
 	}
