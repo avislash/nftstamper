@@ -21,7 +21,6 @@ import (
 )
 
 func main() {
-
 	token := os.Getenv("DISCORD_BOT_TOKEN")
 	dg, err := discordgo.New("Bot " + token)
 	if err != nil {
@@ -64,10 +63,15 @@ func main() {
 
 func gmInteraction(session *discordgo.Session, interaction *discordgo.InteractionCreate) {
 	var mention string
+	var name string
 	if nil == interaction.Member {
 		mention = interaction.User.Mention()
+		name = interaction.User.Username
 	} else {
 		mention = interaction.Member.Mention()
+		if nil != interaction.Member.User {
+			name = interaction.Member.User.Username
+		}
 	}
 	if discordgo.InteractionApplicationCommand == interaction.Type {
 		cmdData := interaction.ApplicationCommandData()
@@ -94,7 +98,7 @@ func gmInteraction(session *discordgo.Session, interaction *discordgo.Interactio
 			buff, err := combineImages(metadata)
 			if err == nil {
 				file := &discordgo.File{
-					Name:        "gm.png",
+					Name:        fmt.Sprintf("%s_gm_sentinel_%d.png", name, sentinelID),
 					ContentType: "image/png",
 					Reader:      buff,
 				}
