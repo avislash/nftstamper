@@ -8,10 +8,10 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/avislash/sentamper/config"
-	"github.com/avislash/sentamper/image"
-	"github.com/avislash/sentamper/ipfs"
-	"github.com/avislash/sentamper/metadata"
+	"github.com/avislash/nftstamper/config"
+	"github.com/avislash/nftstamper/image"
+	"github.com/avislash/nftstamper/ipfs"
+	"github.com/avislash/nftstamper/metadata"
 	"github.com/bwmarrin/discordgo"
 	"gopkg.in/yaml.v3"
 )

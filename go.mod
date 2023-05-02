@@ -1,4 +1,4 @@
-module github.com/avislash/sentamper
+module github.com/avislash/nftstamper
 
 go 1.20
 

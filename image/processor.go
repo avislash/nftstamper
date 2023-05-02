@@ -8,7 +8,7 @@ import (
 	"image/png"
 	"os"
 
-	"github.com/avislash/sentamper/config"
+	"github.com/avislash/nftstamper/config"
 )
 
 type Processor struct {
