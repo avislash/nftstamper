@@ -40,7 +40,7 @@ func (c *Client) GetImageFromIPFS(imagePath string) (image.Image, error) {
 
 	img, err := c.ImageDecoder.Decode(file)
 	if err != nil {
-		return nil, fmt.Errorf("Error decoding IPFS File as PNG: %w", err)
+		return nil, fmt.Errorf("Error decoding IPFS File as image: %w", err)
 	}
 
 	return img, nil
