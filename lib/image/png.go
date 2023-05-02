@@ -16,6 +16,22 @@ type PNGCombiner struct {
 	pngEncoder png.Encoder
 }
 
+func WithDefaultPNGCompression() PNGCombinerOption {
+	return WithCompressionLevel(png.DefaultCompression)
+}
+
+func WithNoPNGCompression() PNGCombinerOption {
+	return WithCompressionLevel(png.NoCompression)
+}
+
+func WithBestSpeedPNGCompression() PNGCombinerOption {
+	return WithCompressionLevel(png.BestSpeed)
+}
+
+func WithBestPNGCompression() PNGCombinerOption {
+	return WithCompressionLevel(png.BestCompression)
+}
+
 func WithCompressionLevel(level png.CompressionLevel) PNGCombinerOption {
 	return func(p *PNGCombiner) {
 		p.pngEncoder.CompressionLevel = level
