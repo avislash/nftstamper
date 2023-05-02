@@ -6,10 +6,10 @@ import (
 	"log"
 	"os"
 
+	"github.com/avislash/nftstamper/ape/metadata"
 	"github.com/avislash/nftstamper/config"
 	"github.com/avislash/nftstamper/image"
 	"github.com/avislash/nftstamper/ipfs"
-	"github.com/avislash/nftstamper/metadata"
 	"github.com/avislash/nftstamper/root"
 	"github.com/bwmarrin/discordgo"
 	"github.com/spf13/cobra"
@@ -17,10 +17,10 @@ import (
 )
 
 var (
-	ipfsClient *ipfs.Client
-	stamper    *image.Processor
-	fetcher    *metadata.SentinelMetadataFetcher
-	configFile string
+	ipfsClient      *ipfs.Client
+	stamper         *image.Processor
+	metadataFetcher *metadata.SentinelMetadataFetcher
+	configFile      string
 )
 
 var cmd = &cobra.Command{
@@ -58,7 +58,7 @@ func botInit(_ *cobra.Command, _ []string) error {
 		return fmt.Errorf("Error creating IPFS Client: %w", err)
 	}
 
-	fetcher = metadata.NewSentinelMetadataFetcher(configParams.MetadataEndpoint)
+	metadataFetcher = metadata.NewSentinelMetadataFetcher(configParams.MetadataEndpoint)
 	return nil
 }
 
@@ -119,7 +119,7 @@ func gmInteraction(session *discordgo.Session, interaction *discordgo.Interactio
 			go func() {
 				sentinelID := cmdData.Options[0].UintValue()
 
-				metadata, err := fetcher.FetchMetdata(sentinelID)
+				metadata, err := metadataFetcher.Fetch(sentinelID)
 				if err != nil {
 					err := fmt.Errorf("Failed to retrieve metadata for Sentienl #%d: %w", sentinelID, err)
 					log.Println("Error: ", err)
