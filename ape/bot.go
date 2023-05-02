@@ -9,7 +9,8 @@ import (
 	"github.com/avislash/nftstamper/ape/image"
 	"github.com/avislash/nftstamper/ape/metadata"
 	"github.com/avislash/nftstamper/config"
-	"github.com/avislash/nftstamper/ipfs"
+	libImg "github.com/avislash/nftstamper/lib/image"
+	"github.com/avislash/nftstamper/lib/ipfs"
 	"github.com/avislash/nftstamper/root"
 	"github.com/bwmarrin/discordgo"
 	"github.com/spf13/cobra"
@@ -53,7 +54,7 @@ func botInit(_ *cobra.Command, _ []string) error {
 		return fmt.Errorf("Error initializing Image Processor: %w", err)
 	}
 
-	ipfsClient, err = ipfs.NewClient()
+	ipfsClient, err = ipfs.NewClient(&libImg.PNGDecoder{})
 	if err != nil {
 		return fmt.Errorf("Error creating IPFS Client: %w", err)
 	}
@@ -127,7 +128,7 @@ func gmInteraction(session *discordgo.Session, interaction *discordgo.Interactio
 					return
 				}
 
-				sentinel, err := ipfsClient.GetSentinelFromIPFS(metadata.Image)
+				sentinel, err := ipfsClient.GetImageFromIPFS(metadata.Image)
 				if err != nil {
 					err := fmt.Errorf("Failed to retrieve Sentinel #%d image from IPFS: %w", sentinelID, err)
 					log.Println("Error: ", err)
