@@ -6,9 +6,9 @@ import (
 	"log"
 	"os"
 
+	"github.com/avislash/nftstamper/ape/image"
 	"github.com/avislash/nftstamper/ape/metadata"
 	"github.com/avislash/nftstamper/config"
-	"github.com/avislash/nftstamper/image"
 	"github.com/avislash/nftstamper/ipfs"
 	"github.com/avislash/nftstamper/root"
 	"github.com/bwmarrin/discordgo"
