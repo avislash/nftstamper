@@ -8,5 +8,5 @@ image_processor_mappings:
         Warehouse: ./cartel/bowls/stub.png
         Docks: ./cartel/bowls/stub.png
         Cave Entrance: ./cartel/bowls/cave_entrance_bowl.png
-        Lab: ./cartel/bowls/stub.png
+        Lab: ./cartel/bowls/lab_bowl.png
         Temple Room: ./cartel/bowls/stub.png
