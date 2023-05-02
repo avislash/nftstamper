@@ -7,6 +7,7 @@ import (
 	"os/signal"
 
 	_ "github.com/avislash/nftstamper/ape"
+	_ "github.com/avislash/nftstamper/cartel"
 	"github.com/avislash/nftstamper/root"
 )
 
