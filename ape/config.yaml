@@ -1,0 +1,25 @@
+metadata_endpoint: https://api.appliedprimate.dev/sentinels/metadata
+image_processor_mappings:
+    gm_mappings:
+        Trippy: ./ape/mugs/trippyMug.png
+        Crystal: ./ape/mugs/trippyMug.png
+        Ice: ./ape/mugs/trippyMug.png
+        Demon: ./ape/mugs/trippyMug.png
+        DMT: ./ape/mugs/trippyMug.png
+        Fire: ./ape/mugs/trippyMug.png
+        Reef: ./ape/mugs/trippyMug.png
+        Jelly: ./ape/mugs/trippyMug.png
+        Runes: ./ape/mugs/trippyMug.png
+        Golem: ./ape/mugs/trippyMug.png
+        Radioactive: ./ape/mugs/trippyMug.png
+        Electric: ./ape/mugs/trippyMug.png
+        Robot: ./ape/mugs/trippyMug.png
+        Death Bot: ./ape/mugs/trippyMug.png
+        Gold: ./ape/mugs/trippyMug.png
+        Noise: ./ape/mugs/trippyMug.png
+        Zombie: ./ape/mugs/trippyMug.png
+        Swamp: ./ape/mugs/trippyMug.png
+        Holo R: ./ape/mugs/trippyMug.png
+        Holo G: ./ape/mugs/trippyMug.png
+        Holo B: ./ape/mugs/trippyMug.png
+        Azul: ./ape/mugs/trippyMug.png
