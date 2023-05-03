@@ -4,9 +4,9 @@ image_processor_mappings:
         Hound Lair: ./cartel/bowls/hound_lair_bowl.png
         Shipwreck: ./cartel/bowls/shipwreck_bowl.png
         Jungle: ./cartel/bowls/jungle_bowl.png
-        Hideout: ./cartel/bowls/stub.png
-        Warehouse: ./cartel/bowls/stub.png
         Docks: ./cartel/bowls/stub.png
         Cave Entrance: ./cartel/bowls/cave_entrance_bowl.png
         Lab: ./cartel/bowls/lab_bowl.png
-        Temple Room: ./cartel/bowls/stub.png
+        Hideout: ./cartel/bowls/stub.png
+        Warehouse: ./cartel/bowls/stub.png
+        Temple Room: ./cartel/bowls/temple_room_bowl.png

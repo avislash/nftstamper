@@ -9,7 +9,6 @@ import (
 	"github.com/avislash/nftstamper/cartel/image"
 	"github.com/avislash/nftstamper/cartel/metadata"
 	"github.com/avislash/nftstamper/config"
-	libImg "github.com/avislash/nftstamper/lib/image"
 	"github.com/avislash/nftstamper/lib/ipfs"
 	"github.com/avislash/nftstamper/root"
 	"github.com/bwmarrin/discordgo"
@@ -54,7 +53,7 @@ func botInit(_ *cobra.Command, _ []string) error {
 		return fmt.Errorf("Error initializing Image Processor: %w", err)
 	}
 
-	ipfsClient, err = ipfs.NewClient(&libImg.JPEGDecoder{})
+	ipfsClient, err = ipfs.NewClient(ipfs.WithJPEGDecoder())
 	if err != nil {
 		return fmt.Errorf("Error creating IPFS Client: %w", err)
 	}
