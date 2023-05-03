@@ -119,10 +119,9 @@ func gmInteraction(session *discordgo.Session, interaction *discordgo.Interactio
 		if cmdData.Name == "gm" {
 			go func() {
 				houndID := cmdData.Options[0].UintValue()
-
 				metadata, err := metadataFetcher.Fetch(houndID)
 				if err != nil {
-					err := fmt.Errorf("Failed to retrieve metadata for Sentienl #%d: %w", houndID, err)
+					err := fmt.Errorf("Failed to retrieve metadata for Hound #%d: %w", houndID, err)
 					log.Println("Error: ", err)
 					sendErrorResponse(err, session, interaction)
 					return
@@ -141,6 +140,7 @@ func gmInteraction(session *discordgo.Session, interaction *discordgo.Interactio
 					err := fmt.Errorf("Failed to create GM image for Hound %d: %w ", houndID, err)
 					log.Println("Error: ", err)
 					sendErrorResponse(err, session, interaction)
+					return
 				}
 
 				file := &discordgo.File{
@@ -148,21 +148,25 @@ func gmInteraction(session *discordgo.Session, interaction *discordgo.Interactio
 					ContentType: "image/png",
 					Reader:      buff,
 				}
-				response := &discordgo.InteractionResponse{
-					Type: discordgo.InteractionResponseChannelMessageWithSource,
-					Data: &discordgo.InteractionResponseData{
-						Content: "GM " + mention,
-						Files:   []*discordgo.File{file},
-					},
-				}
 
-				if err := session.InteractionRespond(interaction.Interaction, response); err != nil {
+				//Send ACK To meet the 3s turnaround and allow for more time to upload the image
+				session.InteractionRespond(interaction.Interaction, &discordgo.InteractionResponse{
+					Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
+					Data: &discordgo.InteractionResponseData{}})
+
+				content := "GM " + mention
+				response := &discordgo.WebhookEdit{
+					Content: &content,
+					Files:   []*discordgo.File{file},
+				}
+				if _, err := session.InteractionResponseEdit(interaction.Interaction, response); err != nil {
 					log.Println("Error sending message: ", err)
 				}
 			}()
 		}
 
 	}
+
 }
 
 func sendErrorResponse(err error, session *discordgo.Session, interaction *discordgo.InteractionCreate) {
@@ -170,6 +174,7 @@ func sendErrorResponse(err error, session *discordgo.Session, interaction *disco
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
 			Content: err.Error(),
+			Flags:   discordgo.MessageFlagsEphemeral,
 		},
 	}
 
