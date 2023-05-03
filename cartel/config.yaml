@@ -1,12 +1,12 @@
 metadata_endpoint: https://api.mutantdao.com/hounds/metadata
 image_processor_mappings:
     gm_mappings:
-        Hound Lair: ./cartel/bowls/hound_lair_bowl.png
-        Shipwreck: ./cartel/bowls/shipwreck_bowl.png
-        Jungle: ./cartel/bowls/jungle_bowl.png
-        Hideout: ./cartel/bowls/stub.png
-        Warehouse: ./cartel/bowls/stub.png
-        Docks: ./cartel/bowls/stub.png
-        Cave Entrance: ./cartel/bowls/cave_entrance_bowl.png
-        Lab: ./cartel/bowls/lab_bowl.png
-        Temple Room: ./cartel/bowls/stub.png
+        Hound Lair: ./cartel/bowls/hound_lair.png
+        Shipwreck: ./cartel/bowls/shipwreck.png
+        Jungle: ./cartel/bowls/jungle.png
+        Cave Entrance: ./cartel/bowls/cave_entrance.png
+        Lab: ./cartel/bowls/lab.png
+        Hideout: ./cartel/bowls/hideout.png
+        Temple Room: ./cartel/bowls/temple_room.png
+        Warehouse: ./cartel/bowls/warehouse.png
+        Docks: ./cartel/bowls/docks.png

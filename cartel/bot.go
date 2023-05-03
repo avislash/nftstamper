@@ -3,14 +3,14 @@ package cartel
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
+	"strings"
 
 	"github.com/avislash/nftstamper/cartel/image"
 	"github.com/avislash/nftstamper/cartel/metadata"
 	"github.com/avislash/nftstamper/config"
-	libImg "github.com/avislash/nftstamper/lib/image"
 	"github.com/avislash/nftstamper/lib/ipfs"
+	"github.com/avislash/nftstamper/lib/log"
 	"github.com/avislash/nftstamper/root"
 	"github.com/bwmarrin/discordgo"
 	"github.com/spf13/cobra"
@@ -21,6 +21,7 @@ var (
 	ipfsClient      *ipfs.Client
 	stamper         *image.Processor
 	metadataFetcher *metadata.HoundMetadataFetcher
+	logger          *log.SugaredLogger
 	configFile      string
 )
 
@@ -49,12 +50,17 @@ func botInit(_ *cobra.Command, _ []string) error {
 		return fmt.Errorf("Failed to unmarshal config.yaml: %w", err)
 	}
 
+	logger, err = log.NewSugaredLogger()
+	if err != nil {
+		return fmt.Errorf("Unable to instantiate logger")
+	}
+
 	stamper, err = image.NewProcessor(configParams.ImageProcessorConfig)
 	if err != nil {
 		return fmt.Errorf("Error initializing Image Processor: %w", err)
 	}
 
-	ipfsClient, err = ipfs.NewClient(&libImg.JPEGDecoder{})
+	ipfsClient, err = ipfs.NewClient(ipfs.WithJPEGDecoder())
 	if err != nil {
 		return fmt.Errorf("Error creating IPFS Client: %w", err)
 	}
@@ -97,7 +103,7 @@ func cartelBot(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	log.Println("Bot started")
+	logger.Info("Bot started")
 	<-cmd.Context().Done()
 	return nil
 }
@@ -117,12 +123,16 @@ func gmInteraction(session *discordgo.Session, interaction *discordgo.Interactio
 	if discordgo.InteractionApplicationCommand == interaction.Type {
 		cmdData := interaction.ApplicationCommandData()
 		if cmdData.Name == "gm" {
+			//Send ACK To meet the 3s turnaround and allow for more time to upload the image
+			session.InteractionRespond(interaction.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{}})
 			go func() {
 				houndID := cmdData.Options[0].UintValue()
 				metadata, err := metadataFetcher.Fetch(houndID)
 				if err != nil {
 					err := fmt.Errorf("Failed to retrieve metadata for Hound #%d: %w", houndID, err)
-					log.Println("Error: ", err)
+					logger.Errorf("Error: %s", err)
 					sendErrorResponse(err, session, interaction)
 					return
 				}
@@ -130,7 +140,7 @@ func gmInteraction(session *discordgo.Session, interaction *discordgo.Interactio
 				hound, err := ipfsClient.GetImageFromIPFS(metadata.Image)
 				if err != nil {
 					err := fmt.Errorf("Failed to retrieve Hound #%d image from IPFS: %w", houndID, err)
-					log.Println("Error: ", err)
+					logger.Errorf("Error: %w", err)
 					sendErrorResponse(err, session, interaction)
 					return
 				}
@@ -138,7 +148,7 @@ func gmInteraction(session *discordgo.Session, interaction *discordgo.Interactio
 				buff, err := stamper.OverlayBowl(hound, metadata.Background)
 				if err != nil {
 					err := fmt.Errorf("Failed to create GM image for Hound %d: %w ", houndID, err)
-					log.Println("Error: ", err)
+					logger.Errorf("Error: %s", err)
 					sendErrorResponse(err, session, interaction)
 					return
 				}
@@ -149,18 +159,13 @@ func gmInteraction(session *discordgo.Session, interaction *discordgo.Interactio
 					Reader:      buff,
 				}
 
-				//Send ACK To meet the 3s turnaround and allow for more time to upload the image
-				session.InteractionRespond(interaction.Interaction, &discordgo.InteractionResponse{
-					Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
-					Data: &discordgo.InteractionResponseData{}})
-
 				content := "GM " + mention
 				response := &discordgo.WebhookEdit{
 					Content: &content,
 					Files:   []*discordgo.File{file},
 				}
 				if _, err := session.InteractionResponseEdit(interaction.Interaction, response); err != nil {
-					log.Println("Error sending message: ", err)
+					logger.Errorf("Error sending message: %s", err)
 				}
 			}()
 		}
@@ -170,16 +175,29 @@ func gmInteraction(session *discordgo.Session, interaction *discordgo.Interactio
 }
 
 func sendErrorResponse(err error, session *discordgo.Session, interaction *discordgo.InteractionCreate) {
-	response := &discordgo.InteractionResponse{
-		Type: discordgo.InteractionResponseChannelMessageWithSource,
-		Data: &discordgo.InteractionResponseData{
-			Content: err.Error(),
-			Flags:   discordgo.MessageFlagsEphemeral,
-		},
+	errMsg := err.Error()
+
+	if strings.Contains(errMsg, "invalid character 'T' looking for beginning of value") {
+		houndID := interaction.ApplicationCommandData().Options[0].UintValue()
+		errMsg = fmt.Sprintf("Error: Hound #%d has not yet been revealed", houndID)
 	}
 
-	if err := session.InteractionRespond(interaction.Interaction, response); err != nil {
-		log.Println("Error sending message: ", err)
+	if strings.Contains(errMsg, "invalid JPEG format") {
+		houndID := interaction.ApplicationCommandData().Options[0].UintValue()
+		errMsg = fmt.Sprintf("Error: Is Hound #%d a Mega? Megas are not currently supported", houndID)
+	}
+
+	response := &discordgo.WebhookParams{
+		Content: errMsg,
+		Flags:   discordgo.MessageFlagsEphemeral,
+	}
+
+	if err := session.InteractionResponseDelete(interaction.Interaction); err != nil {
+		logger.Errorf("Failed to delete interaction: %s", err)
+	}
+
+	if _, err := session.FollowupMessageCreate(interaction.Interaction, true, response); err != nil {
+		logger.Errorf("Error sending message: %s", err)
 	}
 
 }

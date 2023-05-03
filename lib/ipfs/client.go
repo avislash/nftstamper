@@ -17,12 +17,33 @@ type Client struct {
 	ImageDecoder image.Decoder
 }
 
-func NewClient(imageDecoder image.Decoder) (*Client, error) {
+type Option = func(c *Client)
+
+func WithPNGDecoder() Option {
+	return func(c *Client) {
+		c.ImageDecoder = &image.PNGDecoder{}
+	}
+}
+
+func WithJPEGDecoder() Option {
+	return func(c *Client) {
+		c.ImageDecoder = &image.JPEGDecoder{}
+	}
+}
+
+func NewClient(options ...Option) (*Client, error) {
 	client, err := ipfsClient.NewLocalApi()
 	if err != nil {
 		return nil, fmt.Errorf("Error creating client: %w", err)
 	}
-	return &Client{client, imageDecoder}, nil
+
+	c := &Client{client, &image.DefaultDecoder{}}
+
+	for _, applyOpt := range options {
+		applyOpt(c)
+	}
+
+	return c, nil
 }
 
 func (c *Client) GetImageFromIPFS(imagePath string) (image.Image, error) {
