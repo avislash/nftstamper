@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strings"
 
 	"github.com/avislash/nftstamper/cartel/image"
 	"github.com/avislash/nftstamper/cartel/metadata"
@@ -174,13 +175,28 @@ func gmInteraction(session *discordgo.Session, interaction *discordgo.Interactio
 }
 
 func sendErrorResponse(err error, session *discordgo.Session, interaction *discordgo.InteractionCreate) {
-	//TODO: Figure out if there's a way to mark this message as ephemeral
-	content := err.Error()
-	response := &discordgo.WebhookEdit{
-		Content: &content,
+	errMsg := err.Error()
+
+	if strings.Contains(errMsg, "invalid character 'T' looking for beginning of value") {
+		houndID := interaction.ApplicationCommandData().Options[0].UintValue()
+		errMsg = fmt.Sprintf("Error: Hound #%d has not yet been revealed", houndID)
 	}
 
-	if _, err := session.InteractionResponseEdit(interaction.Interaction, response); err != nil {
+	if strings.Contains(errMsg, "invalid JPEG format") {
+		houndID := interaction.ApplicationCommandData().Options[0].UintValue()
+		errMsg = fmt.Sprintf("Error: Is Hound #%d a Mega? Megas are not currently supported", houndID)
+	}
+
+	response := &discordgo.WebhookParams{
+		Content: errMsg,
+		Flags:   discordgo.MessageFlagsEphemeral,
+	}
+
+	if err := session.InteractionResponseDelete(interaction.Interaction); err != nil {
+		logger.Errorf("Failed to delete interaction: %s", err)
+	}
+
+	if _, err := session.FollowupMessageCreate(interaction.Interaction, true, response); err != nil {
 		logger.Errorf("Error sending message: %s", err)
 	}
 
