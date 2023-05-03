@@ -122,6 +122,10 @@ func gmInteraction(session *discordgo.Session, interaction *discordgo.Interactio
 	if discordgo.InteractionApplicationCommand == interaction.Type {
 		cmdData := interaction.ApplicationCommandData()
 		if cmdData.Name == "gm" {
+			//Send ACK To meet the 3s turnaround and allow for more time to upload the image
+			session.InteractionRespond(interaction.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{}})
 			go func() {
 				houndID := cmdData.Options[0].UintValue()
 				metadata, err := metadataFetcher.Fetch(houndID)
@@ -154,11 +158,6 @@ func gmInteraction(session *discordgo.Session, interaction *discordgo.Interactio
 					Reader:      buff,
 				}
 
-				//Send ACK To meet the 3s turnaround and allow for more time to upload the image
-				session.InteractionRespond(interaction.Interaction, &discordgo.InteractionResponse{
-					Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
-					Data: &discordgo.InteractionResponseData{}})
-
 				content := "GM " + mention
 				response := &discordgo.WebhookEdit{
 					Content: &content,
@@ -175,15 +174,13 @@ func gmInteraction(session *discordgo.Session, interaction *discordgo.Interactio
 }
 
 func sendErrorResponse(err error, session *discordgo.Session, interaction *discordgo.InteractionCreate) {
-	response := &discordgo.InteractionResponse{
-		Type: discordgo.InteractionResponseChannelMessageWithSource,
-		Data: &discordgo.InteractionResponseData{
-			Content: err.Error(),
-			Flags:   discordgo.MessageFlagsEphemeral,
-		},
+	//TODO: Figure out if there's a way to mark this message as ephemeral
+	content := err.Error()
+	response := &discordgo.WebhookEdit{
+		Content: &content,
 	}
 
-	if err := session.InteractionRespond(interaction.Interaction, response); err != nil {
+	if _, err := session.InteractionResponseEdit(interaction.Interaction, response); err != nil {
 		logger.Errorf("Error sending message: %s", err)
 	}
 
