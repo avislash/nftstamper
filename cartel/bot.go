@@ -3,13 +3,13 @@ package cartel
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 
 	"github.com/avislash/nftstamper/cartel/image"
 	"github.com/avislash/nftstamper/cartel/metadata"
 	"github.com/avislash/nftstamper/config"
 	"github.com/avislash/nftstamper/lib/ipfs"
+	"github.com/avislash/nftstamper/lib/log"
 	"github.com/avislash/nftstamper/root"
 	"github.com/bwmarrin/discordgo"
 	"github.com/spf13/cobra"
@@ -20,6 +20,7 @@ var (
 	ipfsClient      *ipfs.Client
 	stamper         *image.Processor
 	metadataFetcher *metadata.HoundMetadataFetcher
+	logger          *log.SugaredLogger
 	configFile      string
 )
 
@@ -46,6 +47,11 @@ func botInit(_ *cobra.Command, _ []string) error {
 	err = yaml.Unmarshal(configFile, &configParams)
 	if err != nil {
 		return fmt.Errorf("Failed to unmarshal config.yaml: %w", err)
+	}
+
+	logger, err = log.NewSugaredLogger()
+	if err != nil {
+		return fmt.Errorf("Unable to instantiate logger")
 	}
 
 	stamper, err = image.NewProcessor(configParams.ImageProcessorConfig)
@@ -96,7 +102,7 @@ func cartelBot(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	log.Println("Bot started")
+	logger.Info("Bot started")
 	<-cmd.Context().Done()
 	return nil
 }
@@ -121,7 +127,7 @@ func gmInteraction(session *discordgo.Session, interaction *discordgo.Interactio
 				metadata, err := metadataFetcher.Fetch(houndID)
 				if err != nil {
 					err := fmt.Errorf("Failed to retrieve metadata for Hound #%d: %w", houndID, err)
-					log.Println("Error: ", err)
+					logger.Errorf("Error: %s", err)
 					sendErrorResponse(err, session, interaction)
 					return
 				}
@@ -129,7 +135,7 @@ func gmInteraction(session *discordgo.Session, interaction *discordgo.Interactio
 				hound, err := ipfsClient.GetImageFromIPFS(metadata.Image)
 				if err != nil {
 					err := fmt.Errorf("Failed to retrieve Hound #%d image from IPFS: %w", houndID, err)
-					log.Println("Error: ", err)
+					logger.Errorf("Error: %w", err)
 					sendErrorResponse(err, session, interaction)
 					return
 				}
@@ -137,7 +143,7 @@ func gmInteraction(session *discordgo.Session, interaction *discordgo.Interactio
 				buff, err := stamper.OverlayBowl(hound, metadata.Background)
 				if err != nil {
 					err := fmt.Errorf("Failed to create GM image for Hound %d: %w ", houndID, err)
-					log.Println("Error: ", err)
+					logger.Errorf("Error: %s", err)
 					sendErrorResponse(err, session, interaction)
 					return
 				}
@@ -159,7 +165,7 @@ func gmInteraction(session *discordgo.Session, interaction *discordgo.Interactio
 					Files:   []*discordgo.File{file},
 				}
 				if _, err := session.InteractionResponseEdit(interaction.Interaction, response); err != nil {
-					log.Println("Error sending message: ", err)
+					logger.Errorf("Error sending message: %s", err)
 				}
 			}()
 		}
@@ -178,7 +184,7 @@ func sendErrorResponse(err error, session *discordgo.Session, interaction *disco
 	}
 
 	if err := session.InteractionRespond(interaction.Interaction, response); err != nil {
-		log.Println("Error sending message: ", err)
+		logger.Errorf("Error sending message: %s", err)
 	}
 
 }
