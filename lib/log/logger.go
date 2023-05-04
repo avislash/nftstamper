@@ -1,13 +1,24 @@
 package log
 
-import "go.uber.org/zap"
+import (
+	"time"
+
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
+)
 
 type Logger = zap.Logger
 type SugaredLogger = zap.SugaredLogger
 type Option = zap.Option
 
 func NewLogger(options ...Option) (*Logger, error) {
-	return zap.NewProduction(options...)
+	encoderCfg := zap.NewProductionEncoderConfig()
+	encoderCfg.TimeKey = "time"
+	encoderCfg.EncodeTime = zapcore.TimeEncoderOfLayout(time.RFC3339)
+
+	cfg := zap.NewProductionConfig()
+	cfg.EncoderConfig = encoderCfg
+	return cfg.Build()
 }
 
 func NewSugaredLogger(options ...Option) (*SugaredLogger, error) {
