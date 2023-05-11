@@ -23,7 +23,10 @@ Refer to the instructions found in the [Kubo IPFS repository](https://github.com
 # Configuration
 The Bot Configuration is driven through the [config.yaml file](https://github.com/avislash/nftstamper/blob/main/cartel/config.yaml). 
 
-The `metadata_endpoint` is the primrary web endpoint for scraping metadata against.
+The `ipfs_endpoint` is the endpoint to an IPFS node that can be used to retrive files off IPFS. The endpoint format must be in [multiaddr format](https://github.com/multiformats/multiaddr#encoding).
+ - Note: While any available IPFS endpoint can be specified for better performance consider hosting and running a local IPFS node. Refer to the instructions found in the [Kubo IPFS repository](https://github.com/ipfs/kubo) for how to download, install, and configure a local IPFS node.
+
+The `metadata_endpoint` is the primary web endpoint for scraping metadata against.
 
 The `image_procesor` section is for configuring the image processor and defining mappings of characteristics to overlay images. 
  - The `gm_mappings` section is used to map Hound Background Traits to [overlay images](https://github.com/avislash/nftstamper/tree/main/cartel/bowls). These mappings directly impact the output of the `/gm` command
@@ -75,8 +78,7 @@ Contributions are what make the open source community such an amazing place to b
 
 ## TODO
 1. Integrate Vyper for better config/env parsing
-2. Allow for setting IPFS Endpoint via config/env variable
-3. Scrape MH Metadata endpoint per token from The Mutant Hounds smart contract
-4. Update IPFS client to parse Files/Metadata + Images
-5. Update Metadata Fetcher to fetch from either IPFS and/or Web Endpoint
+2. Scrape MH Metadata endpoint per token from The Mutant Hounds smart contract
+3. Update IPFS client to parse Files/Metadata + Images
+4. Update Metadata Fetcher to fetch from either IPFS and/or Web Endpoint
 5. Consider refactoring and abstracting both to lib

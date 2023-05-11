@@ -10,6 +10,7 @@ import (
 	httpapi "github.com/ipfs/go-ipfs-http-client"
 	ipfsClient "github.com/ipfs/go-ipfs-http-client"
 	"github.com/ipfs/interface-go-ipfs-core/path"
+	multiAddr "github.com/multiformats/go-multiaddr"
 )
 
 type Client struct {
@@ -31,8 +32,14 @@ func WithJPEGDecoder() Option {
 	}
 }
 
-func NewClient(options ...Option) (*Client, error) {
-	client, err := ipfsClient.NewLocalApi()
+//endpoint must be in MultiAddr Format as specified under https://github.com/multiformats/multiaddr#encoding
+func NewClient(endpoint string, options ...Option) (*Client, error) {
+	addr, err := multiAddr.NewMultiaddr(endpoint)
+	if err != nil {
+		return nil, fmt.Errorf("Error creating client: %w", err)
+	}
+
+	client, err := ipfsClient.NewApi(addr)
 	if err != nil {
 		return nil, fmt.Errorf("Error creating client: %w", err)
 	}
