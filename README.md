@@ -7,7 +7,7 @@
 
 NFT Stamper is a Golang Discord bot designed to programatically apply custom images/branding to supported NFT Collections. 
 <div align="center">
-  <img src="https://github.com/avislash/nftstamper/blob/feature/README/example_images/example.jpg" alt="Example Image" width="400"/>
+  <img src="https://github.com/avislash/nftstamper/blob/main/example_images/example.jpg" alt="Example Image" width="400"/>
 </div>
 
 # Installation

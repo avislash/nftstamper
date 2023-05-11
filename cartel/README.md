@@ -7,7 +7,7 @@
 
 The Cartel Bot is an instantiation of the NFT Stamper designed to support Mutant Cartel/Novel Lab collections
 <div align="center">
-  <img src="https://github.com/avislash/nftstamper/blob/feature/README/example_images/hounds_example.jpg" alt="Example Image" width="400"/>
+  <img src="https://github.com/avislash/nftstamper/blob/main/example_images/hounds_example.jpg" alt="Example Image" width="400"/>
 </div>
 
 # Installation
