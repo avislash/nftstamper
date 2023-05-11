@@ -2,25 +2,25 @@ ipfs_endpoint: /ip4/127.0.0.1/tcp/5001 #ipfs_endpoint must be in multiaddr forma
 metadata_endpoint: https://api.appliedprimate.dev/sentinels/metadata
 image_processor_mappings:
     gm_mappings:
-        Trippy: ./ape/mugs/trippyMug.png
-        Crystal: ./ape/mugs/trippyMug.png
-        Ice: ./ape/mugs/trippyMug.png
-        Demon: ./ape/mugs/trippyMug.png
-        DMT: ./ape/mugs/trippyMug.png
-        Fire: ./ape/mugs/trippyMug.png
-        Reef: ./ape/mugs/trippyMug.png
-        Jelly: ./ape/mugs/trippyMug.png
-        Runes: ./ape/mugs/trippyMug.png
-        Golem: ./ape/mugs/trippyMug.png
-        Radioactive: ./ape/mugs/trippyMug.png
-        Electric: ./ape/mugs/trippyMug.png
-        Robot: ./ape/mugs/trippyMug.png
-        Death Bot: ./ape/mugs/trippyMug.png
-        Gold: ./ape/mugs/trippyMug.png
-        Noise: ./ape/mugs/trippyMug.png
-        Zombie: ./ape/mugs/trippyMug.png
-        Swamp: ./ape/mugs/trippyMug.png
-        Holo R: ./ape/mugs/trippyMug.png
-        Holo G: ./ape/mugs/trippyMug.png
-        Holo B: ./ape/mugs/trippyMug.png
-        Azul: ./ape/mugs/trippyMug.png
+        Trippy: ./ape/mugs/TRIPPY.png
+        Crystal: ./ape/mugs/CRYSTAL.png
+        Ice: ./ape/mugs/ICE.png
+        Demon: ./ape/mugs/DEMON.png
+        DMT: ./ape/mugs/DMT.png
+        Fire: ./ape/mugs/FIRE.png
+        Reef: ./ape/mugs/REEF.png
+        Jelly: ./ape/mugs/JELLY.png
+        Runes: ./ape/mugs/RUNES.png
+        Golem: ./ape/mugs/GOLEM.png
+        Radioactive: ./ape/mugs/RADIOACTIVE.png
+        Electric: ./ape/mugs/ELECTRIC.png
+        Robot: ./ape/mugs/ROBOT.png
+        Death Bot: ./ape/mugs/DEATHBOT.png
+        Gold: ./ape/mugs/GOLD.png
+        Noise: ./ape/mugs/NOISE.png
+        Zombie: ./ape/mugs/ZOMBIE.png
+        Swamp: ./ape/mugs/SWAMP.png
+        Holo R: ./ape/mugs/HOLOR.png
+        Holo G: ./ape/mugs/HOLOG.png
+        Holo B: ./ape/mugs/HOLOB.png
+        Azul: ./ape/mugs/AZUL.png
