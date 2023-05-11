@@ -53,7 +53,7 @@ func botInit(_ *cobra.Command, _ []string) error {
 		return fmt.Errorf("Error initializing Image Processor: %w", err)
 	}
 
-	ipfsClient, err = ipfs.NewClient(ipfs.WithPNGDecoder())
+	ipfsClient, err = ipfs.NewClient(configParams.IPFSEndpoint, ipfs.WithPNGDecoder())
 	if err != nil {
 		return fmt.Errorf("Error creating IPFS Client: %w", err)
 	}

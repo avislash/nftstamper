@@ -1,3 +1,4 @@
+ipfs_endpoint: /ip4/127.0.0.1/tcp/5001 #ipfs_endpoint must be in multiaddr format: https://github.com/multiformats/multiaddr#encoding
 metadata_endpoint: https://api.appliedprimate.dev/sentinels/metadata
 image_processor_mappings:
     gm_mappings:

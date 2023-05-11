@@ -15,10 +15,6 @@ Standard go installation
 ```
 $ go get github.com/avislash/nftstamper@latest
 ```
-The bot currently assumes acess to a locally running IPFS node for any IPFS retrievals it may need to perform.
-
-Refer to the instructions found in the [Kubo IPFS repository](https://github.com/ipfs/kubo) for how to download, install, and configure a local IPFS node.
-
 
 # Usage & Examples
 Using the bot is fairly simple 
