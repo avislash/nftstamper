@@ -43,5 +43,5 @@ func (p *Processor) OverlayBowl(hound image.Image, background string) (*bytes.Bu
 	if !exists {
 		return nil, fmt.Errorf("No bowl file found for background: %s", background)
 	}
-	return p.CombineImages(hound, bowl)
+	return p.EncodeImage(p.CombineImages(hound, bowl))
 }

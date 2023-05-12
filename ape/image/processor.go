@@ -41,5 +41,5 @@ func (p *Processor) OverlayMug(sentinel image.Image, baseArmor string) (*bytes.B
 	if !exists {
 		return nil, fmt.Errorf("No mug file found for base armor: %s", baseArmor)
 	}
-	return p.CombineImages(sentinel, sentinelHand)
+	return p.EncodeImage(p.CombineImages(sentinel, sentinelHand))
 }
