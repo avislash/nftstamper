@@ -5,13 +5,14 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/avislash/nftstamper/config"
+	"github.com/avislash/nftstamper/ape/config"
 	"github.com/avislash/nftstamper/lib/image"
 )
 
 type Processor struct {
 	image.Combiner
-	mugs map[string]image.Image //map of base armors to mug images
+	mugs          map[string]image.Image //map of base armors to mug images
+	opacityFilter *OpacityFilter
 }
 
 func NewProcessor(config config.ImageProcessorConfig) (*Processor, error) {
@@ -32,8 +33,10 @@ func NewProcessor(config config.ImageProcessorConfig) (*Processor, error) {
 		mugs[baseArmor] = img
 	}
 	return &Processor{
-		Combiner: image.NewPNGCombiner(),
-		mugs:     mugs}, nil
+		Combiner:      image.NewPNGCombiner(),
+		mugs:          mugs,
+		opacityFilter: NewOpacityFilter(config.Filters.Opacity),
+	}, nil
 }
 
 func (p *Processor) OverlayMug(sentinel image.Image, baseArmor string) (*bytes.Buffer, error) {
