@@ -2,18 +2,15 @@ package ape
 
 import (
 	"fmt"
-	"io/ioutil"
-	"os"
 
+	"github.com/avislash/nftstamper/ape/config"
 	"github.com/avislash/nftstamper/ape/image"
 	"github.com/avislash/nftstamper/ape/metadata"
-	"github.com/avislash/nftstamper/config"
 	"github.com/avislash/nftstamper/lib/ipfs"
 	"github.com/avislash/nftstamper/lib/log"
 	"github.com/avislash/nftstamper/root"
 	"github.com/bwmarrin/discordgo"
 	"github.com/spf13/cobra"
-	"gopkg.in/yaml.v3"
 )
 
 var (
@@ -22,6 +19,8 @@ var (
 	metadataFetcher *metadata.SentinelMetadataFetcher
 	logger          *log.SugaredLogger
 	configFile      string
+	botToken        string
+	env             string
 )
 
 var cmd = &cobra.Command{
@@ -34,19 +33,14 @@ var cmd = &cobra.Command{
 
 func init() {
 	cmd.PersistentFlags().StringVar(&configFile, "config", "./ape/config.yaml", "Path to config file")
+	cmd.PersistentFlags().StringVar(&env, "env", "APE", "Configuration Environment")
 	root.Cmd.AddCommand(cmd)
 }
 
 func botInit(_ *cobra.Command, _ []string) error {
-	var configParams config.Config
-	configFile, err := ioutil.ReadFile(configFile)
+	cfg, err := config.LoadCfg(env, configFile)
 	if err != nil {
-		return fmt.Errorf("Failed to read in config.yaml: %w", err)
-	}
-
-	err = yaml.Unmarshal(configFile, &configParams)
-	if err != nil {
-		return fmt.Errorf("Failed to unmarshal config.yaml: %w", err)
+		return fmt.Errorf("Failed to load config: %w", err)
 	}
 
 	logger, err = log.NewSugaredLogger()
@@ -54,23 +48,23 @@ func botInit(_ *cobra.Command, _ []string) error {
 		return fmt.Errorf("Unable to instantiate logger")
 	}
 
-	stamper, err = image.NewProcessor(configParams.ImageProcessorConfig)
+	stamper, err = image.NewProcessor(cfg.ImageProcessorConfig)
 	if err != nil {
 		return fmt.Errorf("Error initializing Image Processor: %w", err)
 	}
 
-	ipfsClient, err = ipfs.NewClient(configParams.IPFSEndpoint, ipfs.WithPNGDecoder())
+	ipfsClient, err = ipfs.NewClient(cfg.IPFSEndpoint, ipfs.WithPNGDecoder())
 	if err != nil {
 		return fmt.Errorf("Error creating IPFS Client: %w", err)
 	}
 
-	metadataFetcher = metadata.NewSentinelMetadataFetcher(configParams.MetadataEndpoint)
+	metadataFetcher = metadata.NewSentinelMetadataFetcher(cfg.MetadataEndpoint)
+	botToken = "Bot " + cfg.BotToken
 	return nil
 }
 
 func apeBot(cmd *cobra.Command, _ []string) error {
-	token := os.Getenv("APE_DISCORD_BOT_TOKEN")
-	dg, err := discordgo.New("Bot " + token)
+	dg, err := discordgo.New(botToken)
 	if err != nil {
 		return err
 	}
@@ -150,6 +144,7 @@ func gmInteraction(session *discordgo.Session, interaction *discordgo.Interactio
 					err := fmt.Errorf("Failed to create GM image for Sentinel %d: %w ", sentinelID, err)
 					logger.Errorf("Error: %s", err)
 					sendErrorResponse(err, session, interaction)
+					return
 				}
 
 				file := &discordgo.File{
