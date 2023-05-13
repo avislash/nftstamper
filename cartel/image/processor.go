@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/avislash/nftstamper/config"
+	"github.com/avislash/nftstamper/cartel/config"
 	"github.com/avislash/nftstamper/lib/image"
 )
 

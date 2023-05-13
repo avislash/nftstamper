@@ -77,8 +77,7 @@ Contributions are what make the open source community such an amazing place to b
 [![ENS](https://img.shields.io/badge/ENS-avislash.eth-blueviolet?style=for-the-badge&logo=ethereum)](https://avislash.eth.xyz/)
 
 ## TODO
-1. Integrate Vyper for better config/env parsing
-2. Scrape MH Metadata endpoint per token from The Mutant Hounds smart contract
-3. Update IPFS client to parse Files/Metadata + Images
-4. Update Metadata Fetcher to fetch from either IPFS and/or Web Endpoint
-5. Consider refactoring and abstracting both to lib
+1. Scrape MH Metadata endpoint per token from The Mutant Hounds smart contract
+2. Update IPFS client to parse Files/Metadata + Images
+3. Update Metadata Fetcher to fetch from either IPFS and/or Web Endpoint
+4. Consider refactoring and abstracting bot to lib
