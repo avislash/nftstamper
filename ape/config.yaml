@@ -1,4 +1,5 @@
-ipfs_endpoint: /ip4/127.0.0.1/tcp/5001 #ipfs_endpoint must be in multiaddr format: https://github.com/multiformats/multiaddr#encoding
+#ipfs_endpoint must be in multiaddr format: https://github.com/multiformats/multiaddr#encoding or fully qualified URL
+ipfs_endpoint: https://gateway.ipfs.io
 metadata_endpoint: https://api.appliedprimate.dev/sentinels/metadata
 discord_bot_token: APE_DISCORD_BOT_TOKEN #can set in env as APE_DISCORD_BOT_TOKEN
 image_processor_mappings:

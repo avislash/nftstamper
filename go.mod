@@ -9,12 +9,9 @@ require (
 	github.com/ipfs/interface-go-ipfs-core v0.7.0
 	github.com/mitchellh/mapstructure v1.1.2
 	github.com/multiformats/go-multiaddr v0.9.0
-	github.com/multiformats/go-multiaddr v0.9.0
-	github.com/spf13/cobra v1.7.0
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.3.2
 	go.uber.org/zap v1.24.0
-	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
