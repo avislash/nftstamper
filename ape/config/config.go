@@ -16,12 +16,13 @@ type Config struct {
 }
 
 type ImageProcessorConfig struct {
-	GMMappings        map[string]string `yaml:"gm_mappings"`
-	BaseGMSmoke       string            `yaml:"base_gm_smoke"`
-	AzulGMSmoke       string            `yaml:"azul_gm_smoke"`
-	BaseGMSmokeBorder string            `yaml:"base_gm_smoke_border"`
-	AzulGMSmokeBorder string            `yaml:"azul_gm_smoke_border"`
-	Filters           FilterCfgs        `yaml:"filters"`
+	GMMappings        map[string]map[string]string `yaml:"gm_mappings"`
+	BaseGMSmoke       string                       `yaml:"base_gm_smoke"`
+	BaseGMSmokePath   string                       `yaml:"base_gm_smoke_path"`
+	AzulGMSmoke       string                       `yaml:"azul_gm_smoke"`
+	BaseGMSmokeBorder string                       `yaml:"base_gm_smoke_border"`
+	AzulGMSmokeBorder string                       `yaml:"azul_gm_smoke_border"`
+	Filters           FilterCfgs                   `yaml:"filters"`
 }
 
 type FilterCfgs struct {

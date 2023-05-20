@@ -5,29 +5,69 @@ metadata_endpoint: https://api.appliedprimate.dev/sentinels/metadata
 discord_bot_token: APE_DISCORD_BOT_TOKEN #can set in env as APE_DISCORD_BOT_TOKEN
 image_processor_mappings:
     gm_mappings:
-        trippy: ./ape/gm_assets/TRIPPY.png
-        crystal: ./ape/gm_assets/CRYSTAL.png
-        ice: ./ape/gm_assets/ICE.png
-        demon: ./ape/gm_assets/DEMON.png
-        dmt: ./ape/gm_assets/DMT.png
-        fire: ./ape/gm_assets/FIRE.png
-        reef: ./ape/gm_assets/REEF.png
-        jelly: ./ape/gm_assets/JELLY.png
-        runes: ./ape/gm_assets/RUNES.png
-        golem: ./ape/gm_assets/GOLEM.png
-        radioactive: ./ape/gm_assets/RADIOACTIVE.png
-        electric: ./ape/gm_assets/ELECTRIC.png
-        robot: ./ape/gm_assets/ROBOT.png
-        death bot: ./ape/gm_assets/DEATHBOT.png
-        gold: ./ape/gm_assets/GOLD.png
-        noise: ./ape/gm_assets/NOISE.png
-        zombie: ./ape/gm_assets/ZOMBIE.png
-        swamp: ./ape/gm_assets/SWAMP.png
-        holo r: ./ape/gm_assets/HOLOR.png
-        holo g: ./ape/gm_assets/HOLOG.png
-        holo b: ./ape/gm_assets/HOLOB.png
-        azul: ./ape/gm_assets/AZUL.png
+        trippy: 
+            lab: ./ape/gm_assets/TRIPPY.png
+            path: ./ape/gm_assets/TRIPPY_PATH.png
+        crystal: 
+            lab: ./ape/gm_assets/CRYSTAL.png
+            path: ./ape/gm_assets/CRYSTAL_PATH.png
+        ice: 
+            lab: ./ape/gm_assets/ICE.png
+            path: ./ape/gm_assets/ICE_PATH.png
+        demon:
+            lab: ./ape/gm_assets/DEMON.png
+            path: ./ape/gm_assets/DEMON_PATH.png
+        dmt: 
+            lab: ./ape/gm_assets/DMT.png
+            path: ./ape/gm_assets/DMT_PATH.png
+        fire: 
+            lab: ./ape/gm_assets/FIRE.png
+            path: ./ape/gm_assets/FIRE_PATH.png
+        reef: 
+            lab: ./ape/gm_assets/REEF.png
+            path: ./ape/gm_assets/REEF_PATH.png
+        jelly:
+            lab: ./ape/gm_assets/JELLY.png
+            path: ./ape/gm_assets/JELLY_PATH.png
+        runes:
+            lab: ./ape/gm_assets/RUNES.png
+            path: ./ape/gm_assets/RUNES_PATH.png
+        golem: 
+            lab: ./ape/gm_assets/GOLEM.png
+            path: ./ape/gm_assets/GOLEM_PATH.png
+        radioactive:
+            lab: ./ape/gm_assets/RADIOACTIVE.png
+            path: ./ape/gm_assets/RADIOACTIVE_PATH.png
+        electric: 
+            lab: ./ape/gm_assets/ELECTRIC.png
+            path: ./ape/gm_assets/ELECTRIC_PATH.png
+        robot: 
+            lab: ./ape/gm_assets/ROBOT.png
+            path: ./ape/gm_assets/ROBOT_PATH.png
+        death bot: 
+            lab: ./ape/gm_assets/DEATHBOT.png
+            path: ./ape/gm_assets/DEATHBOT_PATH.png
+        gold: 
+            lab: ./ape/gm_assets/GOLD.png
+        noise: 
+            lab: ./ape/gm_assets/NOISE.png
+            path: ./ape/gm_assets/NOISE_PATH.png
+        zombie: 
+            lab: ./ape/gm_assets/ZOMBIE.png
+            path: ./ape/gm_assets/ZOMBIE_PATH.png
+        swamp: 
+            lab: ./ape/gm_assets/SWAMP.png
+            path: ./ape/gm_assets/SWAMP_PATH.png
+        holo r: 
+            lab: ./ape/gm_assets/HOLOR.png
+        holo g: 
+            lab: ./ape/gm_assets/HOLOG.png
+        holo b: 
+            lab: ./ape/gm_assets/HOLOB.png
+        azul:
+            lab: ./ape/gm_assets/AZUL.png
     base_gm_smoke: ./ape/gm_assets/BASE_GM_SMOKE.png
+    base_gm_smoke_path: ./ape/gm_assets/BASE_GM_SMOKE_PATH.png
     base_gm_smoke_border: ./ape/gm_assets/BASE_GM_SMOKE_BORDER.png
     azul_gm_smoke: ./ape/gm_assets/AZUL_GM_SMOKE.png
     azul_gm_smoke_border: ./ape/gm_assets/AZUL_GM_SMOKE_BORDER.png
@@ -39,7 +79,7 @@ image_processor_mappings:
                name: trippy
                Default: 0.8
                Weights:
-                   lab coat: 0.9
+                   lab coat: 1
             crystal: 
                name: crystal
                Default: 0.8
@@ -53,7 +93,7 @@ image_processor_mappings:
                name: dmt
                Default: 0.8
                Weights:
-                   lab coat: 0.75
+                   lab coat: .75
             fire: 
                name: fire
                Default: 0.8
