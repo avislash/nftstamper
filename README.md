@@ -35,8 +35,8 @@ Refer to respective READMEs under supported collections for configuring and runn
 - [The Mutant Cartel](https://github.com/avislash/nftstamper/tree/main/cartel)
    - Mutant Hounds [![Mutant Hounds](https://img.shields.io/badge/Supported-90%25-yellow)](#)
      - Mega Hound Support Pending
-- Applied Primate Engineering (A.P.E.)
-   - Megaforce Sentinels [![MegaForce Sentinels](https://img.shields.io/badge/In_Progress-blue)](#)
+- [Applied Primate Engineering (A.P.E.)](https://github.com/avislash/nftstamper/tree/main/ape)
+   - Megaforce Sentinels [![MegaForce Sentinels](https://img.shields.io/badge/Supported-100%25-brightgreen)](#)
 
 
 
