@@ -4,25 +4,28 @@ metadata_endpoint: https://api.appliedprimate.dev/sentinels/metadata
 discord_bot_token: APE_DISCORD_BOT_TOKEN #can set in env as APE_DISCORD_BOT_TOKEN
 image_processor_mappings:
     gm_mappings:
-        Trippy: ./ape/mugs/TRIPPY.png
-        Crystal: ./ape/mugs/CRYSTAL.png
-        Ice: ./ape/mugs/ICE.png
-        Demon: ./ape/mugs/DEMON.png
-        DMT: ./ape/mugs/DMT.png
-        Fire: ./ape/mugs/FIRE.png
-        Reef: ./ape/mugs/REEF.png
-        Jelly: ./ape/mugs/JELLY.png
-        Runes: ./ape/mugs/RUNES.png
-        Golem: ./ape/mugs/GOLEM.png
-        Radioactive: ./ape/mugs/RADIOACTIVE.png
-        Electric: ./ape/mugs/ELECTRIC.png
-        Robot: ./ape/mugs/ROBOT.png
-        Death Bot: ./ape/mugs/DEATHBOT.png
-        Gold: ./ape/mugs/GOLD.png
-        Noise: ./ape/mugs/NOISE.png
-        Zombie: ./ape/mugs/ZOMBIE.png
-        Swamp: ./ape/mugs/SWAMP.png
-        Holo R: ./ape/mugs/HOLOR.png
-        Holo G: ./ape/mugs/HOLOG.png
-        Holo B: ./ape/mugs/HOLOB.png
-        Azul: ./ape/mugs/AZUL.png
+        Trippy: ./ape/gm_assets/TRIPPY.png
+        Crystal: ./ape/gm_assets/CRYSTAL.png
+        Ice: ./ape/gm_assets/ICE.png
+        Demon: ./ape/gm_assets/DEMON.png
+        DMT: ./ape/gm_assets/DMT.png
+        Fire: ./ape/gm_assets/FIRE.png
+        Reef: ./ape/gm_assets/REEF.png
+        Jelly: ./ape/gm_assets/JELLY.png
+        Runes: ./ape/gm_assets/RUNES.png
+        Golem: ./ape/gm_assets/GOLEM.png
+        Radioactive: ./ape/gm_assets/RADIOACTIVE.png
+        Electric: ./ape/gm_assets/ELECTRIC.png
+        Robot: ./ape/gm_assets/ROBOT.png
+        Death Bot: ./ape/gm_assets/DEATHBOT.png
+        Gold: ./ape/gm_assets/GOLD.png
+        Noise: ./ape/gm_assets/NOISE.png
+        Zombie: ./ape/gm_assets/ZOMBIE.png
+        Swamp: ./ape/gm_assets/SWAMP.png
+        Holo R: ./ape/gm_assets/HOLOR.png
+        Holo G: ./ape/gm_assets/HOLOG.png
+        Holo B: ./ape/gm_assets/HOLOB.png
+        Azul: ./ape/gm_assets/AZUL.png
+    base_gm_smoke: ./ape/gm_assets/BASE_GM_SMOKE.png
+    azul_gm_smoke: ./ape/gm_assets/AZUL_GM_SMOKE.png
+
