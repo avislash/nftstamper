@@ -43,12 +43,12 @@ func botInit(_ *cobra.Command, _ []string) error {
 		return fmt.Errorf("Failed to load config: %w", err)
 	}
 
-	logger, err = log.NewSugaredLogger()
+	logger, err = log.NewSugaredLogger(log.WithLogLevel(log.Level(cfg.LogLevel)))
 	if err != nil {
 		return fmt.Errorf("Unable to instantiate logger")
 	}
 
-	stamper, err = image.NewProcessor(cfg.ImageProcessorConfig)
+	stamper, err = image.NewProcessor(cfg.ImageProcessorConfig, logger)
 	if err != nil {
 		return fmt.Errorf("Error initializing Image Processor: %w", err)
 	}
@@ -139,7 +139,7 @@ func gmInteraction(session *discordgo.Session, interaction *discordgo.Interactio
 					return
 				}
 
-				buff, err := stamper.OverlayMug(sentinel, metadata.BaseArmor)
+				buff, err := stamper.OverlayMug(sentinel, metadata)
 				if err != nil {
 					err := fmt.Errorf("Failed to create GM image for Sentinel %d: %w ", sentinelID, err)
 					logger.Errorf("Error: %s", err)
