@@ -1,31 +1,107 @@
 #ipfs_endpoint must be in multiaddr format: https://github.com/multiformats/multiaddr#encoding or fully qualified URL
 ipfs_endpoint: https://gateway.ipfs.io
+log_level: debug
 metadata_endpoint: https://api.appliedprimate.dev/sentinels/metadata
 discord_bot_token: APE_DISCORD_BOT_TOKEN #can set in env as APE_DISCORD_BOT_TOKEN
 image_processor_mappings:
     gm_mappings:
-        Trippy: ./ape/gm_assets/TRIPPY.png
-        Crystal: ./ape/gm_assets/CRYSTAL.png
-        Ice: ./ape/gm_assets/ICE.png
-        Demon: ./ape/gm_assets/DEMON.png
-        DMT: ./ape/gm_assets/DMT.png
-        Fire: ./ape/gm_assets/FIRE.png
-        Reef: ./ape/gm_assets/REEF.png
-        Jelly: ./ape/gm_assets/JELLY.png
-        Runes: ./ape/gm_assets/RUNES.png
-        Golem: ./ape/gm_assets/GOLEM.png
-        Radioactive: ./ape/gm_assets/RADIOACTIVE.png
-        Electric: ./ape/gm_assets/ELECTRIC.png
-        Robot: ./ape/gm_assets/ROBOT.png
-        Death Bot: ./ape/gm_assets/DEATHBOT.png
-        Gold: ./ape/gm_assets/GOLD.png
-        Noise: ./ape/gm_assets/NOISE.png
-        Zombie: ./ape/gm_assets/ZOMBIE.png
-        Swamp: ./ape/gm_assets/SWAMP.png
-        Holo R: ./ape/gm_assets/HOLOR.png
-        Holo G: ./ape/gm_assets/HOLOG.png
-        Holo B: ./ape/gm_assets/HOLOB.png
-        Azul: ./ape/gm_assets/AZUL.png
+        trippy: ./ape/gm_assets/TRIPPY.png
+        crystal: ./ape/gm_assets/CRYSTAL.png
+        ice: ./ape/gm_assets/ICE.png
+        demon: ./ape/gm_assets/DEMON.png
+        dmt: ./ape/gm_assets/DMT.png
+        fire: ./ape/gm_assets/FIRE.png
+        reef: ./ape/gm_assets/REEF.png
+        jelly: ./ape/gm_assets/JELLY.png
+        runes: ./ape/gm_assets/RUNES.png
+        golem: ./ape/gm_assets/GOLEM.png
+        radioactive: ./ape/gm_assets/RADIOACTIVE.png
+        electric: ./ape/gm_assets/ELECTRIC.png
+        robot: ./ape/gm_assets/ROBOT.png
+        death bot: ./ape/gm_assets/DEATHBOT.png
+        gold: ./ape/gm_assets/GOLD.png
+        noise: ./ape/gm_assets/NOISE.png
+        zombie: ./ape/gm_assets/ZOMBIE.png
+        swamp: ./ape/gm_assets/SWAMP.png
+        holo r: ./ape/gm_assets/HOLOR.png
+        holo g: ./ape/gm_assets/HOLOG.png
+        holo b: ./ape/gm_assets/HOLOB.png
+        azul: ./ape/gm_assets/AZUL.png
     base_gm_smoke: ./ape/gm_assets/BASE_GM_SMOKE.png
+    base_gm_smoke_border: ./ape/gm_assets/BASE_GM_SMOKE_BORDER.png
     azul_gm_smoke: ./ape/gm_assets/AZUL_GM_SMOKE.png
+    azul_gm_smoke_border: ./ape/gm_assets/AZUL_GM_SMOKE_BORDER.png
 
+
+    filters:
+        opacity: #for gm_smoke_border. Valid values are 0-1
+            trippy: 
+               name: trippy
+               Default: 0.8
+               Weights:
+                   lab coat: 0.9
+            crystal: 
+               name: crystal
+               Default: 0.8
+            ice:
+                name: ice
+                Default: 0.8
+            demon: 
+               name: demon
+               Default: 0.8
+            dmt: 
+               name: dmt
+               Default: 0.8
+               Weights:
+                   lab coat: 0.75
+            fire: 
+               name: fire
+               Default: 0.8
+            reef: 
+               name: reef
+               Default: 0.8
+            jelly: 
+               name: jelly
+               Default: 0.8
+            runes: 
+               name: runes
+               Default: 0.8
+            golem: 
+               name: golem
+               Default: 0.8
+            radioactive: 
+               name: radioactive
+               Default: 0.8
+            electric: 
+               name: electric
+               Default: 0.8
+            robot: 
+               name: robot
+               Default: 0.8
+            death bot: 
+               name: death bot
+               Default: 0.8
+            gold: 
+               name: gold
+               Default: 0.85
+            noise: 
+               name: noise
+               Default: 0.8
+            zombie: 
+               name: zombie
+               Default: 0.8
+            swamp: 
+               name: swamp
+               Default: 0.8
+            holo r: 
+               name: holo r
+               Default: 0.8
+            holo g: 
+               name: holo g
+               Default: 0.8
+            holo b: 
+               name: holo b
+               Default: 0.8
+            azul: 
+               name: azul
+               Default: 0.8
