@@ -74,20 +74,32 @@ func (p *Processor) OverlayMug(sentinel image.Image, metadata metadata.SentinelM
 		return nil, err
 	}
 
+	smoke = p.AdjustSmokeOpacity(smoke, metadata)
+	smokeWithBorder := p.CombineImages(smoke, border)
+	coffeMugWithSmoke := p.CombineImages(mug, smokeWithBorder)
+	return p.EncodeImage(p.CombineImages(sentinel, coffeMugWithSmoke))
+}
+
+func (p *Processor) AdjustSmokeOpacity(smoke image.Image, metadata metadata.SentinelMetadata) image.Image {
 	filters := p.opacityFilter.Filters[metadata.BaseArmor]
 	opacity := filters.Default
+
 	if len(metadata.Body) != 0 {
 		op, exists := filters.Weights[metadata.Body]
 		if exists {
 			opacity = op
 		}
 	}
-	p.logger.Debugf("Opacity filter for Sentinel with metadata %+v set to: %f", metadata.Attributes, opacity)
 
-	smoke = p.AdjustImageOpacity(smoke, opacity)
-	smokeWithBorder := p.CombineImages(smoke, border)
-	coffeMugWithSmoke := p.CombineImages(mug, smokeWithBorder)
-	return p.EncodeImage(p.CombineImages(sentinel, coffeMugWithSmoke))
+	if len(metadata.Head) != 0 {
+		op, exists := filters.Weights[metadata.Head]
+		if exists {
+			opacity = op
+		}
+	}
+
+	p.logger.Debugf("Opacity filter for Sentinel with metadata %+v set to: %f", metadata.Attributes, opacity)
+	return p.AdjustImageOpacity(smoke, opacity)
 }
 
 func (p *Processor) getMug(metadata metadata.SentinelMetadata) (image.Image, bool) {
