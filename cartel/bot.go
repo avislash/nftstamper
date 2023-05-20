@@ -2,19 +2,16 @@ package cartel
 
 import (
 	"fmt"
-	"io/ioutil"
-	"os"
 	"strings"
 
+	"github.com/avislash/nftstamper/cartel/config"
 	"github.com/avislash/nftstamper/cartel/image"
 	"github.com/avislash/nftstamper/cartel/metadata"
-	"github.com/avislash/nftstamper/config"
 	"github.com/avislash/nftstamper/lib/ipfs"
 	"github.com/avislash/nftstamper/lib/log"
 	"github.com/avislash/nftstamper/root"
 	"github.com/bwmarrin/discordgo"
 	"github.com/spf13/cobra"
-	"gopkg.in/yaml.v3"
 )
 
 var (
@@ -23,6 +20,8 @@ var (
 	metadataFetcher *metadata.HoundMetadataFetcher
 	logger          *log.SugaredLogger
 	configFile      string
+	botToken        string
+	env             string
 )
 
 var cmd = &cobra.Command{
@@ -35,19 +34,14 @@ var cmd = &cobra.Command{
 
 func init() {
 	cmd.PersistentFlags().StringVar(&configFile, "config", "./cartel/config.yaml", "Path to config file")
+	cmd.PersistentFlags().StringVar(&env, "env", "CARTEL", "Configuration Environment")
 	root.Cmd.AddCommand(cmd)
 }
 
 func botInit(_ *cobra.Command, _ []string) error {
-	var configParams config.Config
-	configFile, err := ioutil.ReadFile(configFile)
+	cfg, err := config.LoadCfg(env, configFile)
 	if err != nil {
-		return fmt.Errorf("Failed to read in config.yaml: %w", err)
-	}
-
-	err = yaml.Unmarshal(configFile, &configParams)
-	if err != nil {
-		return fmt.Errorf("Failed to unmarshal config.yaml: %w", err)
+		return fmt.Errorf("Failed to load config: %w", err)
 	}
 
 	logger, err = log.NewSugaredLogger()
@@ -55,23 +49,23 @@ func botInit(_ *cobra.Command, _ []string) error {
 		return fmt.Errorf("Unable to instantiate logger")
 	}
 
-	stamper, err = image.NewProcessor(configParams.ImageProcessorConfig)
+	stamper, err = image.NewProcessor(cfg.ImageProcessorConfig)
 	if err != nil {
 		return fmt.Errorf("Error initializing Image Processor: %w", err)
 	}
 
-	ipfsClient, err = ipfs.NewClient(configParams.IPFSEndpoint, ipfs.WithJPEGDecoder())
+	ipfsClient, err = ipfs.NewClient(cfg.IPFSEndpoint, ipfs.WithJPEGDecoder())
 	if err != nil {
 		return fmt.Errorf("Error creating IPFS Client: %w", err)
 	}
 
-	metadataFetcher = metadata.NewHoundMetadataFetcher(configParams.MetadataEndpoint)
+	metadataFetcher = metadata.NewHoundMetadataFetcher(cfg.MetadataEndpoint)
+	botToken = "Bot " + cfg.BotToken
 	return nil
 }
 
 func cartelBot(cmd *cobra.Command, _ []string) error {
-	token := os.Getenv("CARTEL_DISCORD_BOT_TOKEN")
-	dg, err := discordgo.New("Bot " + token)
+	dg, err := discordgo.New(botToken)
 	if err != nil {
 		return err
 	}

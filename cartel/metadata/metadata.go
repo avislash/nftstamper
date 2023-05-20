@@ -2,6 +2,7 @@ package metadata
 
 import (
 	"encoding/json"
+	"strings"
 )
 
 type HoundMetadata struct {
@@ -34,24 +35,24 @@ func (hmd *HoundMetadata) UnmarshalJSON(data []byte) error {
 		}
 
 		if attribute["trait_type"] == "Background" {
-			hmd.Background = attribute["value"]
+			hmd.Background = strings.ToLower(attribute["value"])
 			continue
 		}
 
 		if attribute["trait_type"] == "Face" {
-			hmd.Face = attribute["value"]
+			hmd.Face = strings.ToLower(attribute["value"])
 		}
 
 		if attribute["trait_type"] == "Forms" {
-			hmd.Form = attribute["value"]
+			hmd.Form = strings.ToLower(attribute["value"])
 		}
 
 		if attribute["trait_type"] == "Mouth" {
-			hmd.Mouth = attribute["value"]
+			hmd.Mouth = strings.ToLower(attribute["value"])
 		}
 
 		if attribute["trait_type"] == "Torso" {
-			hmd.Torso = attribute["value"]
+			hmd.Torso = strings.ToLower(attribute["value"])
 		}
 	}
 	hmd.Name = s.Name
