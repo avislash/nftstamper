@@ -74,74 +74,405 @@ image_processor_mappings:
 
 
     filters:
-        opacity: #for gm_smoke_border. Valid values are 0-1
+        opacity: #for gm_smoke. Valid values are 0-1
             trippy: 
                name: trippy
-               Default: 0.8
+               Default: 0.9
                Weights:
+                   path robe: 1
                    lab coat: 1
+                   burned lab coat: 1
+                   torn tee: 0.85
+                   tech jacket: 0.85
+                   space suit: 0.90
+                   gold suit: 0.95
+                   gold hoodie: 0.90
+                   trippy hoodie: 0.85
+                   sport hoodie: 0.75
+                   black hoodie: 0.70
+                   black t-shirt: 0.70
+                   orange t-shirt: 0.80
+                   blue t-shirt: 0.80
+                   purple t-shirt: 0.80
+                   red t-shirt: 0.80
+                   trippy t-shirt: 0.85
             crystal: 
                name: crystal
-               Default: 0.8
+               Default: 0.9
+               Weights:
+                   path robe: 1
+                   lab coat: 1
+                   burned lab coat: 1
+                   torn tee: 0.85
+                   tech jacket: 0.85
+                   space suit: 0.90
+                   gold suit: 0.95
+                   gold hoodie: 0.90
+                   trippy hoodie: 0.85
+                   sport hoodie: 0.75
+                   black hoodie: 0.70
+                   black t-shirt: 0.70
+                   orange t-shirt: 0.80
+                   blue t-shirt: 0.80
+                   purple t-shirt: 0.80
+                   red t-shirt: 0.80
+                   trippy t-shirt: 0.85
             ice:
-                name: ice
-                Default: 0.8
+               name: ice
+               Default: 0.95
+               Weights:
+                   path robe: 1
+                   lab coat: 1
+                   burned lab coat: 1
+                   torn tee: 0.85
+                   aviator jacket: 0.90
+                   tech jacket: 0.85
+                   space suit: 0.90
+                   black suit: 0.90
+                   gold suit: 0.95
+                   gold hoodie: 0.90
+                   trippy hoodie: 0.85
+                   sport hoodie: 0.75
+                   black hoodie: 0.70
+                   black t-shirt: 0.70
+                   orange t-shirt: 0.80
+                   blue t-shirt: 0.80
+                   purple t-shirt: 0.80
+                   red t-shirt: 0.80
+                   trippy t-shirt: 0.85
             demon: 
                name: demon
-               Default: 0.8
+               Default: 0.85
+               Weights:
+                   path robe: 1
+                   lab coat: 1
+                   burned lab coat: 1
+                   aviator jacket: 0.90
+                   space suit: 0.90
+                   black suit: 0.90
+                   gold suit: 0.95
+                   gold hoodie: 0.90
+                   trippy hoodie: 0.85
+                   sport hoodie: 0.75
+                   black hoodie: 0.70
+                   black t-shirt: 0.70
+                   orange t-shirt: 0.80
+                   blue t-shirt: 0.80
+                   purple t-shirt: 0.80
+                   red t-shirt: 0.80
+                   trippy t-shirt: 0.85
             dmt: 
                name: dmt
-               Default: 0.8
+               Default: 0.85
                Weights:
-                   lab coat: .75
+                   path robe: 1
+                   lab coat: 1
+                   burned lab coat: 1
+                   aviator jacket: 0.90
+                   space suit: 0.90
+                   black suit: 0.90
+                   gold suit: 0.95
+                   gold hoodie: 0.90
+                   trippy hoodie: 0.85
+                   sport hoodie: 0.75
+                   black hoodie: 0.70
+                   black t-shirt: 0.70
+                   orange t-shirt: 0.80
+                   blue t-shirt: 0.80
+                   purple t-shirt: 0.80
+                   red t-shirt: 0.80
+                   trippy t-shirt: 0.85
             fire: 
                name: fire
-               Default: 0.8
+               Default: 0.85
+               Weights:
+                   path robe: 1
+                   lab coat: 1
+                   burned lab coat: 1
+                   aviator jacket: 0.90
+                   space suit: 0.90
+                   black suit: 0.90
+                   gold suit: 0.95
+                   gold hoodie: 0.90
+                   trippy hoodie: 0.85
+                   sport hoodie: 0.75
+                   black hoodie: 0.70
+                   black t-shirt: 0.70
+                   orange t-shirt: 0.80
+                   blue t-shirt: 0.80
+                   purple t-shirt: 0.80
+                   red t-shirt: 0.80
+                   trippy t-shirt: 0.85
             reef: 
                name: reef
-               Default: 0.8
+               Default: 0.85
+               Weights:
+                   path robe: 1
+                   lab coat: 1
+                   burned lab coat: 1
+                   torn tee: 0.85
+                   aviator jacket: 0.90
+                   space suit: 0.90
+                   black suit: 0.90
+                   gold suit: 0.95
+                   gold hoodie: 0.90
+                   trippy hoodie: 0.85
+                   sport hoodie: 0.75
+                   black hoodie: 0.70
+                   black t-shirt: 0.70
+                   orange t-shirt: 0.80
+                   blue t-shirt: 0.80
+                   purple t-shirt: 0.80
+                   red t-shirt: 0.80
+                   trippy t-shirt: 0.85
             jelly: 
                name: jelly
-               Default: 0.8
+               Default: 0.95
+               Weights:
+                   path robe: 1
+                   lab coat: 1
+                   burned lab coat: 1
+                   torn tee: 0.85
+                   aviator jacket: 0.90
+                   tech jacket: 0.85
+                   space suit: 0.90
+                   black suit: 0.90
+                   gold suit: 0.95
+                   gold hoodie: 0.90
+                   trippy hoodie: 0.85
+                   sport hoodie: 0.75
+                   black hoodie: 0.70
+                   black t-shirt: 0.70
+                   orange t-shirt: 0.80
+                   blue t-shirt: 0.80
+                   purple t-shirt: 0.80
+                   red t-shirt: 0.80
+                   trippy t-shirt: 0.85
             runes: 
                name: runes
-               Default: 0.8
+               Default: 0.85
+               Weights:
+                   path robe: 1
+                   lab coat: 1
+                   burned lab coat: 1
+                   aviator jacket: 0.90
+                   black suit: 0.90
+                   space suit: 0.90
+                   gold suit: 0.95
+                   gold hoodie: 0.90
+                   trippy hoodie: 0.85
+                   sport hoodie: 0.75
+                   black hoodie: 0.70
+                   black t-shirt: 0.70
+                   orange t-shirt: 0.80
+                   blue t-shirt: 0.80
+                   purple t-shirt: 0.80
+                   red t-shirt: 0.80
+                   trippy t-shirt: 0.85
             golem: 
-               name: golem
-               Default: 0.8
+               Default: 0.9
+               Weights:
+                   path robe: 1
+                   lab coat: 1
+                   burned lab coat: 1
+                   torn tee: 0.85
+                   tech jacket: 0.85
+                   space suit: 0.90
+                   gold suit: 0.95
+                   gold hoodie: 0.90
+                   trippy hoodie: 0.85
+                   sport hoodie: 0.75
+                   black hoodie: 0.70
+                   black t-shirt: 0.70
+                   orange t-shirt: 0.80
+                   blue t-shirt: 0.80
+                   purple t-shirt: 0.80
+                   red t-shirt: 0.80
+                   trippy t-shirt: 0.85
             radioactive: 
                name: radioactive
-               Default: 0.8
+               Default: 0.90
+               Weights:
+                   path robe: 1
+                   lab coat: 1
+                   burned lab coat: 1
+                   aviator jacket: 0.90
+                   torn tee: 0.85
+                   tech jacket: 0.85
+                   space suit: 0.90
+                   black suit: 0.90
+                   gold suit: 0.95
+                   gold hoodie: 0.90
+                   trippy hoodie: 0.85
+                   sport hoodie: 0.75
+                   black hoodie: 0.70
+                   black t-shirt: 0.70
+                   orange t-shirt: 0.80
+                   blue t-shirt: 0.80
+                   purple t-shirt: 0.80
+                   red t-shirt: 0.80
+                   trippy t-shirt: 0.85
             electric: 
                name: electric
-               Default: 0.8
+               Default: 0.85
+               Weights:
+                   path robe: 1
+                   lab coat: 1
+                   burned lab coat: 1
+                   torn tee: 0.85
+                   aviator jacket: 0.90
+                   black suit: 0.90
+                   space suit: 0.90
+                   gold suit: 0.95
+                   gold hoodie: 0.90
+                   trippy hoodie: 0.85
+                   sport hoodie: 0.75
+                   black hoodie: 0.70
+                   black t-shirt: 0.70
+                   orange t-shirt: 0.80
+                   blue t-shirt: 0.80
+                   purple t-shirt: 0.80
+                   red t-shirt: 0.80
+                   trippy t-shirt: 0.85
             robot: 
                name: robot
-               Default: 0.8
+               Default: 0.85
+               Weights:
+                   path robe: 1
+                   lab coat: 1
+                   burned lab coat: 1
+                   torn tee: 0.85
+                   aviator jacket: 0.90
+                   death snakes: 0.80
+                   space suit: 0.90
+                   gold suit: 0.95
+                   gold hoodie: 0.90
+                   trippy hoodie: 0.85
+                   sport hoodie: 0.75
+                   black hoodie: 0.70
+                   black t-shirt: 0.70
+                   orange t-shirt: 0.80
+                   blue t-shirt: 0.80
+                   purple t-shirt: 0.80
+                   red t-shirt: 0.80
+                   trippy t-shirt: 0.85
             death bot: 
                name: death bot
-               Default: 0.8
+               Default: 0.85
+               Weights:
+                   path robe: 1
+                   lab coat: 1
+                   burned lab coat: 1
+                   torn tee: 0.85
+                   aviator jacket: 0.90
+                   black suit: 0.90
+                   space suit: 0.90
+                   gold suit: 0.95
+                   gold hoodie: 0.90
+                   trippy hoodie: 0.85
+                   sport hoodie: 0.75
+                   black hoodie: 0.70
+                   black t-shirt: 0.70
+                   orange t-shirt: 0.80
+                   blue t-shirt: 0.80
+                   purple t-shirt: 0.80
+                   red t-shirt: 0.80
+                   trippy t-shirt: 0.85
             gold: 
                name: gold
-               Default: 0.85
+               Default: 0.95
+               Weights:
+                   path robe: 1
+                   lab coat: 1
+                   burned lab coat: 1
+                   torn tee: 0.85
+                   aviator jacket: 0.90
+                   black tech jacket: 0.85
+                   black suit: 0.85
+                   space suit: 0.90
+                   gold suit: 0.95
+                   gold hoodie: 0.90
+                   trippy hoodie: 0.85
+                   sport hoodie: 0.75
+                   black hoodie: 0.70
+                   black t-shirt: 0.70
+                   orange t-shirt: 0.80
+                   blue t-shirt: 0.80
+                   purple t-shirt: 0.80
+                   red t-shirt: 0.80
+                   trippy t-shirt: 0.85
             noise: 
                name: noise
-               Default: 0.8
+               Default: 0.85
+               Weights:
+                   path robe: 1
+                   lab coat: 1
+                   burned lab coat: 1
+                   aviator jacket: 0.90
+                   black suit: 0.90
+                   space suit: 0.90
+                   gold suit: 0.95
+                   gold hoodie: 0.90
+                   trippy hoodie: 0.85
+                   sport hoodie: 0.75
+                   black hoodie: 0.70
+                   black t-shirt: 0.70
+                   orange t-shirt: 0.80
+                   blue t-shirt: 0.80
+                   purple t-shirt: 0.80
+                   red t-shirt: 0.80
+                   trippy t-shirt: 0.85
             zombie: 
                name: zombie
-               Default: 0.8
+               Default: 0.85
+               Weights:
+                   path robe: 1
+                   lab coat: 1
+                   burned lab coat: 1
+                   aviator jacket: 0.90
+                   black suit: 0.90
+                   space suit: 0.90
+                   gold suit: 0.95
+                   gold hoodie: 0.90
+                   trippy hoodie: 0.85
+                   sport hoodie: 0.75
+                   black hoodie: 0.70
+                   black t-shirt: 0.70
+                   orange t-shirt: 0.80
+                   blue t-shirt: 0.80
+                   purple t-shirt: 0.80
+                   red t-shirt: 0.80
+                   trippy t-shirt: 0.85
             swamp: 
                name: swamp
-               Default: 0.8
+               Default: 0.85
+               Weights:
+                   path robe: 1
+                   lab coat: 1
+                   burned lab coat: 1
+                   aviator jacket: 0.90
+                   black suit: 0.90
+                   space suit: 0.90
+                   gold suit: 0.95
+                   gold hoodie: 0.90
+                   trippy hoodie: 0.85
+                   sport hoodie: 0.75
+                   black hoodie: 0.70
+                   black t-shirt: 0.70
+                   orange t-shirt: 0.80
+                   blue t-shirt: 0.80
+                   purple t-shirt: 0.80
+                   red t-shirt: 0.80
+                   trippy t-shirt: 0.85
             holo r: 
                name: holo r
-               Default: 0.8
+               Default: 0.70
             holo g: 
                name: holo g
-               Default: 0.8
+               Default: 0.80
             holo b: 
                name: holo b
-               Default: 0.8
+               Default: 0.80
             azul: 
                name: azul
-               Default: 0.8
+               Default: 0.80
