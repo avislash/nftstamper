@@ -2,6 +2,7 @@ package metadata
 
 import (
 	"encoding/json"
+	"strings"
 )
 
 type SentinelMetadata struct {
@@ -37,24 +38,24 @@ func (smd *SentinelMetadata) UnmarshalJSON(data []byte) error {
 		}
 
 		if attribute["trait_type"] == "Background" {
-			smd.Background = attribute["value"]
+			smd.Background = sanitizeString(attribute["value"])
 			continue
 		}
 
 		if attribute["trait_type"] == "Base Armor" {
-			smd.BaseArmor = attribute["value"]
+			smd.BaseArmor = sanitizeString(attribute["value"])
 		}
 
 		if attribute["trait_type"] == "Body" {
-			smd.Body = attribute["value"]
+			smd.Body = sanitizeString(attribute["value"])
 		}
 
 		if attribute["trait_type"] == "Face" {
-			smd.Face = attribute["value"]
+			smd.Face = sanitizeString(attribute["value"])
 		}
 
 		if attribute["trait_type"] == "Head" {
-			smd.Head = attribute["value"]
+			smd.Head = sanitizeString(attribute["value"])
 		}
 
 	}
@@ -63,4 +64,8 @@ func (smd *SentinelMetadata) UnmarshalJSON(data []byte) error {
 
 	return nil
 
+}
+
+func sanitizeString(str string) string {
+	return strings.TrimSpace(strings.ToLower(str))
 }

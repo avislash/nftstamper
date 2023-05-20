@@ -15,10 +15,6 @@ Standard go installation
 ```
 $ go get github.com/avislash/nftstamper@latest
 ```
-The bot currently assumes acess to a locally running IPFS node for any IPFS retrievals it may need to perform.
-
-Refer to the instructions found in the [Kubo IPFS repository](https://github.com/ipfs/kubo) for how to download, install, and configure a local IPFS node.
-
 
 # Usage & Examples
 Using the bot is fairly simple 
@@ -39,8 +35,8 @@ Refer to respective READMEs under supported collections for configuring and runn
 - [The Mutant Cartel](https://github.com/avislash/nftstamper/tree/main/cartel)
    - Mutant Hounds [![Mutant Hounds](https://img.shields.io/badge/Supported-90%25-yellow)](#)
      - Mega Hound Support Pending
-- Applied Primate Engineering (A.P.E.)
-   - Megaforce Sentinels [![MegaForce Sentinels](https://img.shields.io/badge/In_Progress-blue)](#)
+- [Applied Primate Engineering (A.P.E.)](https://github.com/avislash/nftstamper/tree/main/ape)
+   - MegaForce Sentinels [![MegaForce Sentinels](https://img.shields.io/badge/Supported-100%25-brightgreen)](#)
 
 
 
