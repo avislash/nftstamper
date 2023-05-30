@@ -3,12 +3,13 @@ metadata_endpoint: https://api.mutantdao.com/hounds/metadata
 discord_bot_token: CARTEL_DISCORD_BOT_TOKEN #can set in env as CARTEL_DISCORD_BOT_TOKEN
 image_processor_mappings:
     gm_mappings:
-        Hound Lair: ./cartel/bowls/hound_lair.png
-        Shipwreck: ./cartel/bowls/shipwreck.png
-        Jungle: ./cartel/bowls/jungle.png
-        Cave Entrance: ./cartel/bowls/cave_entrance.png
-        Lab: ./cartel/bowls/lab.png
-        Hideout: ./cartel/bowls/hideout.png
-        Temple Room: ./cartel/bowls/temple_room.png
-        Warehouse: ./cartel/bowls/warehouse.png
-        Docks: ./cartel/bowls/docks.png
+        Hound Lair: ./cartel/images/bowls/hound_lair.png
+        Shipwreck: ./cartel/images/bowls/shipwreck.png
+        Jungle: ./cartel/images/bowls/jungle.png
+        Cave Entrance: ./cartel/images/bowls/cave_entrance.png
+        Lab: ./cartel/images/bowls/lab.png
+        Hideout: ./cartel/images/bowls/hideout.png
+        Temple Room: ./cartel/images/bowls/temple_room.png
+        Warehouse: ./cartel/images/bowls/warehouse.png
+        Docks: ./cartel/images/bowls/docks.png
+ 
