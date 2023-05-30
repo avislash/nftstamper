@@ -35,24 +35,23 @@ func (hmd *HoundMetadata) UnmarshalJSON(data []byte) error {
 		}
 
 		if attribute["trait_type"] == "Background" {
-			hmd.Background = strings.ToLower(attribute["value"])
-			continue
+			hmd.Background = strings.TrimSpace(strings.ToLower(attribute["value"]))
 		}
 
 		if attribute["trait_type"] == "Face" {
-			hmd.Face = strings.ToLower(attribute["value"])
+			hmd.Face = strings.TrimSpace(strings.ToLower(attribute["value"]))
 		}
 
 		if attribute["trait_type"] == "Forms" {
-			hmd.Form = strings.ToLower(attribute["value"])
+			hmd.Form = strings.TrimSpace(strings.ToLower(attribute["value"]))
 		}
 
 		if attribute["trait_type"] == "Mouth" {
-			hmd.Mouth = strings.ToLower(attribute["value"])
+			hmd.Mouth = strings.TrimSpace(strings.ToLower(attribute["value"]))
 		}
 
 		if attribute["trait_type"] == "Torso" {
-			hmd.Torso = strings.ToLower(attribute["value"])
+			hmd.Torso = strings.TrimSpace(strings.ToLower(attribute["value"]))
 		}
 	}
 	hmd.Name = s.Name

@@ -13,8 +13,19 @@ type Config struct {
 	ImageProcessorConfig ImageProcessorConfig `yaml:"image_processor_mappings"`
 }
 
+type MerchMappings struct {
+	Default     string            `yaml:"default"`
+	Flame       string            `yaml:"default_flame"`
+	XL          string            `yaml:"xl"`
+	XLFlame     string            `yaml:"xl_flame"`
+	FlameTraits map[string]string `yaml:"flame_traits"`
+	XLTraits    map[string]string `yaml:"xl_traits"`
+	Hats        map[string]string `yaml:"hats"`
+}
+
 type ImageProcessorConfig struct {
-	GMMappings map[string]string `yaml:"gm_mappings"`
+	GMMappings       map[string]string `yaml:"gm_mappings"`
+	NFDMerchMappings MerchMappings     `yaml:"nfd_merch_mappings"`
 }
 
 func LoadCfg(env, cfgFile string) (Config, error) {

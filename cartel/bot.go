@@ -44,7 +44,7 @@ func botInit(_ *cobra.Command, _ []string) error {
 		return fmt.Errorf("Failed to load config: %w", err)
 	}
 
-	logger, err = log.NewSugaredLogger()
+	logger, err = log.NewSugaredLogger() //log.WithLogLevel(log.DEBUG))
 	if err != nil {
 		return fmt.Errorf("Unable to instantiate logger")
 	}
@@ -71,9 +71,11 @@ func cartelBot(cmd *cobra.Command, _ []string) error {
 	}
 
 	dg.AddHandler(gmInteraction)
+	dg.AddHandler(nfdInteraction)
 	if err := dg.Open(); err != nil {
 		return err
 	}
+
 	defer dg.Close()
 	botID := dg.State.User.ID
 
@@ -88,8 +90,8 @@ func cartelBot(cmd *cobra.Command, _ []string) error {
 		MaxValue:    maxID,
 	}
 	_, err = dg.ApplicationCommandCreate(botID, "", &discordgo.ApplicationCommand{
-		Name:        "gm",
-		Description: "Responds with a GM",
+		Name:        "nfd",
+		Description: "Add NFD Campaign Merch",
 		Options:     []*discordgo.ApplicationCommandOption{houndID},
 	})
 
@@ -158,6 +160,74 @@ func gmInteraction(session *discordgo.Session, interaction *discordgo.Interactio
 					Content: &content,
 					Files:   []*discordgo.File{file},
 				}
+				if _, err := session.InteractionResponseEdit(interaction.Interaction, response); err != nil {
+					logger.Errorf("Error sending message: %s", err)
+				}
+			}()
+		}
+
+	}
+
+}
+
+func nfdInteraction(session *discordgo.Session, interaction *discordgo.InteractionCreate) {
+	var name string
+	if nil == interaction.Member {
+		name = interaction.User.Username
+	} else {
+		if nil != interaction.Member.User {
+			name = interaction.Member.User.Username
+		}
+	}
+	if discordgo.InteractionApplicationCommand == interaction.Type {
+		cmdData := interaction.ApplicationCommandData()
+		if cmdData.Name == "nfd" {
+			//Send ACK To meet the 3s turnaround and allow for more time to upload the image
+			session.InteractionRespond(interaction.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{}})
+			go func() {
+				houndID := cmdData.Options[0].UintValue()
+				logger.Debugf("Getting metadata for hound #%d", houndID)
+				metadata, err := metadataFetcher.Fetch(houndID)
+				if err != nil {
+					err := fmt.Errorf("Failed to retrieve metadata for Hound #%d: %w", houndID, err)
+					logger.Errorf("Error: %s", err)
+					sendErrorResponse(err, session, interaction)
+					return
+				}
+				logger.Debugf("Metadata: %+v", metadata)
+
+				hound, err := ipfsClient.GetImageFromIPFS(metadata.Image)
+				if err != nil {
+					err := fmt.Errorf("Failed to retrieve Hound #%d image from IPFS: %w", houndID, err)
+					logger.Errorf("Error: %w", err)
+					sendErrorResponse(err, session, interaction)
+					return
+				}
+				logger.Debugf("Got image from IPFS")
+
+				logger.Debugf("Overlaying Image")
+				buff, err := stamper.OverlayNFDMerch(hound, metadata)
+				if err != nil {
+					err := fmt.Errorf("Failed to create NFD Merch image for Hound %d: %w ", houndID, err)
+					logger.Errorf("Error: %s", err)
+					sendErrorResponse(err, session, interaction)
+					return
+				}
+
+				file := &discordgo.File{
+					Name:        fmt.Sprintf("%s_nfd_merch_hound_%d.png", name, houndID),
+					ContentType: "image/png",
+					Reader:      buff,
+				}
+
+				content := "In NFD we trust :bossnfd: :bossnfd: :bossnfd:"
+				response := &discordgo.WebhookEdit{
+					Content: &content,
+					Files:   []*discordgo.File{file},
+				}
+				logger.Debugf("Uploading image")
 				if _, err := session.InteractionResponseEdit(interaction.Interaction, response); err != nil {
 					logger.Errorf("Error sending message: %s", err)
 				}

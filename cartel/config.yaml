@@ -1,4 +1,5 @@
-ipfs_endpoint: /ip4/127.0.0.1/tcp/5001 #ipfs_endpoint must be in multiaddr format: https://github.com/multiformats/multiaddr#encoding
+#ipfs_endpoint: /ip4/127.0.0.1/tcp/5001 #ipfs_endpoint must be in multiaddr format: https://github.com/multiformats/multiaddr#encoding
+ipfs_endpoint: https://gateway.ipfs.io
 metadata_endpoint: https://api.mutantdao.com/hounds/metadata
 discord_bot_token: CARTEL_DISCORD_BOT_TOKEN #can set in env as CARTEL_DISCORD_BOT_TOKEN
 image_processor_mappings:
@@ -13,3 +14,39 @@ image_processor_mappings:
         Warehouse: ./cartel/images/bowls/warehouse.png
         Docks: ./cartel/images/bowls/docks.png
  
+    nfd_merch_mappings:
+        default: ./cartel/images/nfd/nfd_shirt.png
+        default_flame: ./cartel/images/nfd/nfd_shirt_flame.png
+        #xl: ./cartel/images/nfd/nfd_shirt_xl.png
+        xl: ./cartel/images/nfd/nfd_pin.png
+        xl_flame: ./cartel/images/nfd/nfd_pin.png
+        xl_traits:
+            gladiator: ""
+            gorilla chest: ""
+            k-9: ""
+            samurai: "" 
+            jet pack: ""
+            abominable: "" 
+            piranha: "" 
+            deathbot rocket launcher: "" 
+            tv: "" 
+            kensei: "" 
+            kensei gold: "" 
+            gladiator gold: "" 
+            frigid armor: "" 
+            volcanic: "" 
+            bionic rocket launcher: ""
+            dragon scales: "" 
+            haunted woods: "" 
+            skull tunic: "" 
+            skeletal armour: "" 
+            cartel hoodie: ""
+            ritual robe: ""
+            mech saddle: ""
+            blood bound: ""
+        flame_traits:
+            blue  flame: ""
+            orange flame: ""
+        hats:
+            cartel hat: ./cartel/images/nfd/nfd_merch_hat.png
+            cartel hat orange: ./cartel/images/nfd/nfd_merch_hat.png
