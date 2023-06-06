@@ -23,6 +23,7 @@ type Processor struct {
 	image.Combiner
 	bowls    map[string]image.Image //map of backgrounds to bowls
 	nfdMerch Merch
+	nfdSuit  image.Image
 }
 
 func NewProcessor(config config.ImageProcessorConfig) (*Processor, error) {
@@ -36,11 +37,17 @@ func NewProcessor(config config.ImageProcessorConfig) (*Processor, error) {
 		return nil, fmt.Errorf("Error building NFD Merch Image Mappings: %w", err)
 	}
 
+	suit, err := getImageFromFile(config.Suit)
+	if err != nil {
+		return nil, fmt.Errorf("Error loading Suit: %w", err)
+	}
+
 	return &Processor{
 		//Combined Hound images are too big to process and return to discord before timing out
 		Combiner: image.NewPNGCombiner(image.WithBestSpeedPNGCompression()),
 		bowls:    bowls,
 		nfdMerch: nfdMerch,
+		nfdSuit:  suit,
 	}, nil
 }
 
@@ -50,6 +57,10 @@ func (p *Processor) OverlayBowl(hound image.Image, background string) (*bytes.Bu
 		return nil, fmt.Errorf("No bowl file found for background: %s", background)
 	}
 	return p.EncodeImage(p.CombineImages(hound, bowl))
+}
+
+func (p *Processor) OverlayNFDSuit(ape image.Image) (*bytes.Buffer, error) {
+	return p.EncodeImage(p.CombineImages(ape, p.nfdSuit))
 }
 
 func (p *Processor) OverlayNFDMerch(hound image.Image, metadata metadata.HoundMetadata) (*bytes.Buffer, error) {
