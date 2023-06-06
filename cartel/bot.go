@@ -15,13 +15,15 @@ import (
 )
 
 var (
-	ipfsClient      ipfs.Client
-	stamper         *image.Processor
-	metadataFetcher *metadata.HoundMetadataFetcher
-	logger          *log.SugaredLogger
-	configFile      string
-	botToken        string
-	env             string
+	ipfsClient           ipfs.Client
+	maycIpfsClient       ipfs.Client
+	stamper              *image.Processor
+	houndMetadataFetcher *metadata.HoundMetadataFetcher
+	maycMetadataFetcher  *metadata.MAYCMetadataFetcher
+	logger               *log.SugaredLogger
+	configFile           string
+	botToken             string
+	env                  string
 )
 
 var cmd = &cobra.Command{
@@ -59,7 +61,12 @@ func botInit(_ *cobra.Command, _ []string) error {
 		return fmt.Errorf("Error creating IPFS Client: %w", err)
 	}
 
-	metadataFetcher = metadata.NewHoundMetadataFetcher(cfg.MetadataEndpoint)
+	maycIpfsClient, err = ipfs.NewClient(cfg.IPFSEndpoint, ipfs.WithPNGDecoder())
+	if err != nil {
+		return fmt.Errorf("Error creating IPFS Client: %w", err)
+	}
+	houndMetadataFetcher = metadata.NewHoundMetadataFetcher(cfg.HoundsMetadataEndpoint)
+	maycMetadataFetcher = metadata.NewMAYCMetadataFetcher(cfg.MAYCMetadataEndpoint)
 	botToken = "Bot " + cfg.BotToken
 	return nil
 }
@@ -72,6 +79,8 @@ func cartelBot(cmd *cobra.Command, _ []string) error {
 
 	dg.AddHandler(gmInteraction)
 	dg.AddHandler(nfdInteraction)
+	dg.AddHandler(suitInteraction)
+
 	if err := dg.Open(); err != nil {
 		return err
 	}
@@ -89,12 +98,35 @@ func cartelBot(cmd *cobra.Command, _ []string) error {
 		MinValue:    &minID,
 		MaxValue:    maxID,
 	}
+
 	_, err = dg.ApplicationCommandCreate(botID, "", &discordgo.ApplicationCommand{
 		Name:        "nfd",
 		Description: "Add NFD Campaign Merch",
 		Options:     []*discordgo.ApplicationCommandOption{houndID},
 	})
 
+	maxID = float64(30000)
+	maycID := &discordgo.ApplicationCommandOption{
+		Type:        discordgo.ApplicationCommandOptionInteger,
+		Name:        "mayc",
+		Description: "MAYC ID #",
+		Required:    true,
+		MinValue:    &minID,
+		MaxValue:    maxID,
+	}
+
+	nfdSuitSubCmd := &discordgo.ApplicationCommandOption{
+		Type:        discordgo.ApplicationCommandOptionSubCommand,
+		Name:        "nfd",
+		Description: "NFD Suit",
+		Options:     []*discordgo.ApplicationCommandOption{maycID},
+	}
+
+	_, err = dg.ApplicationCommandCreate(botID, "", &discordgo.ApplicationCommand{
+		Name:        "suit",
+		Description: "Add Suit to MAYC",
+		Options:     []*discordgo.ApplicationCommandOption{nfdSuitSubCmd},
+	})
 	if err != nil {
 		return err
 	}
@@ -125,7 +157,7 @@ func gmInteraction(session *discordgo.Session, interaction *discordgo.Interactio
 				Data: &discordgo.InteractionResponseData{}})
 			go func() {
 				houndID := cmdData.Options[0].UintValue()
-				metadata, err := metadataFetcher.Fetch(houndID)
+				metadata, err := houndMetadataFetcher.Fetch(houndID)
 				if err != nil {
 					err := fmt.Errorf("Failed to retrieve metadata for Hound #%d: %w", houndID, err)
 					logger.Errorf("Error: %s", err)
@@ -189,7 +221,7 @@ func nfdInteraction(session *discordgo.Session, interaction *discordgo.Interacti
 			go func() {
 				houndID := cmdData.Options[0].UintValue()
 				logger.Debugf("Getting metadata for hound #%d", houndID)
-				metadata, err := metadataFetcher.Fetch(houndID)
+				metadata, err := houndMetadataFetcher.Fetch(houndID)
 				if err != nil {
 					err := fmt.Errorf("Failed to retrieve metadata for Hound #%d: %w", houndID, err)
 					logger.Errorf("Error: %s", err)
@@ -222,7 +254,75 @@ func nfdInteraction(session *discordgo.Session, interaction *discordgo.Interacti
 					Reader:      buff,
 				}
 
-				content := "In NFD we trust :bossnfd: :bossnfd: :bossnfd:"
+				content := "In NFD we trust"
+				response := &discordgo.WebhookEdit{
+					Content: &content,
+					Files:   []*discordgo.File{file},
+				}
+				logger.Debugf("Uploading image")
+				if _, err := session.InteractionResponseEdit(interaction.Interaction, response); err != nil {
+					logger.Errorf("Error sending message: %s", err)
+				}
+			}()
+		}
+
+	}
+
+}
+
+func suitInteraction(session *discordgo.Session, interaction *discordgo.InteractionCreate) {
+	var name string
+	if nil == interaction.Member {
+		name = interaction.User.Username
+	} else {
+		if nil != interaction.Member.User {
+			name = interaction.Member.User.Username
+		}
+	}
+	if discordgo.InteractionApplicationCommand == interaction.Type {
+		cmdData := interaction.ApplicationCommandData()
+		if cmdData.Name == "suit" {
+			//Send ACK To meet the 3s turnaround and allow for more time to upload the image
+			session.InteractionRespond(interaction.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{}})
+			go func() {
+				maycID := cmdData.Options[0].Options[0].UintValue()
+				logger.Debugf("Getting metadata for MAYC #%d", maycID)
+				metadata, err := maycMetadataFetcher.Fetch(maycID)
+				if err != nil {
+					err := fmt.Errorf("Failed to retrieve metadata for MAYC #%d: %w", maycID, err)
+					logger.Errorf("Error: %s", err)
+					sendErrorResponse(err, session, interaction)
+					return
+				}
+				logger.Debugf("Metadata: %+v", metadata)
+
+				mayc, err := maycIpfsClient.GetImageFromIPFS(metadata.Image)
+				if err != nil {
+					err := fmt.Errorf("Failed to retrieve MAYC #%d image from IPFS: %w", maycID, err)
+					logger.Errorf("Error: %w", err)
+					sendErrorResponse(err, session, interaction)
+					return
+				}
+				logger.Debugf("Got image from IPFS")
+
+				logger.Debugf("Overlaying Image")
+				buff, err := stamper.OverlayNFDSuit(mayc)
+				if err != nil {
+					err := fmt.Errorf("Failed to overlay NFD Suit to MAYC  %d: %w ", maycID, err)
+					logger.Errorf("Error: %s", err)
+					sendErrorResponse(err, session, interaction)
+					return
+				}
+
+				file := &discordgo.File{
+					Name:        fmt.Sprintf("%s_nfd_suit_mayc_%d.png", name, maycID),
+					ContentType: "image/png",
+					Reader:      buff,
+				}
+
+				content := "In NFD we trust"
 				response := &discordgo.WebhookEdit{
 					Content: &content,
 					Files:   []*discordgo.File{file},
@@ -242,12 +342,20 @@ func sendErrorResponse(err error, session *discordgo.Session, interaction *disco
 	errMsg := err.Error()
 
 	if strings.Contains(errMsg, "invalid character 'T' looking for beginning of value") {
-		houndID := interaction.ApplicationCommandData().Options[0].UintValue()
+		options := interaction.ApplicationCommandData().Options[0]
+		if len(options.Options) != 0 {
+			options = options.Options[0]
+		}
+		houndID := options.UintValue()
 		errMsg = fmt.Sprintf("Error: Hound #%d has not yet been revealed", houndID)
 	}
 
 	if strings.Contains(errMsg, "invalid JPEG format") {
-		houndID := interaction.ApplicationCommandData().Options[0].UintValue()
+		options := interaction.ApplicationCommandData().Options[0]
+		if len(options.Options) != 0 {
+			options = options.Options[0]
+		}
+		houndID := options.UintValue()
 		errMsg = fmt.Sprintf("Error: Is Hound #%d a Mega? Megas are not currently supported", houndID)
 	}
 
