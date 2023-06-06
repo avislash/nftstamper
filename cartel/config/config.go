@@ -7,10 +7,11 @@ import (
 )
 
 type Config struct {
-	MetadataEndpoint     string               `yaml:"metadata_endpoint"`
-	BotToken             string               `yaml:"discord_bot_token"`
-	IPFSEndpoint         string               `yaml:"ipfs_endpoint"`
-	ImageProcessorConfig ImageProcessorConfig `yaml:"image_processor_mappings"`
+	HoundsMetadataEndpoint string               `yaml:"hounds_metadata_endpoint"`
+	MAYCMetadataEndpoint   string               `yaml:"mayc_metadata_endpoint"`
+	BotToken               string               `yaml:"discord_bot_token"`
+	IPFSEndpoint           string               `yaml:"ipfs_endpoint"`
+	ImageProcessorConfig   ImageProcessorConfig `yaml:"image_processor_mappings"`
 }
 
 type MerchMappings struct {
@@ -26,6 +27,7 @@ type MerchMappings struct {
 type ImageProcessorConfig struct {
 	GMMappings       map[string]string `yaml:"gm_mappings"`
 	NFDMerchMappings MerchMappings     `yaml:"nfd_merch_mappings"`
+	Suit             string            `yaml:"suit"`
 }
 
 func LoadCfg(env, cfgFile string) (Config, error) {
@@ -35,8 +37,12 @@ func LoadCfg(env, cfgFile string) (Config, error) {
 }
 
 func validateConfig(cfg *Config) error {
-	if len(cfg.MetadataEndpoint) == 0 {
-		return fmt.Errorf("No Metadata Endpoint Defined")
+	if len(cfg.HoundsMetadataEndpoint) == 0 {
+		return fmt.Errorf("No Mutant Hounds Metadata Endpoint Defined")
+	}
+
+	if len(cfg.MAYCMetadataEndpoint) == 0 {
+		return fmt.Errorf("No MAYC Metadata Endpoint Defined")
 	}
 
 	if len(cfg.BotToken) == 0 {

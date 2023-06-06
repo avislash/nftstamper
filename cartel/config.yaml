@@ -1,6 +1,7 @@
 #ipfs_endpoint: /ip4/127.0.0.1/tcp/5001 #ipfs_endpoint must be in multiaddr format: https://github.com/multiformats/multiaddr#encoding
 ipfs_endpoint: https://gateway.ipfs.io
-metadata_endpoint: https://api.mutantdao.com/hounds/metadata
+hounds_metadata_endpoint: https://api.mutantdao.com/hounds/metadata
+mayc_metadata_endpoint: https://boredapeyachtclub.com/api/mutants/
 discord_bot_token: CARTEL_DISCORD_BOT_TOKEN #can set in env as CARTEL_DISCORD_BOT_TOKEN
 image_processor_mappings:
     gm_mappings:
@@ -50,3 +51,4 @@ image_processor_mappings:
         hats:
             cartel hat: ./cartel/images/nfd/nfd_merch_hat.png
             cartel hat orange: ./cartel/images/nfd/nfd_merch_hat.png
+    suit: ./cartel/images/nfd/nfd_mayc_suit.png
