@@ -52,3 +52,27 @@ image_processor_mappings:
             cartel hat: ./cartel/images/nfd/nfd_merch_hat.png
             cartel hat orange: ./cartel/images/nfd/nfd_merch_hat.png
     suit: ./cartel/images/nfd/nfd_mayc_suit.png
+    pledge_hands:
+        default:
+            colors:
+                orange: ./cartel/images/hands/default_orange.png
+                white: ./cartel/images/hands/default_white.png
+                black: ./cartel/images/hands/default_black.png
+        m1 hawaiian: 
+           colors:
+                orange: ./cartel/images/hands/m1_hawaiian_orange.png
+                white: ./cartel/images/hands/m1_hawaiian_white.png
+                black: ./cartel/images/hands/m1_hawaiian_black.png
+        m1 service: 
+           colors:
+                orange: ./cartel/images/hands/m1_service_orange.png
+                white: ./cartel/images/hands/m1_service_white.png
+                black: ./cartel/images/hands/m1_service_black.png
+        m2 service: 
+           colors:
+                orange: ./cartel/images/hands/m2_service_orange.png
+                white: ./cartel/images/hands/m2_service_white.png
+                black: ./cartel/images/hands/m2_service_black.png
+
+
+
