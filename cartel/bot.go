@@ -80,6 +80,7 @@ func cartelBot(cmd *cobra.Command, _ []string) error {
 	dg.AddHandler(gmInteraction)
 	dg.AddHandler(nfdInteraction)
 	dg.AddHandler(suitInteraction)
+	dg.AddHandler(pledgeInteraction)
 
 	if err := dg.Open(); err != nil {
 		return err
@@ -98,12 +99,23 @@ func cartelBot(cmd *cobra.Command, _ []string) error {
 		MinValue:    &minID,
 		MaxValue:    maxID,
 	}
+	_, err = dg.ApplicationCommandCreate(botID, "", &discordgo.ApplicationCommand{
+		Name:        "gm",
+		Description: "Responds with a GM",
+		Options:     []*discordgo.ApplicationCommandOption{houndID},
+	})
+	if err != nil {
+		return err
+	}
 
 	_, err = dg.ApplicationCommandCreate(botID, "", &discordgo.ApplicationCommand{
 		Name:        "nfd",
 		Description: "Add NFD Campaign Merch",
 		Options:     []*discordgo.ApplicationCommandOption{houndID},
 	})
+	if err != nil {
+		return err
+	}
 
 	maxID = float64(30000)
 	maycID := &discordgo.ApplicationCommandOption{
@@ -131,7 +143,34 @@ func cartelBot(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
+	orangeHandSubCmd := &discordgo.ApplicationCommandOption{
+		Type:        discordgo.ApplicationCommandOptionSubCommand,
+		Name:        "orange",
+		Description: "Orange Hand Stamp",
+		Options:     []*discordgo.ApplicationCommandOption{maycID},
+	}
+	blackHandSubCmd := &discordgo.ApplicationCommandOption{
+		Type:        discordgo.ApplicationCommandOptionSubCommand,
+		Name:        "black",
+		Description: "Black Hand Stamp",
+		Options:     []*discordgo.ApplicationCommandOption{maycID},
+	}
+	whiteHandSubCmd := &discordgo.ApplicationCommandOption{
+		Type:        discordgo.ApplicationCommandOptionSubCommand,
+		Name:        "white",
+		Description: "White Hand Stamp",
+		Options:     []*discordgo.ApplicationCommandOption{maycID},
+	}
+	_, err = dg.ApplicationCommandCreate(botID, "", &discordgo.ApplicationCommand{
+		Name:        "pledge",
+		Description: "Pledge MAYC with the Mutant Cartel",
+		Options:     []*discordgo.ApplicationCommandOption{orangeHandSubCmd, blackHandSubCmd, whiteHandSubCmd},
+	})
+	if err != nil {
+		return err
+	}
 	logger.Info("Bot started")
+
 	<-cmd.Context().Done()
 	return nil
 }
@@ -323,6 +362,75 @@ func suitInteraction(session *discordgo.Session, interaction *discordgo.Interact
 				}
 
 				content := "In NFD we trust"
+				response := &discordgo.WebhookEdit{
+					Content: &content,
+					Files:   []*discordgo.File{file},
+				}
+				logger.Debugf("Uploading image")
+				if _, err := session.InteractionResponseEdit(interaction.Interaction, response); err != nil {
+					logger.Errorf("Error sending message: %s", err)
+				}
+			}()
+		}
+
+	}
+
+}
+
+func pledgeInteraction(session *discordgo.Session, interaction *discordgo.InteractionCreate) {
+	var name string
+	if nil == interaction.Member {
+		name = interaction.User.Username
+	} else {
+		if nil != interaction.Member.User {
+			name = interaction.Member.User.Username
+		}
+	}
+	if discordgo.InteractionApplicationCommand == interaction.Type {
+		cmdData := interaction.ApplicationCommandData()
+		if cmdData.Name == "pledge" {
+			//Send ACK To meet the 3s turnaround and allow for more time to upload the image
+			session.InteractionRespond(interaction.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{}})
+			go func() {
+				color := cmdData.Options[0].Name
+				maycID := cmdData.Options[0].Options[0].UintValue()
+				logger.Debugf("Getting metadata for MAYC #%d", maycID)
+				metadata, err := maycMetadataFetcher.Fetch(maycID)
+				if err != nil {
+					err := fmt.Errorf("Failed to retrieve metadata for MAYC #%d: %w", maycID, err)
+					logger.Errorf("Error: %s", err)
+					sendErrorResponse(err, session, interaction)
+					return
+				}
+				logger.Debugf("Metadata: %+v", metadata)
+
+				mayc, err := maycIpfsClient.GetImageFromIPFS(metadata.Image)
+				if err != nil {
+					err := fmt.Errorf("Failed to retrieve MAYC #%d image from IPFS: %w", maycID, err)
+					logger.Errorf("Error: %w", err)
+					sendErrorResponse(err, session, interaction)
+					return
+				}
+				logger.Debugf("Got image from IPFS")
+
+				logger.Debugf("Overlaying Image")
+				buff, err := stamper.OverlayHand(mayc, metadata, color)
+				if err != nil {
+					err := fmt.Errorf("Failed to overlay Hand Stamp to MAYC  %d: %w ", maycID, err)
+					logger.Errorf("Error: %s", err)
+					sendErrorResponse(err, session, interaction)
+					return
+				}
+
+				file := &discordgo.File{
+					Name:        fmt.Sprintf("%s_pledge_mayc_%d.png", name, maycID),
+					ContentType: "image/png",
+					Reader:      buff,
+				}
+
+				content := "I swear by the Apes of old and by all that is sacred to Mutants that I stand with the Mutant Cartel"
 				response := &discordgo.WebhookEdit{
 					Content: &content,
 					Files:   []*discordgo.File{file},
