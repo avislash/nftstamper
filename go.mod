@@ -4,7 +4,6 @@ go 1.20
 
 require (
 	github.com/bwmarrin/discordgo v0.27.1
-	github.com/davecgh/go-spew v1.1.1
 	github.com/ipfs/boxo v0.8.1
 	github.com/ipfs/go-ipfs-http-client v0.4.0
 	github.com/ipfs/interface-go-ipfs-core v0.7.0
@@ -16,7 +15,6 @@ require (
 )
 
 require (
-	github.com/btcsuite/btcd v0.21.0-beta // indirect
 	github.com/btcsuite/btcd/btcec/v2 v2.1.3 // indirect
 	github.com/crackcomm/go-gitignore v0.0.0-20170627025303-887ab5e44cc3 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.1.0 // indirect
