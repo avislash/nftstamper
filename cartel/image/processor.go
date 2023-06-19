@@ -25,6 +25,7 @@ type Processor struct {
 	pledgeHands map[string]map[string]image.Image //map of traits to colorss
 	nfdMerch    Merch
 	nfdSuit     image.Image
+	apeBags     map[string]image.Image
 }
 
 func NewProcessor(config config.ImageProcessorConfig) (*Processor, error) {
@@ -40,6 +41,11 @@ func NewProcessor(config config.ImageProcessorConfig) (*Processor, error) {
 			return nil, fmt.Errorf("Error building Hand Image Mappings for %s: %w", trait, err)
 		}
 		hands[trait] = colorMap
+	}
+
+	apeBags, err := buildImageMap(config.ApeBagMappings)
+	if err != nil {
+		return nil, fmt.Errorf("Error building Ape Bag Mappings: %w", err)
 	}
 
 	nfdMerch, err := buildMerch(config.NFDMerchMappings)
@@ -59,6 +65,7 @@ func NewProcessor(config config.ImageProcessorConfig) (*Processor, error) {
 		pledgeHands: hands,
 		nfdMerch:    nfdMerch,
 		nfdSuit:     suit,
+		apeBags:     apeBags,
 	}, nil
 }
 
@@ -117,6 +124,14 @@ func (p *Processor) OverlayNFDMerch(hound image.Image, metadata metadata.HoundMe
 	}
 
 	return p.EncodeImage(p.CombineImages(hound, merch))
+}
+
+func (p *Processor) OverlayApeBag(ape image.Image, metadata metadata.MAYCMetadata) (*bytes.Buffer, error) {
+	bag := p.apeBags["default"]
+	if override, exists := p.apeBags[metadata.Mouth]; exists {
+		bag = override
+	}
+	return p.EncodeImage(p.CombineImages(ape, bag))
 }
 
 func buildImageMap(imageFiles map[string]string) (map[string]image.Image, error) {
