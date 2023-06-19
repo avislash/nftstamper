@@ -132,3 +132,8 @@ image_processor_mappings:
                 orange: ./cartel/images/hands/m2_stunt_jacket_orange.png
                 white: ./cartel/images/hands/m2_stunt_jacket_white.png
                 black: ./cartel/images/hands/m2_stunt_jacket_black.png
+    ape_bag:
+        default: ./cartel/images/ape_bag/mayc_apebag_default.png
+        m1 tongue out: ./cartel/images/ape_bag/mayc_apebag_m1tongueout.png
+        m1 phoneme wah: ./cartel/images/ape_bag/mayc_apebag_m1phonemewah.png
+        m1 grin gold grill: ./cartel/images/ape_bag/mayc_apebag_m1grillgoldgrin.png

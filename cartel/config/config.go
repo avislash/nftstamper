@@ -38,6 +38,7 @@ type ImageProcessorConfig struct {
 	Suit             string                  `yaml:"suit"`
 	Hands            map[string]string       `yaml:"-"`
 	PledgeHands      map[string]HandMappings `yaml:"pledge_hands"`
+	ApeBagMappings   map[string]string       `yaml:"ape_bag"`
 }
 
 func LoadCfg(env, cfgFile string) (Config, error) {

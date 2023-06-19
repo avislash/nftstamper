@@ -81,6 +81,7 @@ func cartelBot(cmd *cobra.Command, _ []string) error {
 	dg.AddHandler(nfdInteraction)
 	dg.AddHandler(suitInteraction)
 	dg.AddHandler(pledgeInteraction)
+	dg.AddHandler(apeBagInteraction)
 
 	if err := dg.Open(); err != nil {
 		return err
@@ -117,7 +118,7 @@ func cartelBot(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	maxID = float64(30000)
+	maxID = float64(30006)
 	maycID := &discordgo.ApplicationCommandOption{
 		Type:        discordgo.ApplicationCommandOptionInteger,
 		Name:        "mayc",
@@ -169,6 +170,16 @@ func cartelBot(cmd *cobra.Command, _ []string) error {
 	if err != nil {
 		return err
 	}
+
+	_, err = dg.ApplicationCommandCreate(botID, "", &discordgo.ApplicationCommand{
+		Name:        "apebag",
+		Description: "Give MAYC a bag of $APE",
+		Options:     []*discordgo.ApplicationCommandOption{maycID},
+	})
+	if err != nil {
+		return err
+	}
+
 	logger.Info("Bot started")
 
 	<-cmd.Context().Done()
@@ -236,7 +247,6 @@ func gmInteraction(session *discordgo.Session, interaction *discordgo.Interactio
 				}
 			}()
 		}
-
 	}
 
 }
@@ -434,6 +444,72 @@ func pledgeInteraction(session *discordgo.Session, interaction *discordgo.Intera
 				response := &discordgo.WebhookEdit{
 					Content: &content,
 					Files:   []*discordgo.File{file},
+				}
+				logger.Debugf("Uploading image")
+				if _, err := session.InteractionResponseEdit(interaction.Interaction, response); err != nil {
+					logger.Errorf("Error sending message: %s", err)
+				}
+			}()
+		}
+
+	}
+
+}
+
+func apeBagInteraction(session *discordgo.Session, interaction *discordgo.InteractionCreate) {
+	var name string
+	if nil == interaction.Member {
+		name = interaction.User.Username
+	} else {
+		if nil != interaction.Member.User {
+			name = interaction.Member.User.Username
+		}
+	}
+	if discordgo.InteractionApplicationCommand == interaction.Type {
+		cmdData := interaction.ApplicationCommandData()
+		if cmdData.Name == "apebag" {
+			//Send ACK To meet the 3s turnaround and allow for more time to upload the image
+			session.InteractionRespond(interaction.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{}})
+			go func() {
+				maycID := cmdData.Options[0].UintValue()
+				logger.Debugf("Getting metadata for MAYC #%d", maycID)
+				metadata, err := maycMetadataFetcher.Fetch(maycID)
+				if err != nil {
+					err := fmt.Errorf("Failed to retrieve metadata for MAYC #%d: %w", maycID, err)
+					logger.Errorf("Error: %s", err)
+					sendErrorResponse(err, session, interaction)
+					return
+				}
+				logger.Debugf("Metadata: %+v", metadata)
+
+				mayc, err := maycIpfsClient.GetImageFromIPFS(metadata.Image)
+				if err != nil {
+					err := fmt.Errorf("Failed to retrieve MAYC #%d image from IPFS: %w", maycID, err)
+					logger.Errorf("Error: %w", err)
+					sendErrorResponse(err, session, interaction)
+					return
+				}
+				logger.Debugf("Got image from IPFS")
+
+				logger.Debugf("Overlaying Image")
+				buff, err := stamper.OverlayApeBag(mayc, metadata)
+				if err != nil {
+					err := fmt.Errorf("Failed to overlay Ape Bag to MAYC  %d: %w ", maycID, err)
+					logger.Errorf("Error: %s", err)
+					sendErrorResponse(err, session, interaction)
+					return
+				}
+
+				file := &discordgo.File{
+					Name:        fmt.Sprintf("%s_apebag_mayc_%d.png", name, maycID),
+					ContentType: "image/png",
+					Reader:      buff,
+				}
+
+				response := &discordgo.WebhookEdit{
+					Files: []*discordgo.File{file},
 				}
 				logger.Debugf("Uploading image")
 				if _, err := session.InteractionResponseEdit(interaction.Interaction, response); err != nil {
