@@ -52,3 +52,83 @@ image_processor_mappings:
             cartel hat: ./cartel/images/nfd/nfd_merch_hat.png
             cartel hat orange: ./cartel/images/nfd/nfd_merch_hat.png
     suit: ./cartel/images/nfd/nfd_mayc_suit.png
+    pledge_hands:
+        default:
+            colors:
+                orange: ./cartel/images/hands/default_orange.png
+                white: ./cartel/images/hands/default_white.png
+                black: ./cartel/images/hands/default_black.png
+        m1 hawaiian: 
+           colors:
+                orange: ./cartel/images/hands/m1_hawaiian_orange.png
+                white: ./cartel/images/hands/m1_hawaiian_white.png
+                black: ./cartel/images/hands/m1_hawaiian_black.png
+        m1 service: 
+           colors:
+                orange: ./cartel/images/hands/m1_service_orange.png
+                white: ./cartel/images/hands/m1_service_white.png
+                black: ./cartel/images/hands/m1_service_black.png
+        m2 service: 
+           colors:
+                orange: ./cartel/images/hands/m2_service_orange.png
+                white: ./cartel/images/hands/m2_service_white.png
+                black: ./cartel/images/hands/m2_service_black.png
+        m1 admiral coat: 
+           colors:
+                orange: ./cartel/images/hands/m1_admiral_coat_orange.png
+                white: ./cartel/images/hands/m1_admiral_coat_white.png
+                black: ./cartel/images/hands/m1_admiral_coat_black.png
+        m1 bayc t black: 
+           colors:
+                orange: ./cartel/images/hands/m1_bayc_t_black_orange.png
+                white: ./cartel/images/hands/m1_bayc_t_black_white.png
+                black: ./cartel/images/hands/m1_bayc_t_black_black.png
+        m1 caveman pelt: 
+           colors:
+                orange: ./cartel/images/hands/m1_caveman_pelt_orange.png
+                white: ./cartel/images/hands/m1_caveman_pelt_white.png
+                black: ./cartel/images/hands/m1_caveman_pelt_black.png
+        m1 hiphop: 
+           colors:
+                orange: ./cartel/images/hands/m1_hiphop_orange.png
+                white: ./cartel/images/hands/m1_hiphop_white.png
+                black: ./cartel/images/hands/m1_hiphop_black.png
+        m1 pimpcoat: 
+           colors:
+                orange: ./cartel/images/hands/m1_pimpcoat_orange.png
+                white: ./cartel/images/hands/m1_pimpcoat_white.png
+                black: ./cartel/images/hands/m1_pimpcoat_black.png
+        m1 puffy vest: 
+           colors:
+                orange: ./cartel/images/hands/m1_puffy_vest_orange.png
+                white: ./cartel/images/hands/m1_puffy_vest_white.png
+                black: ./cartel/images/hands/m1_puffy_vest_black.png
+        m1 stunt jacket: 
+           colors:
+                orange: ./cartel/images/hands/m1_stunt_jacket_orange.png
+                white: ./cartel/images/hands/m1_stunt_jacket_white.png
+                black: ./cartel/images/hands/m1_stunt_jacket_black.png
+        m2 black holes t: 
+           colors:
+                orange: ./cartel/images/hands/m2_black_holes_t_orange.png
+                white: ./cartel/images/hands/m2_black_holes_t_white.png
+                black: ./cartel/images/hands/m2_black_holes_t_black.png
+        m2 leather punk jacket: 
+           colors:
+                orange: ./cartel/images/hands/m2_leather_punk_jacket_orange.png
+                white: ./cartel/images/hands/m2_leather_punk_jacket_white.png
+                black: ./cartel/images/hands/m2_leather_punk_jacket_black.png
+        m2 smoking jacket: 
+           colors:
+                orange: ./cartel/images/hands/m2_smoking_jacket_orange.png
+                white: ./cartel/images/hands/m2_smoking_jacket_white.png
+                black: ./cartel/images/hands/m2_smoking_jacket_black.png
+        m2 space suit: 
+           colors:
+                orange: ./cartel/images/hands/m2_space_suit_orange.png
+                white: ./cartel/images/hands/m2_space_suit_white.png
+                black: ./cartel/images/hands/m2_space_suit_black.png
+        m2 stunt jacket:
+                orange: ./cartel/images/hands/m2_stunt_jacket_orange.png
+                white: ./cartel/images/hands/m2_stunt_jacket_white.png
+                black: ./cartel/images/hands/m2_stunt_jacket_black.png

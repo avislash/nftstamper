@@ -21,15 +21,25 @@ type Merch struct {
 }
 type Processor struct {
 	image.Combiner
-	bowls    map[string]image.Image //map of backgrounds to bowls
-	nfdMerch Merch
-	nfdSuit  image.Image
+	bowls       map[string]image.Image            //map of backgrounds to bowls
+	pledgeHands map[string]map[string]image.Image //map of traits to colorss
+	nfdMerch    Merch
+	nfdSuit     image.Image
 }
 
 func NewProcessor(config config.ImageProcessorConfig) (*Processor, error) {
 	bowls, err := buildImageMap(config.GMMappings)
 	if err != nil {
 		return nil, fmt.Errorf("Error building GM Bowl Image Mappings: %w", err)
+	}
+
+	hands := make(map[string]map[string]image.Image)
+	for trait, mappings := range config.PledgeHands {
+		colorMap, err := buildImageMap(mappings.Colors)
+		if err != nil {
+			return nil, fmt.Errorf("Error building Hand Image Mappings for %s: %w", trait, err)
+		}
+		hands[trait] = colorMap
 	}
 
 	nfdMerch, err := buildMerch(config.NFDMerchMappings)
@@ -44,10 +54,11 @@ func NewProcessor(config config.ImageProcessorConfig) (*Processor, error) {
 
 	return &Processor{
 		//Combined Hound images are too big to process and return to discord before timing out
-		Combiner: image.NewPNGCombiner(image.WithBestSpeedPNGCompression()),
-		bowls:    bowls,
-		nfdMerch: nfdMerch,
-		nfdSuit:  suit,
+		Combiner:    image.NewPNGCombiner(image.WithBestSpeedPNGCompression()),
+		bowls:       bowls,
+		pledgeHands: hands,
+		nfdMerch:    nfdMerch,
+		nfdSuit:     suit,
 	}, nil
 }
 
@@ -61,6 +72,27 @@ func (p *Processor) OverlayBowl(hound image.Image, background string) (*bytes.Bu
 
 func (p *Processor) OverlayNFDSuit(ape image.Image) (*bytes.Buffer, error) {
 	return p.EncodeImage(p.CombineImages(ape, p.nfdSuit))
+}
+
+func (p *Processor) OverlayHand(ape image.Image, metadata metadata.MAYCMetadata, color string) (*bytes.Buffer, error) {
+	key := "default"
+	hands := p.pledgeHands[key]
+
+	if override, exists := p.pledgeHands[metadata.Clothes]; exists {
+		key = metadata.Clothes
+		hands = override
+	}
+
+	if len(hands) == 0 {
+		return nil, fmt.Errorf("No Default or Trait Color Map Defined at key: %s", key)
+	}
+
+	hand, exists := hands[color]
+	if !exists {
+		return nil, fmt.Errorf("No hand image found for %s", color)
+	}
+
+	return p.EncodeImage(p.CombineImages(ape, hand))
 }
 
 func (p *Processor) OverlayNFDMerch(hound image.Image, metadata metadata.HoundMetadata) (*bytes.Buffer, error) {
