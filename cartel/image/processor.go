@@ -19,10 +19,25 @@ type Merch struct {
 	FlameTraits map[string]string
 	XLTraits    map[string]string
 }
+
+type pledgeHands struct {
+	hands map[string]map[string]map[string]image.Image
+}
+
+func (p *pledgeHands) getMAYCHands() map[string]map[string]image.Image {
+	hands, _ := p.hands["mayc"]
+	return hands
+}
+
+func (p *pledgeHands) getMutantHoundsHands() map[string]map[string]image.Image {
+	hands, _ := p.hands["mutant_hounds"]
+	return hands
+}
+
 type Processor struct {
 	image.Combiner
-	bowls       map[string]image.Image            //map of backgrounds to bowls
-	pledgeHands map[string]map[string]image.Image //map of traits to colorss
+	bowls       map[string]image.Image //map of backgrounds to bowls
+	pledgeHands pledgeHands            //map[string]map[string]image.Image //map of traits to colorss
 	nfdMerch    Merch
 	nfdSuit     image.Image
 	apeBags     map[string]image.Image
@@ -34,14 +49,26 @@ func NewProcessor(config config.ImageProcessorConfig) (*Processor, error) {
 		return nil, fmt.Errorf("Error building GM Bowl Image Mappings: %w", err)
 	}
 
+	pledgeHands := pledgeHands{hands: make(map[string]map[string]map[string]image.Image)}
 	hands := make(map[string]map[string]image.Image)
-	for trait, mappings := range config.PledgeHands {
+	for trait, mappings := range config.PledgeHands.MAYC {
 		colorMap, err := buildImageMap(mappings.Colors)
 		if err != nil {
 			return nil, fmt.Errorf("Error building Hand Image Mappings for %s: %w", trait, err)
 		}
 		hands[trait] = colorMap
 	}
+	pledgeHands.hands["mayc"] = hands
+
+	hands = make(map[string]map[string]image.Image)
+	for trait, mappings := range config.PledgeHands.Hounds {
+		colorMap, err := buildImageMap(mappings.Colors)
+		if err != nil {
+			return nil, fmt.Errorf("Error building Hand Image Mappings for %s: %w", trait, err)
+		}
+		hands[trait] = colorMap
+	}
+	pledgeHands.hands["mutant_hounds"] = hands
 
 	apeBags, err := buildImageMap(config.ApeBagMappings)
 	if err != nil {
@@ -62,7 +89,7 @@ func NewProcessor(config config.ImageProcessorConfig) (*Processor, error) {
 		//Combined Hound images are too big to process and return to discord before timing out
 		Combiner:    image.NewPNGCombiner(image.WithBestSpeedPNGCompression()),
 		bowls:       bowls,
-		pledgeHands: hands,
+		pledgeHands: pledgeHands,
 		nfdMerch:    nfdMerch,
 		nfdSuit:     suit,
 		apeBags:     apeBags,
@@ -81,11 +108,12 @@ func (p *Processor) OverlayNFDSuit(ape image.Image) (*bytes.Buffer, error) {
 	return p.EncodeImage(p.CombineImages(ape, p.nfdSuit))
 }
 
-func (p *Processor) OverlayHand(ape image.Image, metadata metadata.MAYCMetadata, color string) (*bytes.Buffer, error) {
+func (p *Processor) OverlayHandMAYC(ape image.Image, metadata metadata.MAYCMetadata, color string) (*bytes.Buffer, error) {
 	key := "default"
-	hands := p.pledgeHands[key]
+	maycHands := p.pledgeHands.getMAYCHands()
+	hands := maycHands[key]
 
-	if override, exists := p.pledgeHands[metadata.Clothes]; exists {
+	if override, exists := maycHands[metadata.Clothes]; exists {
 		key = metadata.Clothes
 		hands = override
 	}
@@ -100,6 +128,23 @@ func (p *Processor) OverlayHand(ape image.Image, metadata metadata.MAYCMetadata,
 	}
 
 	return p.EncodeImage(p.CombineImages(ape, hand))
+}
+
+func (p *Processor) OverlayHandHound(hound image.Image, _ metadata.HoundMetadata, color string) (*bytes.Buffer, error) {
+	key := "default"
+	houndHands := p.pledgeHands.getMutantHoundsHands()
+	hands := houndHands[key]
+
+	if len(hands) == 0 {
+		return nil, fmt.Errorf("No Default or Trait Color Map Defined at key: %s", key)
+	}
+
+	hand, exists := hands[color]
+	if !exists {
+		return nil, fmt.Errorf("No hand image found for %s", color)
+	}
+
+	return p.EncodeImage(p.CombineImages(hound, hand))
 }
 
 func (p *Processor) OverlayNFDMerch(hound image.Image, metadata metadata.HoundMetadata) (*bytes.Buffer, error) {
