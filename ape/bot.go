@@ -1,6 +1,7 @@
 package ape
 
 import (
+	"bytes"
 	"fmt"
 
 	"github.com/avislash/nftstamper/ape/config"
@@ -11,6 +12,12 @@ import (
 	"github.com/avislash/nftstamper/root"
 	"github.com/bwmarrin/discordgo"
 	"github.com/spf13/cobra"
+)
+
+type hbdOpt int
+
+const (
+	hbdMegaGold hbdOpt = iota
 )
 
 var (
@@ -70,6 +77,7 @@ func apeBot(cmd *cobra.Command, _ []string) error {
 	}
 
 	dg.AddHandler(gmInteraction)
+	dg.AddHandler(hbdInteraction)
 	if err := dg.Open(); err != nil {
 		return err
 	}
@@ -93,7 +101,26 @@ func apeBot(cmd *cobra.Command, _ []string) error {
 	})
 
 	if err != nil {
-		return err
+		return fmt.Errorf("Error adding GM Command: %w", err)
+	}
+
+	hbdCmdOpts := []*discordgo.ApplicationCommandOptionChoice{&discordgo.ApplicationCommandOptionChoice{Name: "Mega Gold", Value: hbdMegaGold}}
+	hbdChoices := &discordgo.ApplicationCommandOption{
+		Type:        discordgo.ApplicationCommandOptionInteger,
+		Name:        "to",
+		Description: "Whose Birthday",
+		Required:    true,
+		Choices:     hbdCmdOpts,
+	}
+
+	_, err = dg.ApplicationCommandCreate(botID, "", &discordgo.ApplicationCommand{
+		Name:        "hbd",
+		Description: "Celebrate a Birthday",
+		Options:     []*discordgo.ApplicationCommandOption{hbdChoices, sentinelID},
+	})
+
+	if err != nil {
+		return fmt.Errorf("Error adding HBD Command: %w", err)
 	}
 
 	logger.Info("Bot started")
@@ -164,6 +191,84 @@ func gmInteraction(session *discordgo.Session, interaction *discordgo.Interactio
 			}()
 		}
 
+	}
+}
+
+func hbdInteraction(session *discordgo.Session, interaction *discordgo.InteractionCreate) {
+	var name string
+	if nil == interaction.Member {
+		name = interaction.User.Username
+	} else {
+		if nil != interaction.Member.User {
+			name = interaction.Member.User.Username
+		}
+	}
+	if discordgo.InteractionApplicationCommand == interaction.Type {
+		cmdData := interaction.ApplicationCommandData()
+		if cmdData.Name == "hbd" {
+			//Send ACK To meet the 3s turnaround and allow for more time to upload the image
+			session.InteractionRespond(interaction.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{}})
+			go func() {
+				var (
+					filename string
+					image    *bytes.Buffer
+					message  string
+				)
+
+				hbdTo := cmdData.Options[0].UintValue()
+				sentinelID := cmdData.Options[1].UintValue()
+				switch hbdOpt(hbdTo) {
+				case hbdMegaGold:
+					filename = fmt.Sprintf("%s_hbd_mega_gold_%d.png", name, sentinelID)
+					message = "HBD Mega Gold!"
+					metadata, err := metadataFetcher.Fetch(sentinelID)
+					if err != nil {
+						err := fmt.Errorf("Failed to retrieve metadata for Sentinel #%d: %w", sentinelID, err)
+						logger.Errorf("Error: %s", err)
+						sendErrorResponse(err, session, interaction)
+						return
+					}
+
+					sentinel, err := ipfsClient.GetImageFromIPFS(metadata.Image)
+					if err != nil {
+						err := fmt.Errorf("Failed to retrieve Sentinel #%d image from IPFS: %w", sentinelID, err)
+						logger.Errorf("Error: %s", err)
+						sendErrorResponse(err, session, interaction)
+						return
+					}
+
+					image, err = stamper.OverlayHBD(sentinel, metadata)
+					if err != nil {
+						err := fmt.Errorf("Failed to create HBD image for Sentinel %d: %w ", sentinelID, err)
+						logger.Errorf("Error: %s", err)
+						sendErrorResponse(err, session, interaction)
+						return
+					}
+				default:
+					err := fmt.Errorf("Unsupported HBD Option %d", hbdTo)
+					logger.Errorf("Error: %s", err)
+					sendErrorResponse(err, session, interaction)
+					return
+				}
+				file := &discordgo.File{
+					Name:        filename,
+					ContentType: "image/png",
+					Reader:      image,
+				}
+
+				response := &discordgo.WebhookEdit{
+					Content: &message,
+					Files:   []*discordgo.File{file},
+				}
+				logger.Debugf("Uploading image")
+				if _, err := session.InteractionResponseEdit(interaction.Interaction, response); err != nil {
+					logger.Errorf("Error sending message: %s", err)
+				}
+
+			}()
+		}
 	}
 }
 
