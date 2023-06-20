@@ -1,6 +1,7 @@
 package cartel
 
 import (
+	"bytes"
 	"fmt"
 	"strings"
 
@@ -24,6 +25,13 @@ var (
 	configFile           string
 	botToken             string
 	env                  string
+)
+
+type collectionOpt int
+
+const (
+	houndsOpt collectionOpt = iota
+	maycOpt
 )
 
 var cmd = &cobra.Command{
@@ -144,23 +152,41 @@ func cartelBot(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
+	id := &discordgo.ApplicationCommandOption{
+		Type:        discordgo.ApplicationCommandOptionInteger,
+		Name:        "id",
+		Description: "ID #",
+		Required:    true,
+		MinValue:    &minID,
+		MaxValue:    maxID,
+	}
+	choices := []*discordgo.ApplicationCommandOptionChoice{&discordgo.ApplicationCommandOptionChoice{Name: "hound", Value: houndsOpt},
+		&discordgo.ApplicationCommandOptionChoice{Name: "mayc", Value: maycOpt},
+	}
+	collectionChoice := &discordgo.ApplicationCommandOption{
+		Type:        discordgo.ApplicationCommandOptionInteger,
+		Name:        "collection",
+		Description: "which collection",
+		Required:    true,
+		Choices:     choices,
+	}
 	orangeHandSubCmd := &discordgo.ApplicationCommandOption{
 		Type:        discordgo.ApplicationCommandOptionSubCommand,
 		Name:        "orange",
 		Description: "Orange Hand Stamp",
-		Options:     []*discordgo.ApplicationCommandOption{maycID},
+		Options:     []*discordgo.ApplicationCommandOption{collectionChoice, id},
 	}
 	blackHandSubCmd := &discordgo.ApplicationCommandOption{
 		Type:        discordgo.ApplicationCommandOptionSubCommand,
 		Name:        "black",
 		Description: "Black Hand Stamp",
-		Options:     []*discordgo.ApplicationCommandOption{maycID},
+		Options:     []*discordgo.ApplicationCommandOption{collectionChoice, id},
 	}
 	whiteHandSubCmd := &discordgo.ApplicationCommandOption{
 		Type:        discordgo.ApplicationCommandOptionSubCommand,
 		Name:        "white",
 		Description: "White Hand Stamp",
-		Options:     []*discordgo.ApplicationCommandOption{maycID},
+		Options:     []*discordgo.ApplicationCommandOption{collectionChoice, id},
 	}
 	_, err = dg.ApplicationCommandCreate(botID, "", &discordgo.ApplicationCommand{
 		Name:        "pledge",
@@ -404,40 +430,89 @@ func pledgeInteraction(session *discordgo.Session, interaction *discordgo.Intera
 				Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{}})
 			go func() {
-				color := cmdData.Options[0].Name
-				maycID := cmdData.Options[0].Options[0].UintValue()
-				logger.Debugf("Getting metadata for MAYC #%d", maycID)
-				metadata, err := maycMetadataFetcher.Fetch(maycID)
-				if err != nil {
-					err := fmt.Errorf("Failed to retrieve metadata for MAYC #%d: %w", maycID, err)
-					logger.Errorf("Error: %s", err)
-					sendErrorResponse(err, session, interaction)
-					return
-				}
-				logger.Debugf("Metadata: %+v", metadata)
+				var (
+					filename string
+					image    *bytes.Buffer
+				)
 
-				mayc, err := maycIpfsClient.GetImageFromIPFS(metadata.Image)
-				if err != nil {
-					err := fmt.Errorf("Failed to retrieve MAYC #%d image from IPFS: %w", maycID, err)
-					logger.Errorf("Error: %w", err)
-					sendErrorResponse(err, session, interaction)
-					return
-				}
-				logger.Debugf("Got image from IPFS")
+				options := cmdData.Options[0]
+				color := options.Name
 
-				logger.Debugf("Overlaying Image")
-				buff, err := stamper.OverlayHand(mayc, metadata, color)
-				if err != nil {
-					err := fmt.Errorf("Failed to overlay Hand Stamp to MAYC  %d: %w ", maycID, err)
-					logger.Errorf("Error: %s", err)
-					sendErrorResponse(err, session, interaction)
-					return
-				}
+				choices := cmdData.Options[0]
 
+				collection := choices.Options[0].UintValue()
+
+				switch collectionOpt(collection) {
+				case maycOpt:
+					maycID := choices.Options[1].UintValue()
+					filename = fmt.Sprintf("%s_pledge_mayc_%d.png", name, maycID)
+					logger.Debugf("Getting metadata for MAYC #%d", maycID)
+					metadata, err := maycMetadataFetcher.Fetch(maycID)
+					if err != nil {
+						err := fmt.Errorf("Failed to retrieve metadata for MAYC #%d: %w", maycID, err)
+						logger.Errorf("Error: %s", err)
+						sendErrorResponse(err, session, interaction)
+						return
+					}
+					logger.Debugf("Metadata: %+v", metadata)
+
+					mayc, err := maycIpfsClient.GetImageFromIPFS(metadata.Image)
+					if err != nil {
+						err := fmt.Errorf("Failed to retrieve MAYC #%d image from IPFS: %w", maycID, err)
+						logger.Errorf("Error: %w", err)
+						sendErrorResponse(err, session, interaction)
+						return
+					}
+					logger.Debugf("Got image from IPFS")
+
+					logger.Debugf("Overlaying Image")
+					image, err = stamper.OverlayHandMAYC(mayc, metadata, color)
+					if err != nil {
+						err := fmt.Errorf("Failed to overlay Hand Stamp to MAYC  %d: %w ", maycID, err)
+						logger.Errorf("Error: %s", err)
+						sendErrorResponse(err, session, interaction)
+						return
+					}
+				case houndsOpt:
+					houndID := choices.Options[1].UintValue()
+					filename = fmt.Sprintf("%s_pledge_hound_%d.png", name, houndID)
+					logger.Debugf("Getting metadata for Hound #%d", houndID)
+					metadata, err := houndMetadataFetcher.Fetch(houndID)
+					if err != nil {
+						err := fmt.Errorf("Failed to retrieve metadata for Hound #%d: %w", houndID, err)
+						logger.Errorf("Error: %s", err)
+						sendErrorResponse(err, session, interaction)
+						return
+					}
+					logger.Debugf("Metadata: %+v", metadata)
+
+					hound, err := ipfsClient.GetImageFromIPFS(metadata.Image)
+					if err != nil {
+						err := fmt.Errorf("Failed to retrieve Hound #%d image from IPFS: %w", houndID, err)
+						logger.Errorf("Error: %w", err)
+						sendErrorResponse(err, session, interaction)
+						return
+					}
+					logger.Debugf("Got image from IPFS")
+
+					logger.Debugf("Overlaying Image")
+					image, err = stamper.OverlayHandHound(hound, metadata, color)
+					if err != nil {
+						err := fmt.Errorf("Failed to overlay Hand Stamp on Hound  %d: %w ", houndID, err)
+						logger.Errorf("Error: %s", err)
+						sendErrorResponse(err, session, interaction)
+						return
+					}
+
+				default:
+					sendErrorResponse(fmt.Errorf("Unrecognized Colection: %d", collection), session, interaction)
+					return
+
+				}
 				file := &discordgo.File{
-					Name:        fmt.Sprintf("%s_pledge_mayc_%d.png", name, maycID),
+					Name:        filename,
 					ContentType: "image/png",
-					Reader:      buff,
+					Reader:      image,
 				}
 
 				content := "I swear by the Apes of old and by all that is sacred to Mutants that I stand with the Mutant Cartel"
