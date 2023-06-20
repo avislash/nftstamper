@@ -1,14 +1,146 @@
-ipfs_endpoint: /ip4/127.0.0.1/tcp/5001 #ipfs_endpoint must be in multiaddr format: https://github.com/multiformats/multiaddr#encoding
-metadata_endpoint: https://api.mutantdao.com/hounds/metadata
+#ipfs_endpoint: /ip4/127.0.0.1/tcp/5001 #ipfs_endpoint must be in multiaddr format: https://github.com/multiformats/multiaddr#encoding
+ipfs_endpoint: https://gateway.ipfs.io
+hounds_metadata_endpoint: https://api.mutantdao.com/hounds/metadata
+mayc_metadata_endpoint: https://boredapeyachtclub.com/api/mutants/
 discord_bot_token: CARTEL_DISCORD_BOT_TOKEN #can set in env as CARTEL_DISCORD_BOT_TOKEN
 image_processor_mappings:
     gm_mappings:
-        Hound Lair: ./cartel/bowls/hound_lair.png
-        Shipwreck: ./cartel/bowls/shipwreck.png
-        Jungle: ./cartel/bowls/jungle.png
-        Cave Entrance: ./cartel/bowls/cave_entrance.png
-        Lab: ./cartel/bowls/lab.png
-        Hideout: ./cartel/bowls/hideout.png
-        Temple Room: ./cartel/bowls/temple_room.png
-        Warehouse: ./cartel/bowls/warehouse.png
-        Docks: ./cartel/bowls/docks.png
+        Hound Lair: ./cartel/images/bowls/hound_lair.png
+        Shipwreck: ./cartel/images/bowls/shipwreck.png
+        Jungle: ./cartel/images/bowls/jungle.png
+        Cave Entrance: ./cartel/images/bowls/cave_entrance.png
+        Lab: ./cartel/images/bowls/lab.png
+        Hideout: ./cartel/images/bowls/hideout.png
+        Temple Room: ./cartel/images/bowls/temple_room.png
+        Warehouse: ./cartel/images/bowls/warehouse.png
+        Docks: ./cartel/images/bowls/docks.png
+ 
+    nfd_merch_mappings:
+        default: ./cartel/images/nfd/nfd_shirt.png
+        default_flame: ./cartel/images/nfd/nfd_shirt_flame.png
+        #xl: ./cartel/images/nfd/nfd_shirt_xl.png
+        xl: ./cartel/images/nfd/nfd_pin.png
+        xl_flame: ./cartel/images/nfd/nfd_pin.png
+        xl_traits:
+            gladiator: ""
+            gorilla chest: ""
+            k-9: ""
+            samurai: "" 
+            jet pack: ""
+            abominable: "" 
+            piranha: "" 
+            deathbot rocket launcher: "" 
+            tv: "" 
+            kensei: "" 
+            kensei gold: "" 
+            gladiator gold: "" 
+            frigid armor: "" 
+            volcanic: "" 
+            bionic rocket launcher: ""
+            dragon scales: "" 
+            haunted woods: "" 
+            skull tunic: "" 
+            skeletal armour: "" 
+            cartel hoodie: ""
+            ritual robe: ""
+            mech saddle: ""
+            blood bound: ""
+        flame_traits:
+            blue  flame: ""
+            orange flame: ""
+        hats:
+            cartel hat: ./cartel/images/nfd/nfd_merch_hat.png
+            cartel hat orange: ./cartel/images/nfd/nfd_merch_hat.png
+    suit: ./cartel/images/nfd/nfd_mayc_suit.png
+    pledge_hands:
+        mutant_hounds:
+            default:
+                colors:
+                    orange: ./cartel/images/hands/default_hound_orange.png
+                    white: ./cartel/images/hands/default_hound_white.png
+                    black: ./cartel/images/hands/default_hound_black.png
+        mayc:
+            default:
+                colors:
+                    orange: ./cartel/images/hands/default_orange.png
+                    white: ./cartel/images/hands/default_white.png
+                    black: ./cartel/images/hands/default_black.png
+            m1 hawaiian: 
+               colors:
+                    orange: ./cartel/images/hands/m1_hawaiian_orange.png
+                    white: ./cartel/images/hands/m1_hawaiian_white.png
+                    black: ./cartel/images/hands/m1_hawaiian_black.png
+            m1 service: 
+               colors:
+                    orange: ./cartel/images/hands/m1_service_orange.png
+                    white: ./cartel/images/hands/m1_service_white.png
+                    black: ./cartel/images/hands/m1_service_black.png
+            m2 service: 
+               colors:
+                    orange: ./cartel/images/hands/m2_service_orange.png
+                    white: ./cartel/images/hands/m2_service_white.png
+                    black: ./cartel/images/hands/m2_service_black.png
+            m1 admiral coat: 
+               colors:
+                    orange: ./cartel/images/hands/m1_admiral_coat_orange.png
+                    white: ./cartel/images/hands/m1_admiral_coat_white.png
+                    black: ./cartel/images/hands/m1_admiral_coat_black.png
+            m1 bayc t black: 
+               colors:
+                    orange: ./cartel/images/hands/m1_bayc_t_black_orange.png
+                    white: ./cartel/images/hands/m1_bayc_t_black_white.png
+                    black: ./cartel/images/hands/m1_bayc_t_black_black.png
+            m1 caveman pelt: 
+               colors:
+                    orange: ./cartel/images/hands/m1_caveman_pelt_orange.png
+                    white: ./cartel/images/hands/m1_caveman_pelt_white.png
+                    black: ./cartel/images/hands/m1_caveman_pelt_black.png
+            m1 hiphop: 
+               colors:
+                    orange: ./cartel/images/hands/m1_hiphop_orange.png
+                    white: ./cartel/images/hands/m1_hiphop_white.png
+                    black: ./cartel/images/hands/m1_hiphop_black.png
+            m1 pimpcoat: 
+               colors:
+                    orange: ./cartel/images/hands/m1_pimpcoat_orange.png
+                    white: ./cartel/images/hands/m1_pimpcoat_white.png
+                    black: ./cartel/images/hands/m1_pimpcoat_black.png
+            m1 puffy vest: 
+               colors:
+                    orange: ./cartel/images/hands/m1_puffy_vest_orange.png
+                    white: ./cartel/images/hands/m1_puffy_vest_white.png
+                    black: ./cartel/images/hands/m1_puffy_vest_black.png
+            m1 stunt jacket: 
+               colors:
+                    orange: ./cartel/images/hands/m1_stunt_jacket_orange.png
+                    white: ./cartel/images/hands/m1_stunt_jacket_white.png
+                    black: ./cartel/images/hands/m1_stunt_jacket_black.png
+            m2 black holes t: 
+               colors:
+                    orange: ./cartel/images/hands/m2_black_holes_t_orange.png
+                    white: ./cartel/images/hands/m2_black_holes_t_white.png
+                    black: ./cartel/images/hands/m2_black_holes_t_black.png
+            m2 leather punk jacket: 
+               colors:
+                    orange: ./cartel/images/hands/m2_leather_punk_jacket_orange.png
+                    white: ./cartel/images/hands/m2_leather_punk_jacket_white.png
+                    black: ./cartel/images/hands/m2_leather_punk_jacket_black.png
+            m2 smoking jacket: 
+               colors:
+                    orange: ./cartel/images/hands/m2_smoking_jacket_orange.png
+                    white: ./cartel/images/hands/m2_smoking_jacket_white.png
+                    black: ./cartel/images/hands/m2_smoking_jacket_black.png
+            m2 space suit: 
+               colors:
+                    orange: ./cartel/images/hands/m2_space_suit_orange.png
+                    white: ./cartel/images/hands/m2_space_suit_white.png
+                    black: ./cartel/images/hands/m2_space_suit_black.png
+            m2 stunt jacket:
+                    orange: ./cartel/images/hands/m2_stunt_jacket_orange.png
+                    white: ./cartel/images/hands/m2_stunt_jacket_white.png
+                    black: ./cartel/images/hands/m2_stunt_jacket_black.png
+    ape_bag:
+        default: ./cartel/images/ape_bag/mayc_apebag_default.png
+        m1 tongue out: ./cartel/images/ape_bag/mayc_apebag_m1tongueout.png
+        m1 phoneme wah: ./cartel/images/ape_bag/mayc_apebag_m1phonemewah.png
+        m1 grin gold grill: ./cartel/images/ape_bag/mayc_apebag_m1grillgoldgrin.png
