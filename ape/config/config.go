@@ -22,6 +22,7 @@ type ImageProcessorConfig struct {
 	AzulGMSmoke       string                       `yaml:"azul_gm_smoke"`
 	BaseGMSmokeBorder string                       `yaml:"base_gm_smoke_border"`
 	AzulGMSmokeBorder string                       `yaml:"azul_gm_smoke_border"`
+	HBDMappings       map[string]string            `yaml:"hbd_mappings"`
 	Filters           FilterCfgs                   `yaml:"filters"`
 }
 
