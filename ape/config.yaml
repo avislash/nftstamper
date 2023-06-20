@@ -72,6 +72,29 @@ image_processor_mappings:
     azul_gm_smoke: ./ape/gm_assets/AZUL_GM_SMOKE.png
     azul_gm_smoke_border: ./ape/gm_assets/AZUL_GM_SMOKE_BORDER.png
 
+    hbd_mappings:
+        trippy: ./ape/images/hbd/TRIPPY_HBD.png
+        crystal: ./ape/images/hbd/CRYSTAL_HBD.png
+        ice: ./ape/images/hbd/ICE_HBD.png
+        demon: ./ape/images/hbd/DEMON_HBD.png
+        dmt: ./ape/images/hbd/DMT_HBD.png
+        fire: ./ape/images/hbd/FIRE_HBD.png
+        reef: ./ape/images/hbd/REEF_HBD.png
+        jelly: ./ape/images/hbd/JELLY_HBD.png
+        runes: ./ape/images/hbd/RUNES_HBD.png
+        golem: ./ape/images/hbd/GOLEM_HBD.png
+        radioactive: ./ape/images/hbd/RADIOACTIVE_HBD.png
+        electric: ./ape/images/hbd/ELECTRIC_HBD.png
+        robot: ./ape/images/hbd/ROBOT_HBD.png
+        death bot: ./ape/images/hbd/DEATHBOT_HBD.png
+        gold: ./ape/images/hbd/GOLD_HBD.png
+        noise: ./ape/images/hbd/NOISE_HBD.png
+        zombie: ./ape/images/hbd/ZOMBIE_HBD.png
+        swamp: ./ape/images/hbd/SWAMP_HBD.png
+        holo r: ./ape/images/hbd/HOLOR_HBD.png
+        holo g: ./ape/images/hbd/HOLOG_HBD.png 
+        holo b: ./ape/images/hbd/HOLOB_HBD.png
+        azul: ./ape/images/hbd/AZUL_HBD.png
 
     filters:
         opacity: #for gm_smoke. Valid values are 0-1
