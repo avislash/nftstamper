@@ -163,35 +163,31 @@ func cartelBot(cmd *cobra.Command, _ []string) error {
 	choices := []*discordgo.ApplicationCommandOptionChoice{&discordgo.ApplicationCommandOptionChoice{Name: "hound", Value: houndsOpt},
 		&discordgo.ApplicationCommandOptionChoice{Name: "mayc", Value: maycOpt},
 	}
-	collectionChoice := &discordgo.ApplicationCommandOption{
+	collectionChoices := &discordgo.ApplicationCommandOption{
 		Type:        discordgo.ApplicationCommandOptionInteger,
 		Name:        "collection",
 		Description: "which collection",
 		Required:    true,
 		Choices:     choices,
 	}
-	orangeHandSubCmd := &discordgo.ApplicationCommandOption{
-		Type:        discordgo.ApplicationCommandOptionSubCommand,
-		Name:        "orange",
-		Description: "Orange Hand Stamp",
-		Options:     []*discordgo.ApplicationCommandOption{collectionChoice, id},
+
+	pledgeColorChoices := []*discordgo.ApplicationCommandOptionChoice{
+		&discordgo.ApplicationCommandOptionChoice{Name: "orange", Value: "orange"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "black", Value: "black"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "white", Value: "white"},
 	}
-	blackHandSubCmd := &discordgo.ApplicationCommandOption{
-		Type:        discordgo.ApplicationCommandOptionSubCommand,
-		Name:        "black",
-		Description: "Black Hand Stamp",
-		Options:     []*discordgo.ApplicationCommandOption{collectionChoice, id},
+	pledgeCmdColorChoices := &discordgo.ApplicationCommandOption{
+		Type:        discordgo.ApplicationCommandOptionString,
+		Name:        "color",
+		Description: "Pledge Hand Color",
+		Required:    true,
+		Choices:     pledgeColorChoices,
 	}
-	whiteHandSubCmd := &discordgo.ApplicationCommandOption{
-		Type:        discordgo.ApplicationCommandOptionSubCommand,
-		Name:        "white",
-		Description: "White Hand Stamp",
-		Options:     []*discordgo.ApplicationCommandOption{collectionChoice, id},
-	}
+
 	_, err = dg.ApplicationCommandCreate(botID, "", &discordgo.ApplicationCommand{
 		Name:        "pledge",
-		Description: "Pledge MAYC with the Mutant Cartel",
-		Options:     []*discordgo.ApplicationCommandOption{orangeHandSubCmd, blackHandSubCmd, whiteHandSubCmd},
+		Description: "Pledge with the Mutant Cartel",
+		Options:     []*discordgo.ApplicationCommandOption{pledgeCmdColorChoices, collectionChoices, id},
 	})
 	if err != nil {
 		return err
@@ -435,16 +431,13 @@ func pledgeInteraction(session *discordgo.Session, interaction *discordgo.Intera
 					image    *bytes.Buffer
 				)
 
-				options := cmdData.Options[0]
-				color := options.Name
+				color := cmdData.Options[0].StringValue()
 
-				choices := cmdData.Options[0]
-
-				collection := choices.Options[0].UintValue()
+				collection := cmdData.Options[1].UintValue()
 
 				switch collectionOpt(collection) {
 				case maycOpt:
-					maycID := choices.Options[1].UintValue()
+					maycID := cmdData.Options[2].UintValue()
 					filename = fmt.Sprintf("%s_pledge_mayc_%d.png", name, maycID)
 					logger.Debugf("Getting metadata for MAYC #%d", maycID)
 					metadata, err := maycMetadataFetcher.Fetch(maycID)
@@ -474,7 +467,8 @@ func pledgeInteraction(session *discordgo.Session, interaction *discordgo.Intera
 						return
 					}
 				case houndsOpt:
-					houndID := choices.Options[1].UintValue()
+					//				houndID := choices.Options[1].UintValue()
+					houndID := cmdData.Options[2].UintValue()
 					filename = fmt.Sprintf("%s_pledge_hound_%d.png", name, houndID)
 					logger.Debugf("Getting metadata for Hound #%d", houndID)
 					metadata, err := houndMetadataFetcher.Fetch(houndID)
