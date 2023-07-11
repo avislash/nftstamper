@@ -39,7 +39,7 @@ type Processor struct {
 	bowls       map[string]image.Image //map of backgrounds to bowls
 	pledgeHands pledgeHands            //map[string]map[string]image.Image //map of traits to colorss
 	nfdMerch    Merch
-	nfdSuit     image.Image
+	suits       map[string]image.Image
 	apeBags     map[string]image.Image
 }
 
@@ -80,9 +80,9 @@ func NewProcessor(config config.ImageProcessorConfig) (*Processor, error) {
 		return nil, fmt.Errorf("Error building NFD Merch Image Mappings: %w", err)
 	}
 
-	suit, err := getImageFromFile(config.Suit)
+	suits, err := buildImageMap(config.Suits)
 	if err != nil {
-		return nil, fmt.Errorf("Error loading Suit: %w", err)
+		return nil, fmt.Errorf("Error loading Suits: %w", err)
 	}
 
 	return &Processor{
@@ -91,7 +91,7 @@ func NewProcessor(config config.ImageProcessorConfig) (*Processor, error) {
 		bowls:       bowls,
 		pledgeHands: pledgeHands,
 		nfdMerch:    nfdMerch,
-		nfdSuit:     suit,
+		suits:       suits,
 		apeBags:     apeBags,
 	}, nil
 }
@@ -104,8 +104,13 @@ func (p *Processor) OverlayBowl(hound image.Image, background string) (*bytes.Bu
 	return p.EncodeImage(p.CombineImages(hound, bowl))
 }
 
-func (p *Processor) OverlayNFDSuit(ape image.Image) (*bytes.Buffer, error) {
-	return p.EncodeImage(p.CombineImages(ape, p.nfdSuit))
+func (p *Processor) OverlaySuit(suit string, ape image.Image) (*bytes.Buffer, error) {
+	suitImg, exists := p.suits[suit]
+	if !exists {
+		return nil, fmt.Errorf("No suit loaded for %s", suit)
+	}
+
+	return p.EncodeImage(p.CombineImages(ape, suitImg))
 }
 
 func (p *Processor) OverlayHandMAYC(ape image.Image, metadata metadata.MAYCMetadata, color string) (*bytes.Buffer, error) {

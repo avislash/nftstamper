@@ -40,7 +40,7 @@ type PledgeMappings struct {
 type ImageProcessorConfig struct {
 	GMMappings       map[string]string `yaml:"gm_mappings"`
 	NFDMerchMappings MerchMappings     `yaml:"nfd_merch_mappings"`
-	Suit             string            `yaml:"suit"`
+	Suits            map[string]string `yaml:"suits"`
 	Hands            map[string]string `yaml:"-"`
 	PledgeHands      PledgeMappings    `yaml:"pledge_hands"`
 	ApeBagMappings   map[string]string `yaml:"ape_bag"`
