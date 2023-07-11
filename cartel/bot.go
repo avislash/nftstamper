@@ -136,22 +136,6 @@ func cartelBot(cmd *cobra.Command, _ []string) error {
 		MaxValue:    maxID,
 	}
 
-	nfdSuitSubCmd := &discordgo.ApplicationCommandOption{
-		Type:        discordgo.ApplicationCommandOptionSubCommand,
-		Name:        "nfd",
-		Description: "NFD Suit",
-		Options:     []*discordgo.ApplicationCommandOption{maycID},
-	}
-
-	_, err = dg.ApplicationCommandCreate(botID, "", &discordgo.ApplicationCommand{
-		Name:        "suit",
-		Description: "Add Suit to MAYC",
-		Options:     []*discordgo.ApplicationCommandOption{nfdSuitSubCmd},
-	})
-	if err != nil {
-		return err
-	}
-
 	id := &discordgo.ApplicationCommandOption{
 		Type:        discordgo.ApplicationCommandOptionInteger,
 		Name:        "id",
@@ -202,6 +186,36 @@ func cartelBot(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
+	suitChoices := []*discordgo.ApplicationCommandOptionChoice{
+		&discordgo.ApplicationCommandOptionChoice{Name: "nfd", Value: "nfd"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "red hat", Value: "red hat"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "luke", Value: "luke"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "mayc", Value: "mayc"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "trippy", Value: "trippy"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "tux", Value: "tux"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "ape", Value: "ape"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "cartel", Value: "cartel"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "kodamara", Value: "kodamara"},
+	}
+
+	suitOption := &discordgo.ApplicationCommandOption{
+		Type:        discordgo.ApplicationCommandOptionString,
+		Name:        "style",
+		Description: "Suit Style",
+		Required:    true,
+		Choices:     suitChoices,
+	}
+
+	_, err = dg.ApplicationCommandCreate(botID, "", &discordgo.ApplicationCommand{
+		Name:        "suit",
+		Description: "Outfit MAYC with a stylish suit",
+		Options:     []*discordgo.ApplicationCommandOption{suitOption, maycID},
+	})
+
+	if err != nil {
+		return err
+	}
+
 	logger.Info("Bot started")
 
 	<-cmd.Context().Done()
@@ -233,7 +247,7 @@ func gmInteraction(session *discordgo.Session, interaction *discordgo.Interactio
 				if err != nil {
 					err := fmt.Errorf("Failed to retrieve metadata for Hound #%d: %w", houndID, err)
 					logger.Errorf("Error: %s", err)
-					sendErrorResponse(err, session, interaction)
+					sendErrorResponse(houndID, err, session, interaction)
 					return
 				}
 
@@ -241,7 +255,7 @@ func gmInteraction(session *discordgo.Session, interaction *discordgo.Interactio
 				if err != nil {
 					err := fmt.Errorf("Failed to retrieve Hound #%d image from IPFS: %w", houndID, err)
 					logger.Errorf("Error: %w", err)
-					sendErrorResponse(err, session, interaction)
+					sendErrorResponse(houndID, err, session, interaction)
 					return
 				}
 
@@ -249,7 +263,7 @@ func gmInteraction(session *discordgo.Session, interaction *discordgo.Interactio
 				if err != nil {
 					err := fmt.Errorf("Failed to create GM image for Hound %d: %w ", houndID, err)
 					logger.Errorf("Error: %s", err)
-					sendErrorResponse(err, session, interaction)
+					sendErrorResponse(houndID, err, session, interaction)
 					return
 				}
 
@@ -296,7 +310,7 @@ func nfdInteraction(session *discordgo.Session, interaction *discordgo.Interacti
 				if err != nil {
 					err := fmt.Errorf("Failed to retrieve metadata for Hound #%d: %w", houndID, err)
 					logger.Errorf("Error: %s", err)
-					sendErrorResponse(err, session, interaction)
+					sendErrorResponse(houndID, err, session, interaction)
 					return
 				}
 				logger.Debugf("Metadata: %+v", metadata)
@@ -305,7 +319,7 @@ func nfdInteraction(session *discordgo.Session, interaction *discordgo.Interacti
 				if err != nil {
 					err := fmt.Errorf("Failed to retrieve Hound #%d image from IPFS: %w", houndID, err)
 					logger.Errorf("Error: %w", err)
-					sendErrorResponse(err, session, interaction)
+					sendErrorResponse(houndID, err, session, interaction)
 					return
 				}
 				logger.Debugf("Got image from IPFS")
@@ -315,7 +329,7 @@ func nfdInteraction(session *discordgo.Session, interaction *discordgo.Interacti
 				if err != nil {
 					err := fmt.Errorf("Failed to create NFD Merch image for Hound %d: %w ", houndID, err)
 					logger.Errorf("Error: %s", err)
-					sendErrorResponse(err, session, interaction)
+					sendErrorResponse(houndID, err, session, interaction)
 					return
 				}
 
@@ -358,13 +372,14 @@ func suitInteraction(session *discordgo.Session, interaction *discordgo.Interact
 				Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{}})
 			go func() {
-				maycID := cmdData.Options[0].Options[0].UintValue()
+				suit := cmdData.Options[0].StringValue()
+				maycID := cmdData.Options[1].UintValue()
 				logger.Debugf("Getting metadata for MAYC #%d", maycID)
 				metadata, err := maycMetadataFetcher.Fetch(maycID)
 				if err != nil {
 					err := fmt.Errorf("Failed to retrieve metadata for MAYC #%d: %w", maycID, err)
 					logger.Errorf("Error: %s", err)
-					sendErrorResponse(err, session, interaction)
+					sendErrorResponse(maycID, err, session, interaction)
 					return
 				}
 				logger.Debugf("Metadata: %+v", metadata)
@@ -373,31 +388,41 @@ func suitInteraction(session *discordgo.Session, interaction *discordgo.Interact
 				if err != nil {
 					err := fmt.Errorf("Failed to retrieve MAYC #%d image from IPFS: %w", maycID, err)
 					logger.Errorf("Error: %w", err)
-					sendErrorResponse(err, session, interaction)
+					sendErrorResponse(maycID, err, session, interaction)
 					return
 				}
 				logger.Debugf("Got image from IPFS")
 
 				logger.Debugf("Overlaying Image")
-				buff, err := stamper.OverlayNFDSuit(mayc)
+				buff, err := stamper.OverlaySuit(suit, mayc)
 				if err != nil {
 					err := fmt.Errorf("Failed to overlay NFD Suit to MAYC  %d: %w ", maycID, err)
 					logger.Errorf("Error: %s", err)
-					sendErrorResponse(err, session, interaction)
+					sendErrorResponse(maycID, err, session, interaction)
 					return
 				}
 
 				file := &discordgo.File{
-					Name:        fmt.Sprintf("%s_nfd_suit_mayc_%d.png", name, maycID),
+					Name:        fmt.Sprintf("%s_%s_suit_style_mayc_%d.png", name, suit, maycID),
 					ContentType: "image/png",
 					Reader:      buff,
 				}
 
-				content := "In NFD we trust"
+				var content string
+				switch suit {
+				case "nfd":
+					content = "In NFD we trust"
+				case "cartel":
+					content = "I swear by the Apes of old and by all that is sacred to Mutants that I stand with the Mutant Cartel"
+				case "kodamara":
+					content = "Wtf is a koda?"
+				}
+
 				response := &discordgo.WebhookEdit{
 					Content: &content,
 					Files:   []*discordgo.File{file},
 				}
+
 				logger.Debugf("Uploading image")
 				if _, err := session.InteractionResponseEdit(interaction.Interaction, response); err != nil {
 					logger.Errorf("Error sending message: %s", err)
@@ -444,7 +469,7 @@ func pledgeInteraction(session *discordgo.Session, interaction *discordgo.Intera
 					if err != nil {
 						err := fmt.Errorf("Failed to retrieve metadata for MAYC #%d: %w", maycID, err)
 						logger.Errorf("Error: %s", err)
-						sendErrorResponse(err, session, interaction)
+						sendErrorResponse(maycID, err, session, interaction)
 						return
 					}
 					logger.Debugf("Metadata: %+v", metadata)
@@ -453,7 +478,7 @@ func pledgeInteraction(session *discordgo.Session, interaction *discordgo.Intera
 					if err != nil {
 						err := fmt.Errorf("Failed to retrieve MAYC #%d image from IPFS: %w", maycID, err)
 						logger.Errorf("Error: %w", err)
-						sendErrorResponse(err, session, interaction)
+						sendErrorResponse(maycID, err, session, interaction)
 						return
 					}
 					logger.Debugf("Got image from IPFS")
@@ -463,7 +488,7 @@ func pledgeInteraction(session *discordgo.Session, interaction *discordgo.Intera
 					if err != nil {
 						err := fmt.Errorf("Failed to overlay Hand Stamp to MAYC  %d: %w ", maycID, err)
 						logger.Errorf("Error: %s", err)
-						sendErrorResponse(err, session, interaction)
+						sendErrorResponse(maycID, err, session, interaction)
 						return
 					}
 				case houndsOpt:
@@ -475,7 +500,7 @@ func pledgeInteraction(session *discordgo.Session, interaction *discordgo.Intera
 					if err != nil {
 						err := fmt.Errorf("Failed to retrieve metadata for Hound #%d: %w", houndID, err)
 						logger.Errorf("Error: %s", err)
-						sendErrorResponse(err, session, interaction)
+						sendErrorResponse(houndID, err, session, interaction)
 						return
 					}
 					logger.Debugf("Metadata: %+v", metadata)
@@ -484,7 +509,7 @@ func pledgeInteraction(session *discordgo.Session, interaction *discordgo.Intera
 					if err != nil {
 						err := fmt.Errorf("Failed to retrieve Hound #%d image from IPFS: %w", houndID, err)
 						logger.Errorf("Error: %w", err)
-						sendErrorResponse(err, session, interaction)
+						sendErrorResponse(houndID, err, session, interaction)
 						return
 					}
 					logger.Debugf("Got image from IPFS")
@@ -494,12 +519,12 @@ func pledgeInteraction(session *discordgo.Session, interaction *discordgo.Intera
 					if err != nil {
 						err := fmt.Errorf("Failed to overlay Hand Stamp on Hound  %d: %w ", houndID, err)
 						logger.Errorf("Error: %s", err)
-						sendErrorResponse(err, session, interaction)
+						sendErrorResponse(houndID, err, session, interaction)
 						return
 					}
 
 				default:
-					sendErrorResponse(fmt.Errorf("Unrecognized Colection: %d", collection), session, interaction)
+					sendErrorResponse(0, fmt.Errorf("Unrecognized Colection: %d", collection), session, interaction)
 					return
 
 				}
@@ -548,7 +573,7 @@ func apeBagInteraction(session *discordgo.Session, interaction *discordgo.Intera
 				if err != nil {
 					err := fmt.Errorf("Failed to retrieve metadata for MAYC #%d: %w", maycID, err)
 					logger.Errorf("Error: %s", err)
-					sendErrorResponse(err, session, interaction)
+					sendErrorResponse(maycID, err, session, interaction)
 					return
 				}
 				logger.Debugf("Metadata: %+v", metadata)
@@ -557,7 +582,7 @@ func apeBagInteraction(session *discordgo.Session, interaction *discordgo.Intera
 				if err != nil {
 					err := fmt.Errorf("Failed to retrieve MAYC #%d image from IPFS: %w", maycID, err)
 					logger.Errorf("Error: %w", err)
-					sendErrorResponse(err, session, interaction)
+					sendErrorResponse(maycID, err, session, interaction)
 					return
 				}
 				logger.Debugf("Got image from IPFS")
@@ -567,7 +592,7 @@ func apeBagInteraction(session *discordgo.Session, interaction *discordgo.Intera
 				if err != nil {
 					err := fmt.Errorf("Failed to overlay Ape Bag to MAYC  %d: %w ", maycID, err)
 					logger.Errorf("Error: %s", err)
-					sendErrorResponse(err, session, interaction)
+					sendErrorResponse(maycID, err, session, interaction)
 					return
 				}
 
@@ -591,24 +616,16 @@ func apeBagInteraction(session *discordgo.Session, interaction *discordgo.Intera
 
 }
 
-func sendErrorResponse(err error, session *discordgo.Session, interaction *discordgo.InteractionCreate) {
+func sendErrorResponse(id uint64, err error, session *discordgo.Session, interaction *discordgo.InteractionCreate) {
 	errMsg := err.Error()
 
 	if strings.Contains(errMsg, "invalid character 'T' looking for beginning of value") {
-		options := interaction.ApplicationCommandData().Options[0]
-		if len(options.Options) != 0 {
-			options = options.Options[0]
-		}
-		houndID := options.UintValue()
+		houndID := id
 		errMsg = fmt.Sprintf("Error: Hound #%d has not yet been revealed", houndID)
 	}
 
 	if strings.Contains(errMsg, "invalid JPEG format") {
-		options := interaction.ApplicationCommandData().Options[0]
-		if len(options.Options) != 0 {
-			options = options.Options[0]
-		}
-		houndID := options.UintValue()
+		houndID := id
 		errMsg = fmt.Sprintf("Error: Is Hound #%d a Mega? Megas are not currently supported", houndID)
 	}
 

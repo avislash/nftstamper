@@ -51,7 +51,16 @@ image_processor_mappings:
         hats:
             cartel hat: ./cartel/images/nfd/nfd_merch_hat.png
             cartel hat orange: ./cartel/images/nfd/nfd_merch_hat.png
-    suit: ./cartel/images/nfd/nfd_mayc_suit.png
+    suits:
+        nfd: ./cartel/images/suits/nfd.png
+        red hat: ./cartel/images/suits/red_hat.png
+        luke: ./cartel/images/suits/luke.png
+        mayc: ./cartel/images/suits/mayc.png
+        trippy: ./cartel/images/suits/trippy.png
+        tux: ./cartel/images/suits/tux.png
+        ape: ./cartel/images/suits/ape.png
+        cartel: ./cartel/images/suits/cartel.png
+        kodamara: ./cartel/images/suits/kodamara.png
     pledge_hands:
         mutant_hounds:
             default:
