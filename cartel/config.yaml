@@ -51,16 +51,87 @@ image_processor_mappings:
         hats:
             cartel hat: ./cartel/images/nfd/nfd_merch_hat.png
             cartel hat orange: ./cartel/images/nfd/nfd_merch_hat.png
-    suits:
-        nfd: ./cartel/images/suits/nfd.png
-        red hat: ./cartel/images/suits/red_hat.png
-        luke: ./cartel/images/suits/luke.png
-        mayc: ./cartel/images/suits/mayc.png
-        trippy: ./cartel/images/suits/trippy.png
-        tux: ./cartel/images/suits/tux.png
-        ape: ./cartel/images/suits/ape.png
-        cartel: ./cartel/images/suits/cartel.png
-        kodamara: ./cartel/images/suits/kodamara.png
+    mayc_background_color_keys:
+        #m1 and m2 bgs are same color
+        yellow: f6c946
+        aquamarine: 67cbab
+        purple: 543f57
+        orange: e08a3f
+        blue: 5fbcdc
+        new punk blue: 383e7b
+        gray: 899b8d
+        army green: d6cf12
+    suit_mappings:
+        masks:
+            default: 
+                chroma_key: ff00ff
+                default: ./cartel/images/suits/masks/default_mask.png
+                trait_mappings:
+                    m1 stunt jacket: ./cartel/images/suits/masks/m1_stunt_jacket_mask.png
+                    m1 service: ./cartel/images/suits/masks/m1_service_mask.png
+                    m2 ww2 pilot helm: ./cartel/images/suits/masks/m2_ww2_pilot_helm_mask.png
+                    m2 space suit: ./cartel/images/suits/masks/default_m2_spacesuit_and_service_mask.png
+                    m2 service: ./cartel/images/suits/masks/default_m2_spacesuit_and_service_mask.png
+            m1 bored: 
+                chroma_key: ff00ff
+                default: ./cartel/images/suits/masks/m1_bored_mask.png
+                trait_mappings:
+                    m1 stunt jacket: ./cartel/images/suits/masks/m1_bored_stunt_jacket_mask.png
+                    m1 bored dagger: ./cartel/images/suits/masks/m1_bored_dagger_mask.png
+
+            m2 rage:
+                chroma_key: ff00ff
+                default: ./cartel/images/suits/masks/m2_rage_mask.png
+                trait_mappings:
+                    m2 space suit: ./cartel/images/suits/masks/m2_rage_spacesuit_and_service_mask.png
+                    m2 service: ./cartel/images/suits/masks/m2_rage_spacesuit_and_service_mask.png
+
+            m2 dumbfounded:
+                chroma_key: ff00ff
+                default: ./cartel/images/suits/masks/m2_dumbfounded_mask.png
+                trait_mappings:
+                    m2 space suit: ./cartel/images/suits/masks/m2_dumbfounded_spacesuit_and_service_mask.png
+                    m2 service: ./cartel/images/suits/masks/m2_dumbfounded_spacesuit_and_service_mask.png
+
+            m2 bored:
+                chroma_key: ff00ff
+                default: ./cartel/images/suits/masks/m2_bored_mask.png
+                trait_mappings:
+                    m2 leather punk jacket: ./cartel/images/suits/masks/m2_bored_leather_punk_jacket_mask.png
+                    m2 space suit: ./cartel/images/suits/masks/m2_bored_spacesuit_and_service_mask.png
+                    m2 service: ./cartel/images/suits/masks/m2_bored_spacesuit_and_service_mask.png
+        skip_mask:
+            - "m1 hawaiian"
+            - "m1 bayc t black"
+        suits:
+            default:
+                ape: ./cartel/images/suits/ape.png
+                brown: ./cartel/images/suits/brown.png
+                cartel: ./cartel/images/suits/cartel.png
+                cartel comic: ./cartel/images/suits/cartel_comic.png
+                cheetah: ./cartel/images/suits/cheetah.png
+                demon: ./cartel/images/suits/demon.png
+                kodamara: ./cartel/images/suits/kodamara.png
+                luke: ./cartel/images/suits/luke.png
+                mayc: ./cartel/images/suits/mayc.png
+                nfd: ./cartel/images/suits/nfd.png
+                red hat: ./cartel/images/suits/red_hat.png
+                trippy: ./cartel/images/suits/trippy.png
+                tux: ./cartel/images/suits/tux.png
+            m2 bored:
+                ape: ./cartel/images/suits/m2_bored_ape.png
+                brown: ./cartel/images/suits/m2_bored_brown.png
+                cartel: ./cartel/images/suits/m2_bored_cartel.png
+                cartel comic: ./cartel/images/suits/m2_bored_cartel_comic.png
+                cheetah: ./cartel/images/suits/m2_bored_cheetah.png
+                demon: ./cartel/images/suits/m2_bored_demon.png
+                kodamara: ./cartel/images/suits/m2_bored_kodamara.png
+                luke: ./cartel/images/suits/m2_bored_luke.png
+                mayc: ./cartel/images/suits/m2_bored_mayc.png
+                nfd: ./cartel/images/suits/m2_bored_nfd.png
+                red hat: ./cartel/images/suits/m2_bored_red_hat.png
+                trippy: ./cartel/images/suits/m2_bored_trippy.png
+                tux: ./cartel/images/suits/m2_bored_tux.png
     pledge_hands:
         mutant_hounds:
             default:
