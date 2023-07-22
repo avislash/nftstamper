@@ -37,13 +37,26 @@ type PledgeMappings struct {
 	MAYC   map[string]HandMappings `yaml:"mayc"`
 }
 
+type SuitMappings struct {
+	Masks    map[string]MaskMapping       `yaml:"masks"`
+	SkipMask []string                     `yaml:"skip_mask"`
+	Suits    map[string]map[string]string `yaml:"suits"`
+}
+
+type MaskMapping struct {
+	Default       string            `yaml:"default"`
+	TraitMappings map[string]string `yaml:"trait_mappings"`
+	ChromaKey     string            `yaml:"chroma_key"`
+}
+
 type ImageProcessorConfig struct {
-	GMMappings       map[string]string `yaml:"gm_mappings"`
-	NFDMerchMappings MerchMappings     `yaml:"nfd_merch_mappings"`
-	Suits            map[string]string `yaml:"suits"`
-	Hands            map[string]string `yaml:"-"`
-	PledgeHands      PledgeMappings    `yaml:"pledge_hands"`
-	ApeBagMappings   map[string]string `yaml:"ape_bag"`
+	GMMappings              map[string]string `yaml:"gm_mappings"`
+	NFDMerchMappings        MerchMappings     `yaml:"nfd_merch_mappings"`
+	SuitMappings            SuitMappings      `yaml:"suit_mappings"`
+	Hands                   map[string]string `yaml:"-"`
+	PledgeHands             PledgeMappings    `yaml:"pledge_hands"`
+	ApeBagMappings          map[string]string `yaml:"ape_bag"`
+	MAYCBackgroundColorKeys map[string]string `yaml:"mayc_background_color_keys"`
 }
 
 func LoadCfg(env, cfgFile string) (Config, error) {
