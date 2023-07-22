@@ -100,6 +100,9 @@ image_processor_mappings:
                     m2 leather punk jacket: ./cartel/images/suits/masks/m2_bored_leather_punk_jacket_mask.png
                     m2 space suit: ./cartel/images/suits/masks/m2_bored_spacesuit_and_service_mask.png
                     m2 service: ./cartel/images/suits/masks/m2_bored_spacesuit_and_service_mask.png
+            m2 jovial:
+                chroma_key: ff00ff
+                default: ./cartel/images/suits/masks/m2_jovial_mask.png
         skip_mask:
             - "m1 hawaiian"
             - "m1 bayc t black"
