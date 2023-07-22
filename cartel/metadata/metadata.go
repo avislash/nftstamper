@@ -91,6 +91,10 @@ func (mm *MAYCMetadata) UnmarshalJSON(data []byte) error {
 			return err
 		}
 
+		if attribute["trait_type"] == "Name" {
+			mm.Name = strings.TrimSpace(strings.ToLower(attribute["value"]))
+		}
+
 		if attribute["trait_type"] == "Background" {
 			mm.Background = strings.TrimSpace(strings.ToLower(attribute["value"]))
 		}
@@ -119,7 +123,6 @@ func (mm *MAYCMetadata) UnmarshalJSON(data []byte) error {
 			mm.Hat = strings.TrimSpace(strings.ToLower(attribute["value"]))
 		}
 	}
-	mm.Name = s.Name
 	mm.Image = s.Image
 
 	return nil
