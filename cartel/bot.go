@@ -187,15 +187,19 @@ func cartelBot(cmd *cobra.Command, _ []string) error {
 	}
 
 	suitChoices := []*discordgo.ApplicationCommandOptionChoice{
-		&discordgo.ApplicationCommandOptionChoice{Name: "nfd", Value: "nfd"},
-		&discordgo.ApplicationCommandOptionChoice{Name: "red hat", Value: "red hat"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "ape", Value: "ape"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "brown", Value: "brown"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "cartel", Value: "cartel"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "cartel comic", Value: "cartel comic"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "cheetah", Value: "cheetah"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "demon", Value: "demon"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "kodamara", Value: "kodamara"},
 		&discordgo.ApplicationCommandOptionChoice{Name: "luke", Value: "luke"},
 		&discordgo.ApplicationCommandOptionChoice{Name: "mayc", Value: "mayc"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "nfd", Value: "nfd"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "red hat", Value: "red hat"},
 		&discordgo.ApplicationCommandOptionChoice{Name: "trippy", Value: "trippy"},
 		&discordgo.ApplicationCommandOptionChoice{Name: "tux", Value: "tux"},
-		&discordgo.ApplicationCommandOptionChoice{Name: "ape", Value: "ape"},
-		&discordgo.ApplicationCommandOptionChoice{Name: "cartel", Value: "cartel"},
-		&discordgo.ApplicationCommandOptionChoice{Name: "kodamara", Value: "kodamara"},
 	}
 
 	suitOption := &discordgo.ApplicationCommandOption{
@@ -394,7 +398,7 @@ func suitInteraction(session *discordgo.Session, interaction *discordgo.Interact
 				logger.Debugf("Got image from IPFS")
 
 				logger.Debugf("Overlaying Image")
-				buff, err := stamper.OverlaySuit(suit, mayc)
+				buff, err := stamper.OverlaySuit(suit, mayc, metadata)
 				if err != nil {
 					err := fmt.Errorf("Failed to overlay NFD Suit to MAYC  %d: %w ", maycID, err)
 					logger.Errorf("Error: %s", err)
@@ -410,12 +414,18 @@ func suitInteraction(session *discordgo.Session, interaction *discordgo.Interact
 
 				var content string
 				switch suit {
-				case "nfd":
-					content = "In NFD we trust"
-				case "cartel":
+				case "brown":
+					content = "Well :poop:"
+				case "cartel", "cartel comic":
 					content = "I swear by the Apes of old and by all that is sacred to Mutants that I stand with the Mutant Cartel"
+				case "cheetah":
+					content = "Fast AF boi"
+				case "demon":
+					content = "What a handsome devil :smiling_imp:"
 				case "kodamara":
 					content = "Wtf is a koda?"
+				case "nfd":
+					content = "In NFD we trust"
 				}
 
 				response := &discordgo.WebhookEdit{
