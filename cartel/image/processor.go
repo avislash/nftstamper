@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/avislash/nftstamper/cartel/config"
 	"github.com/avislash/nftstamper/cartel/metadata"
@@ -34,13 +35,26 @@ func (p *pledgeHands) getMutantHoundsHands() map[string]map[string]image.Image {
 	return hands
 }
 
+type maskMappings struct {
+	chromaKey     string
+	defaultMask   image.Image
+	traitMappings map[string]image.Image
+}
+
+type suitMappings struct {
+	masks    map[string]maskMappings
+	skipMask map[string]bool
+	suits    map[string]map[string]image.Image
+}
+
 type Processor struct {
 	image.Combiner
-	bowls       map[string]image.Image //map of backgrounds to bowls
-	pledgeHands pledgeHands            //map[string]map[string]image.Image //map of traits to colorss
-	nfdMerch    Merch
-	nfdSuit     image.Image
-	apeBags     map[string]image.Image
+	bowls                   map[string]image.Image //map of backgrounds to bowls
+	pledgeHands             pledgeHands            //map[string]map[string]image.Image //map of traits to colorss
+	nfdMerch                Merch
+	suitMappings            suitMappings //     map[string]image.Image
+	apeBags                 map[string]image.Image
+	maycBackgroundColorKeys map[string]string
 }
 
 func NewProcessor(config config.ImageProcessorConfig) (*Processor, error) {
@@ -80,19 +94,20 @@ func NewProcessor(config config.ImageProcessorConfig) (*Processor, error) {
 		return nil, fmt.Errorf("Error building NFD Merch Image Mappings: %w", err)
 	}
 
-	suit, err := getImageFromFile(config.Suit)
+	suitMappings, err := buildSuitMappings(config.SuitMappings)
 	if err != nil {
-		return nil, fmt.Errorf("Error loading Suit: %w", err)
+		return nil, fmt.Errorf("Error building Suit Mappings: %w", err)
 	}
 
 	return &Processor{
 		//Combined Hound images are too big to process and return to discord before timing out
-		Combiner:    image.NewPNGCombiner(image.WithBestSpeedPNGCompression()),
-		bowls:       bowls,
-		pledgeHands: pledgeHands,
-		nfdMerch:    nfdMerch,
-		nfdSuit:     suit,
-		apeBags:     apeBags,
+		Combiner:                image.NewPNGCombiner(image.WithBestSpeedPNGCompression()),
+		bowls:                   bowls,
+		pledgeHands:             pledgeHands,
+		nfdMerch:                nfdMerch,
+		suitMappings:            suitMappings,
+		apeBags:                 apeBags,
+		maycBackgroundColorKeys: config.MAYCBackgroundColorKeys,
 	}, nil
 }
 
@@ -104,8 +119,78 @@ func (p *Processor) OverlayBowl(hound image.Image, background string) (*bytes.Bu
 	return p.EncodeImage(p.CombineImages(hound, bowl))
 }
 
-func (p *Processor) OverlayNFDSuit(ape image.Image) (*bytes.Buffer, error) {
-	return p.EncodeImage(p.CombineImages(ape, p.nfdSuit))
+func (p *Processor) OverlaySuit(suit string, ape image.Image, metadata metadata.MAYCMetadata) (*bytes.Buffer, error) {
+	if strings.Contains(metadata.Name, "mega") {
+		return nil, fmt.Errorf("Mega Mutants not supported")
+	}
+
+	skipMask, _ := p.suitMappings.skipMask[metadata.Clothes]
+	if !skipMask {
+		background := metadata.Background[3:]
+		bgKey, exists := p.maycBackgroundColorKeys[background]
+		if !exists {
+			return nil, fmt.Errorf("No background key defined for %s", background)
+		}
+
+		mask, chromaKey := p.getSuitMask(metadata)
+
+		mask, err := p.HexChromaKeySwap(mask, chromaKey, bgKey)
+		if err != nil {
+			return nil, fmt.Errorf("Error Chroma Keying Mask: %w", err)
+		}
+		ape = p.CombineImages(ape, mask)
+	}
+
+	var suits map[string]image.Image
+	switch {
+	case strings.Contains(metadata.Mouth, "m2 bored"):
+		suits = p.suitMappings.suits["m2 bored"]
+	default:
+		suits = p.suitMappings.suits["default"]
+	}
+
+	suitImg, exists := suits[suit]
+	if !exists {
+		return nil, fmt.Errorf("No suit loaded for %s", suit)
+	}
+
+	return p.EncodeImage(p.CombineImages(ape, suitImg))
+}
+
+func (p *Processor) getSuitMask(metadata metadata.MAYCMetadata) (image.Image, string) {
+	if strings.Contains(metadata.Mouth, "m1 bored") {
+		maskMappings := p.suitMappings.masks["m1 bored"]
+		return getMaskFromMetadata(maskMappings, metadata), maskMappings.chromaKey
+	}
+
+	if strings.Contains(metadata.Mouth, "m2 bored") {
+		maskMappings := p.suitMappings.masks["m2 bored"]
+		return getMaskFromMetadata(maskMappings, metadata), maskMappings.chromaKey
+	}
+
+	if maskMappings, exists := p.suitMappings.masks[metadata.Mouth]; exists {
+		return getMaskFromMetadata(maskMappings, metadata), maskMappings.chromaKey
+	}
+
+	return getMaskFromMetadata(p.suitMappings.masks["default"], metadata), p.suitMappings.masks["default"].chromaKey
+}
+
+func getMaskFromMetadata(maskMappings maskMappings, metadata metadata.MAYCMetadata) image.Image {
+	traitMappings := maskMappings.traitMappings
+
+	if mask, exists := traitMappings[metadata.Mouth]; exists {
+		return mask
+	}
+
+	if mask, exists := traitMappings[metadata.Hat]; exists {
+		return mask
+	}
+
+	if mask, exists := traitMappings[metadata.Clothes]; exists {
+		return mask
+	}
+
+	return maskMappings.defaultMask
 }
 
 func (p *Processor) OverlayHandMAYC(ape image.Image, metadata metadata.MAYCMetadata, color string) (*bytes.Buffer, error) {
@@ -228,6 +313,48 @@ func buildMerch(merchConfig config.MerchMappings) (Merch, error) {
 		XLTraits:    merchConfig.XLTraits,
 	}, nil
 
+}
+
+func buildSuitMappings(suitConfig config.SuitMappings) (suitMappings, error) {
+	masks := make(map[string]maskMappings)
+	for key, maskMapping := range suitConfig.Masks {
+		defaultMask, err := getImageFromFile(maskMapping.Default)
+		if err != nil {
+			return suitMappings{}, fmt.Errorf("Error loading default mask for %s: %w", key, err)
+		}
+
+		traitMappings, err := buildImageMap(maskMapping.TraitMappings)
+		if err != nil {
+			return suitMappings{}, fmt.Errorf("Error build mask trait mappings for %s: %w", key, err)
+		}
+
+		masks[key] = maskMappings{
+			defaultMask:   defaultMask,
+			traitMappings: traitMappings,
+			chromaKey:     maskMapping.ChromaKey,
+		}
+
+	}
+
+	suits := make(map[string]map[string]image.Image)
+	for key, suitMap := range suitConfig.Suits {
+		suitImgMap, err := buildImageMap(suitMap)
+		if err != nil {
+			return suitMappings{}, fmt.Errorf("Error building suit image map for %s: %w", key, err)
+		}
+		suits[key] = suitImgMap
+	}
+
+	skipMask := make(map[string]bool)
+	for _, clothing := range suitConfig.SkipMask {
+		skipMask[clothing] = true
+	}
+
+	return suitMappings{
+		masks:    masks,
+		skipMask: skipMask,
+		suits:    suits,
+	}, nil
 }
 
 func getImageFromFile(filename string) (image.Image, error) {
