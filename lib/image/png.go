@@ -116,6 +116,37 @@ func (pc *PNGCombiner) AdjustImageOpacity(img Image, opacity float64) Image {
 	return rgba
 }
 
+func (pc *PNGCombiner) HexChromaKeySwap(img Image, chromaKey, newColor string) (Image, error) {
+	_chromaKey, err := HexToRGBA(chromaKey)
+	if err != nil {
+		return nil, fmt.Errorf("Error converting chromaKey %s to RGBA: %w", chromaKey, err)
+	}
+
+	newKey, err := HexToRGBA(newColor)
+	if err != nil {
+		return nil, fmt.Errorf("Error converting newColor %s to RGBA: %w", newColor, err)
+	}
+
+	dstImg := image.NewRGBA(img.Bounds())
+	b := img.Bounds()
+	for y := b.Min.Y; y < b.Max.Y; y++ {
+		for x := b.Min.X; x < b.Max.X; x++ {
+			// Get the color of the pixel
+			c := color.RGBAModel.Convert(img.At(x, y)).(color.RGBA)
+
+			// If the pixel color is the chroma key color, set it to bg color
+			// If it's not, copy it to the destination image
+			if c.R == _chromaKey.R && c.G == _chromaKey.G && c.B == _chromaKey.B {
+				dstImg.Set(x, y, newKey)
+			} else {
+				dstImg.Set(x, y, c)
+			}
+		}
+	}
+
+	return dstImg, nil
+}
+
 func (pc *PNGCombiner) EncodeImage(img Image) (*bytes.Buffer, error) {
 	buff := new(bytes.Buffer)
 	if err := pc.pngEncoder.Encode(buff, img); err != nil {
