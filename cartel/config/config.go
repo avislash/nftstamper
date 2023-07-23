@@ -49,6 +49,13 @@ type MaskMapping struct {
 	ChromaKey     string            `yaml:"chroma_key"`
 }
 
+type CoffeeMugMappings struct {
+	Furs    map[string]string `yaml:"furs"`
+	Liquids map[string]string `yaml:"liquids"`
+	Steam   map[string]string `yaml:"steam"`
+	Logos   map[string]string `yaml:"logos"`
+}
+
 type ImageProcessorConfig struct {
 	GMMappings              map[string]string `yaml:"gm_mappings"`
 	NFDMerchMappings        MerchMappings     `yaml:"nfd_merch_mappings"`
@@ -57,6 +64,7 @@ type ImageProcessorConfig struct {
 	PledgeHands             PledgeMappings    `yaml:"pledge_hands"`
 	ApeBagMappings          map[string]string `yaml:"ape_bag"`
 	MAYCBackgroundColorKeys map[string]string `yaml:"mayc_background_color_keys"`
+	MAYCCoffeeMugMappings   CoffeeMugMappings `yaml:"mayc_coffee_mug_mappings"`
 }
 
 func LoadCfg(env, cfgFile string) (Config, error) {

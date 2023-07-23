@@ -227,3 +227,70 @@ image_processor_mappings:
         m1 tongue out: ./cartel/images/ape_bag/mayc_apebag_m1tongueout.png
         m1 phoneme wah: ./cartel/images/ape_bag/mayc_apebag_m1phonemewah.png
         m1 grin gold grill: ./cartel/images/ape_bag/mayc_apebag_m1grillgoldgrin.png
+
+    mayc_coffee_mug_mappings:
+        liquids:
+            coffee: ./cartel/images/coffee_mugs/liquids/coffee.png
+            serum: ./cartel/images/coffee_mugs/liquids/serum.png
+        steam:
+            coffee: ./cartel/images/coffee_mugs/steam/coffee.png
+            serum: ./cartel/images/coffee_mugs/steam/serum.png
+        logos:
+            albino asylum: ./cartel/images/coffee_mugs/logos/albino.png
+            armoured guards: ./cartel/images/coffee_mugs/logos/armoured.png
+            bionic army:  ./cartel/images/coffee_mugs/logos/bionics.png
+            blood hounds: ./cartel/images/coffee_mugs/logos/bloodhound.png
+            cartel: ./cartel/images/coffee_mugs/logos/cartel.png
+            death pack: ./cartel/images/coffee_mugs/logos/deathpack.png
+            deathbot army: ./cartel/images/coffee_mugs/logos/deathbots.png
+            flesh eaters: ./cartel/images/coffee_mugs/logos/inside_out.png
+            golem gang: ./cartel/images/coffee_mugs/logos/golem.png
+            haunted howlers: ./cartel/images/coffee_mugs/logos/haunted.png
+            laughing legion: ./cartel/images/coffee_mugs/logos/hyena_v2.png
+            metal militia: ./cartel/images/coffee_mugs/logos/metal_militia.png
+            midnight marauders: ./cartel/images/coffee_mugs/logos/midnight.png
+            noisy syndicate: ./cartel/images/coffee_mugs/logos/noisy_syndicate.png
+            royal hounds: ./cartel/images/coffee_mugs/logos/royals.png
+            skull legion: ./cartel/images/coffee_mugs/logos/skulls.png
+            trippy brigade: ./cartel/images/coffee_mugs/logos/trippy.png
+            wolf pack: ./cartel/images/coffee_mugs/logos/wolf_pack.png
+            zombie horde: ./cartel/images/coffee_mugs/logos/horde.png
+        furs:
+            m1 dark brown: ./cartel/images/coffee_mugs/m1_dark_brown.png
+            m1 brown: ./cartel/images/coffee_mugs/m1_brown.png
+            m1 black: ./cartel/images/coffee_mugs/m1_black.png
+            m1 golden brown: ./cartel/images/coffee_mugs/m1_golden_brown.png
+            m1 cream: ./cartel/images/coffee_mugs/m1_cream.png
+            m1 tan: ./cartel/images/coffee_mugs/m1_tan.png
+            m1 pink: ./cartel/images/coffee_mugs/m1_pink.png
+            m1 gray: ./cartel/images/coffee_mugs/m1_gray.png
+            m1 red: ./cartel/images/coffee_mugs/m1_red.png
+            m1 blue: ./cartel/images/coffee_mugs/m1_blue.png
+            m1 cheetah: ./cartel/images/coffee_mugs/m1_cheetah.png
+            m1 white: ./cartel/images/coffee_mugs/m1_white.png
+            m1 zombie:  ./cartel/images/coffee_mugs/m1_zombie.png
+            m1 robot:  ./cartel/images/coffee_mugs/m1_robot.png
+            m1 dmt:  ./cartel/images/coffee_mugs/m1_dmt.png
+            m1 death bot:  ./cartel/images/coffee_mugs/m1_death_bot.png
+            m1 noise: ./cartel/images/coffee_mugs/m1_noise.png
+            m1 trippy:  ./cartel/images/coffee_mugs/m1_trippy.png
+            m1 solid golid:  ./cartel/images/coffee_mugs/m1_gold.png
+            m2 dark brown: ./cartel/images/coffee_mugs/m2_dark_brown.png
+            m2 brown: ./cartel/images/coffee_mugs/m2_brown.png
+            m2 black: ./cartel/images/coffee_mugs/m2_black.png
+            m2 golden brown: ./cartel/images/coffee_mugs/m2_golden_brown.png
+            m2 cream: ./cartel/images/coffee_mugs/m2_cream.png
+            m2 tan: ./cartel/images/coffee_mugs/m2_tan.png
+            m2 pink: ./cartel/images/coffee_mugs/m2_pink.png
+            m2 gray: ./cartel/images/coffee_mugs/m2_gray.png
+            m2 red: ./cartel/images/coffee_mugs/m2_red.png
+            m2 blue: ./cartel/images/coffee_mugs/m2_blue.png
+            m2 cheetah: ./cartel/images/coffee_mugs/m2_cheetah.png
+            m2 white: ./cartel/images/coffee_mugs/m2_white.png
+            m2 zombie:  ./cartel/images/coffee_mugs/m2_zombie.png
+            m2 robot:  ./cartel/images/coffee_mugs/m2_robot.png
+            m2 dmt:  ./cartel/images/coffee_mugs/m2_dmt.png
+            m2 death bot:  ./cartel/images/coffee_mugs/m2_death_bot.png
+            m2 noise: ./cartel/images/coffee_mugs/m2_noise.png
+            m2 trippy:  ./cartel/images/coffee_mugs/m2_trippy.png
+            m2 solid golid:  ./cartel/images/coffee_mugs/m2_gold.png

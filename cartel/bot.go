@@ -99,19 +99,87 @@ func cartelBot(cmd *cobra.Command, _ []string) error {
 	botID := dg.State.User.ID
 
 	minID := float64(0)
-	maxID := float64(10000)
+	maxHoundID := float64(10000)
+	maxMAYCID := float64(30006)
+
 	houndID := &discordgo.ApplicationCommandOption{
 		Type:        discordgo.ApplicationCommandOptionInteger,
 		Name:        "hound",
 		Description: "Hound ID #",
 		Required:    true,
 		MinValue:    &minID,
-		MaxValue:    maxID,
+		MaxValue:    maxHoundID,
 	}
+	maycID := &discordgo.ApplicationCommandOption{
+		Type:        discordgo.ApplicationCommandOptionInteger,
+		Name:        "mayc",
+		Description: "MAYC ID #",
+		Required:    true,
+		MinValue:    &minID,
+		MaxValue:    maxMAYCID,
+	}
+
+	//TODO make cfg a global and just grab the values programtically from the map
+	liquidChoices := []*discordgo.ApplicationCommandOptionChoice{
+		&discordgo.ApplicationCommandOptionChoice{Name: "coffee", Value: "coffee"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "serum", Value: "serum"},
+	}
+
+	maycGMCmdLiquidChoices := &discordgo.ApplicationCommandOption{
+		Type:        discordgo.ApplicationCommandOptionString,
+		Name:        "liquid",
+		Description: "Coffe Mug Liquid",
+		Required:    true,
+		Choices:     liquidChoices,
+	}
+
+	logoChoices := []*discordgo.ApplicationCommandOptionChoice{
+		&discordgo.ApplicationCommandOptionChoice{Name: "albino asylum", Value: "albino asylum"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "armoured guards", Value: "armoured guards"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "bionic army", Value: "bionic army"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "blood hounds", Value: "blood hounds"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "cartel", Value: "cartel"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "death pack", Value: "death pack"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "deathbot army", Value: "deathbot army"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "flesh eaters", Value: "flesh eaters"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "golem gang", Value: "golem gang"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "haunted howlers", Value: "haunted howlers"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "laughing legion", Value: "laughing legion"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "metal militia", Value: "metal militia"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "midnight marauders", Value: "midnight marauders"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "noisy syndicate", Value: "noisy syndicate"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "skull legion", Value: "skull legion"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "trippy brigade", Value: "trippy brigade"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "wolf pack", Value: "wolf pack"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "zombie horde", Value: "zombie horde"},
+	}
+
+	maycGMCmdLogoChoices := &discordgo.ApplicationCommandOption{
+		Type:        discordgo.ApplicationCommandOptionString,
+		Name:        "logo",
+		Description: "Coffe Mug Logo",
+		Required:    true,
+		Choices:     logoChoices,
+	}
+
+	maycGmSubCmd := &discordgo.ApplicationCommandOption{
+		Type:        discordgo.ApplicationCommandOptionSubCommand,
+		Name:        "mayc",
+		Description: "Responds with a MAYC GM",
+		Options:     []*discordgo.ApplicationCommandOption{maycID, maycGMCmdLiquidChoices, maycGMCmdLogoChoices},
+	}
+
+	houndGmSubCmd := &discordgo.ApplicationCommandOption{
+		Type:        discordgo.ApplicationCommandOptionSubCommand,
+		Name:        "hound",
+		Description: "Responds with a Mutant Hound GM",
+		Options:     []*discordgo.ApplicationCommandOption{houndID},
+	}
+
 	_, err = dg.ApplicationCommandCreate(botID, "", &discordgo.ApplicationCommand{
 		Name:        "gm",
 		Description: "Responds with a GM",
-		Options:     []*discordgo.ApplicationCommandOption{houndID},
+		Options:     []*discordgo.ApplicationCommandOption{houndGmSubCmd, maycGmSubCmd},
 	})
 	if err != nil {
 		return err
@@ -126,23 +194,13 @@ func cartelBot(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	maxID = float64(30006)
-	maycID := &discordgo.ApplicationCommandOption{
-		Type:        discordgo.ApplicationCommandOptionInteger,
-		Name:        "mayc",
-		Description: "MAYC ID #",
-		Required:    true,
-		MinValue:    &minID,
-		MaxValue:    maxID,
-	}
-
 	id := &discordgo.ApplicationCommandOption{
 		Type:        discordgo.ApplicationCommandOptionInteger,
 		Name:        "id",
 		Description: "ID #",
 		Required:    true,
 		MinValue:    &minID,
-		MaxValue:    maxID,
+		MaxValue:    maxMAYCID,
 	}
 	choices := []*discordgo.ApplicationCommandOptionChoice{&discordgo.ApplicationCommandOptionChoice{Name: "hound", Value: houndsOpt},
 		&discordgo.ApplicationCommandOptionChoice{Name: "mayc", Value: maycOpt},
@@ -246,41 +304,82 @@ func gmInteraction(session *discordgo.Session, interaction *discordgo.Interactio
 				Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{}})
 			go func() {
-				houndID := cmdData.Options[0].UintValue()
-				metadata, err := houndMetadataFetcher.Fetch(houndID)
-				if err != nil {
-					err := fmt.Errorf("Failed to retrieve metadata for Hound #%d: %w", houndID, err)
-					logger.Errorf("Error: %s", err)
-					sendErrorResponse(houndID, err, session, interaction)
-					return
-				}
+				subCmd := cmdData.Options[0]
+				var gmFile *discordgo.File
+				switch subCmd.Name {
+				case "hound":
+					houndID := subCmd.Options[0].UintValue()
+					metadata, err := houndMetadataFetcher.Fetch(houndID)
+					if err != nil {
+						err := fmt.Errorf("Failed to retrieve metadata for Hound #%d: %w", houndID, err)
+						logger.Errorf("Error: %s", err)
+						sendErrorResponse(houndID, err, session, interaction)
+						return
+					}
 
-				hound, err := ipfsClient.GetImageFromIPFS(metadata.Image)
-				if err != nil {
-					err := fmt.Errorf("Failed to retrieve Hound #%d image from IPFS: %w", houndID, err)
-					logger.Errorf("Error: %w", err)
-					sendErrorResponse(houndID, err, session, interaction)
-					return
-				}
+					hound, err := ipfsClient.GetImageFromIPFS(metadata.Image)
+					if err != nil {
+						err := fmt.Errorf("Failed to retrieve Hound #%d image from IPFS: %w", houndID, err)
+						logger.Errorf("Error: %w", err)
+						sendErrorResponse(houndID, err, session, interaction)
+						return
+					}
 
-				buff, err := stamper.OverlayBowl(hound, metadata.Background)
-				if err != nil {
-					err := fmt.Errorf("Failed to create GM image for Hound %d: %w ", houndID, err)
-					logger.Errorf("Error: %s", err)
-					sendErrorResponse(houndID, err, session, interaction)
-					return
-				}
+					buff, err := stamper.OverlayBowl(hound, metadata.Background)
+					if err != nil {
+						err := fmt.Errorf("Failed to create GM image for Hound %d: %w ", houndID, err)
+						logger.Errorf("Error: %s", err)
+						sendErrorResponse(houndID, err, session, interaction)
+						return
+					}
 
-				file := &discordgo.File{
-					Name:        fmt.Sprintf("%s_gm_hound_%d.png", name, houndID),
-					ContentType: "image/png",
-					Reader:      buff,
+					gmFile = &discordgo.File{
+						Name:        fmt.Sprintf("%s_gm_hound_%d.png", name, houndID),
+						ContentType: "image/png",
+						Reader:      buff,
+					}
+
+				case "mayc":
+					maycID := subCmd.Options[0].UintValue()
+					liquid := subCmd.Options[1].StringValue()
+					logo := subCmd.Options[2].StringValue()
+					metadata, err := maycMetadataFetcher.Fetch(maycID)
+					if err != nil {
+						err := fmt.Errorf("Failed to retrieve metadata for MAYC #%d: %w", maycID, err)
+						logger.Errorf("Error: %s", err)
+						sendErrorResponse(maycID, err, session, interaction)
+						return
+					}
+
+					mayc, err := maycIpfsClient.GetImageFromIPFS(metadata.Image)
+					if err != nil {
+						err := fmt.Errorf("Failed to retrieve MAYC #%d image from IPFS: %w", maycID, err)
+						logger.Errorf("Error: %w", err)
+						sendErrorResponse(maycID, err, session, interaction)
+						return
+					}
+
+					buff, err := stamper.OverlayCoffeeMug(mayc, metadata, liquid, logo)
+					if err != nil {
+						err := fmt.Errorf("Failed to create GM image for MAYC %d: %w", maycID, err)
+						logger.Errorf("Error: %s", err)
+						sendErrorResponse(maycID, err, session, interaction)
+					}
+
+					gmFile = &discordgo.File{
+						Name:        fmt.Sprintf("%s_gm_mayc%d.png", name, maycID),
+						ContentType: "image/png",
+						Reader:      buff,
+					}
+				default:
+					logger.Errorf("GM Interaction called with unrecognized sub command: %s", subCmd.Name)
+					sendErrorResponse(0, fmt.Errorf("Unrecognized GM sub command option %s", subCmd.Name), session, interaction)
 				}
 
 				content := "GM " + mention
 				response := &discordgo.WebhookEdit{
 					Content: &content,
-					Files:   []*discordgo.File{file},
+					Files:   []*discordgo.File{gmFile},
 				}
 				if _, err := session.InteractionResponseEdit(interaction.Interaction, response); err != nil {
 					logger.Errorf("Error sending message: %s", err)
