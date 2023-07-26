@@ -141,6 +141,8 @@ func cartelBot(cmd *cobra.Command, _ []string) error {
 		&discordgo.ApplicationCommandOptionChoice{Name: "cartel", Value: "cartel"},
 		&discordgo.ApplicationCommandOptionChoice{Name: "death pack", Value: "death pack"},
 		&discordgo.ApplicationCommandOptionChoice{Name: "deathbot army", Value: "deathbot army"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "demon council", Value: "demon council"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "dmt cartel", Value: "dmt cartel"},
 		&discordgo.ApplicationCommandOptionChoice{Name: "flesh eaters", Value: "flesh eaters"},
 		&discordgo.ApplicationCommandOptionChoice{Name: "golem gang", Value: "golem gang"},
 		&discordgo.ApplicationCommandOptionChoice{Name: "haunted howlers", Value: "haunted howlers"},
@@ -148,6 +150,7 @@ func cartelBot(cmd *cobra.Command, _ []string) error {
 		&discordgo.ApplicationCommandOptionChoice{Name: "metal militia", Value: "metal militia"},
 		&discordgo.ApplicationCommandOptionChoice{Name: "midnight marauders", Value: "midnight marauders"},
 		&discordgo.ApplicationCommandOptionChoice{Name: "noisy syndicate", Value: "noisy syndicate"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "royal hounds", Value: "royal hounds"},
 		&discordgo.ApplicationCommandOptionChoice{Name: "skull legion", Value: "skull legion"},
 		&discordgo.ApplicationCommandOptionChoice{Name: "trippy brigade", Value: "trippy brigade"},
 		&discordgo.ApplicationCommandOptionChoice{Name: "wolf pack", Value: "wolf pack"},
@@ -367,7 +370,7 @@ func gmInteraction(session *discordgo.Session, interaction *discordgo.Interactio
 					}
 
 					gmFile = &discordgo.File{
-						Name:        fmt.Sprintf("%s_gm_mayc%d.png", name, maycID),
+						Name:        fmt.Sprintf("%s_gm_mayc%d_with_%s_%s_mug.png", name, maycID, logo, liquid),
 						ContentType: "image/png",
 						Reader:      buff,
 					}
