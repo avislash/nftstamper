@@ -243,6 +243,8 @@ image_processor_mappings:
             cartel: ./cartel/images/coffee_mugs/logos/cartel.png
             death pack: ./cartel/images/coffee_mugs/logos/deathpack.png
             deathbot army: ./cartel/images/coffee_mugs/logos/deathbots.png
+            demon council: ./cartel/images/coffee_mugs/logos/demon_council.png
+            dmt cartel: ./cartel/images/coffee_mugs/logos/dmt_cartel.png
             flesh eaters: ./cartel/images/coffee_mugs/logos/inside_out.png
             golem gang: ./cartel/images/coffee_mugs/logos/golem.png
             haunted howlers: ./cartel/images/coffee_mugs/logos/haunted.png
