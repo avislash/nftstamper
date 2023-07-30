@@ -119,6 +119,7 @@ image_processor_mappings:
                 mayc: ./cartel/images/suits/mayc.png
                 nfd: ./cartel/images/suits/nfd.png
                 red hat: ./cartel/images/suits/red_hat.png
+                roc: ./cartel/images/suits/roc.png
                 trippy: ./cartel/images/suits/trippy.png
                 tux: ./cartel/images/suits/tux.png
             m2 bored:
@@ -133,6 +134,7 @@ image_processor_mappings:
                 mayc: ./cartel/images/suits/m2_bored_mayc.png
                 nfd: ./cartel/images/suits/m2_bored_nfd.png
                 red hat: ./cartel/images/suits/m2_bored_red_hat.png
+                roc: ./cartel/images/suits/m2_bored_roc.png
                 trippy: ./cartel/images/suits/m2_bored_trippy.png
                 tux: ./cartel/images/suits/m2_bored_tux.png
     pledge_hands:
