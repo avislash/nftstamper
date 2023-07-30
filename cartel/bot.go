@@ -259,6 +259,7 @@ func cartelBot(cmd *cobra.Command, _ []string) error {
 		&discordgo.ApplicationCommandOptionChoice{Name: "mayc", Value: "mayc"},
 		&discordgo.ApplicationCommandOptionChoice{Name: "nfd", Value: "nfd"},
 		&discordgo.ApplicationCommandOptionChoice{Name: "red hat", Value: "red hat"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "roc", Value: "roc"},
 		&discordgo.ApplicationCommandOptionChoice{Name: "trippy", Value: "trippy"},
 		&discordgo.ApplicationCommandOptionChoice{Name: "tux", Value: "tux"},
 	}
@@ -528,6 +529,8 @@ func suitInteraction(session *discordgo.Session, interaction *discordgo.Interact
 					content = "Wtf is a koda?"
 				case "nfd":
 					content = "In NFD we trust"
+				case "roc":
+					content = "F*ck It"
 				}
 
 				response := &discordgo.WebhookEdit{
