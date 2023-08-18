@@ -298,3 +298,36 @@ image_processor_mappings:
             m2 noise: ./cartel/images/coffee_mugs/m2_noise.png
             m2 trippy:  ./cartel/images/coffee_mugs/m2_trippy.png
             m2 solid golid:  ./cartel/images/coffee_mugs/m2_gold.png
+    nfl_jersey_mappings:
+            default:
+                cartel: ./cartel/images/jerseys/nfl/cartel.png
+                49ers: ./cartel/images/jerseys/nfl/49ers.png
+                bears: ./cartel/images/jerseys/nfl/bears.png
+                bengals: ./cartel/images/jerseys/nfl/bengals.png
+                bills: ./cartel/images/jerseys/nfl/bills.png
+                broncos: ./cartel/images/jerseys/nfl/broncos.png
+                buccaneers: ./cartel/images/jerseys/nfl/buccaneers.png
+                cardinals: ./cartel/images/jerseys/nfl/cardinals.png
+                chargers: ./cartel/images/jerseys/nfl/chargers.png
+                chiefs: ./cartel/images/jerseys/nfl/chiefs.png
+                colts: ./cartel/images/jerseys/nfl/colts.png
+                commanders: ./cartel/images/jerseys/nfl/commanders.png
+                cowboys: ./cartel/images/jerseys/nfl/cowboys.png
+                dolphins: ./cartel/images/jerseys/nfl/dolphins.png
+                eagles: ./cartel/images/jerseys/nfl/eagles.png
+                giants: ./cartel/images/jerseys/nfl/giants.png
+                jaguars: ./cartel/images/jerseys/nfl/jaguars.png
+                jets: ./cartel/images/jerseys/nfl/jets.png
+                lions: ./cartel/images/jerseys/nfl/lions.png
+                packers: ./cartel/images/jerseys/nfl/packers.png
+                panthers: ./cartel/images/jerseys/nfl/panthers.png
+                patriots: ./cartel/images/jerseys/nfl/patriots.png
+                raiders: ./cartel/images/jerseys/nfl/raiders.png
+                rams: ./cartel/images/jerseys/nfl/rams.png
+                ravens: ./cartel/images/jerseys/nfl/ravens.png
+                saints: ./cartel/images/jerseys/nfl/saints.png
+                seahawks: ./cartel/images/jerseys/nfl/seahawks.png
+                steelers: ./cartel/images/jerseys/nfl/steelers.png
+                texans: ./cartel/images/jerseys/nfl/texans.png
+                titans: ./cartel/images/jerseys/nfl/titans.png
+                vikings: ./cartel/images/jerseys/nfl/vikings.png

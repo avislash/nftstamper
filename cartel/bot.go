@@ -90,6 +90,7 @@ func cartelBot(cmd *cobra.Command, _ []string) error {
 	dg.AddHandler(suitInteraction)
 	dg.AddHandler(pledgeInteraction)
 	dg.AddHandler(apeBagInteraction)
+	dg.AddHandler(jerseyInteraction)
 
 	if err := dg.Open(); err != nil {
 		return err
@@ -243,6 +244,95 @@ func cartelBot(cmd *cobra.Command, _ []string) error {
 		Description: "Give MAYC a bag of $APE",
 		Options:     []*discordgo.ApplicationCommandOption{maycID},
 	})
+	if err != nil {
+		return err
+	}
+
+	jerseyCollectionChoices := []*discordgo.ApplicationCommandOptionChoice{&discordgo.ApplicationCommandOptionChoice{Name: "hound", Value: houndsOpt}}
+	jerseyCmdCollectionChoices := &discordgo.ApplicationCommandOption{
+		Type:        discordgo.ApplicationCommandOptionInteger,
+		Name:        "collection",
+		Description: "which collection",
+		Required:    true,
+		Choices:     jerseyCollectionChoices,
+	}
+
+	nflAFCTeams := []*discordgo.ApplicationCommandOptionChoice{
+		&discordgo.ApplicationCommandOptionChoice{Name: "cartel", Value: "cartel"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "bengals", Value: "bengals"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "bills", Value: "bills"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "bronocs", Value: "broncos"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "browns", Value: "browns"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "chiefs", Value: "chiefs"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "chargers", Value: "chargers"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "colts", Value: "colts"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "dolphins", Value: "dolphins"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "jaguars", Value: "jaguars"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "jets", Value: "jets"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "patriots", Value: "patriots"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "raiders", Value: "raiders"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "ravens", Value: "ravens"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "steelers", Value: "steelers"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "texans", Value: "texans"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "titans", Value: "titans"},
+	}
+
+	nflNFCTeams := []*discordgo.ApplicationCommandOptionChoice{
+		&discordgo.ApplicationCommandOptionChoice{Name: "cartel", Value: "cartel"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "49ers", Value: "49ers"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "bears", Value: "bears"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "buccaneers", Value: "buccaneers"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "cardinals", Value: "cardinals"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "commanders", Value: "commanders"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "cowboys", Value: "cowboys"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "eagles", Value: "eagles"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "falcons", Value: "falcons"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "giants", Value: "giants"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "lions", Value: "lions"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "packers", Value: "packers"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "panthers", Value: "panthers"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "rams", Value: "rams"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "saints", Value: "saints"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "seahawks", Value: "seahawks"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "vikings", Value: "vikings"},
+	}
+
+	jerseyCmdAFCTeamChoices := &discordgo.ApplicationCommandOption{
+		Type:        discordgo.ApplicationCommandOptionString,
+		Name:        "team",
+		Description: "which team",
+		Required:    true,
+		Choices:     nflAFCTeams,
+	}
+
+	jerseyCmdNFCTeamChoices := &discordgo.ApplicationCommandOption{
+		Type:        discordgo.ApplicationCommandOptionString,
+		Name:        "team",
+		Description: "which team",
+		Required:    true,
+		Choices:     nflNFCTeams,
+	}
+
+	nflJerseyAFCSubCmd := &discordgo.ApplicationCommandOption{
+		Type:        discordgo.ApplicationCommandOptionSubCommand,
+		Name:        "nfl-afc",
+		Description: "Overlay an NFL AFC Jersey",
+		Options:     []*discordgo.ApplicationCommandOption{jerseyCmdCollectionChoices, jerseyCmdAFCTeamChoices, houndID},
+	}
+
+	nflJerseyNFCSubCmd := &discordgo.ApplicationCommandOption{
+		Type:        discordgo.ApplicationCommandOptionSubCommand,
+		Name:        "nfl-nfc",
+		Description: "Overlay an NFL NFC Jersey",
+		Options:     []*discordgo.ApplicationCommandOption{jerseyCmdCollectionChoices, jerseyCmdNFCTeamChoices, houndID},
+	}
+
+	_, err = dg.ApplicationCommandCreate(botID, "", &discordgo.ApplicationCommand{
+		Name:        "jersey",
+		Description: "Don a jersey representign your favorite sports team",
+		Options:     []*discordgo.ApplicationCommandOption{nflJerseyAFCSubCmd, nflJerseyNFCSubCmd},
+	})
+
 	if err != nil {
 		return err
 	}
@@ -729,6 +819,81 @@ func apeBagInteraction(session *discordgo.Session, interaction *discordgo.Intera
 
 	}
 
+}
+
+func jerseyInteraction(session *discordgo.Session, interaction *discordgo.InteractionCreate) {
+	var name string //TODO resolving the name can be its own method as well
+	if nil == interaction.Member {
+		name = interaction.User.Username
+	} else {
+		if nil != interaction.Member.User {
+			name = interaction.Member.User.Username
+		}
+	}
+	cmdData := interaction.ApplicationCommandData()
+	if cmdData.Name == "jersey" {
+		//Send ACK To meet the 3s turnaround and allow for more time to upload the image
+		session.InteractionRespond(interaction.Interaction, &discordgo.InteractionResponse{
+			Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
+			Data: &discordgo.InteractionResponseData{}})
+		go func() {
+			//logger.Infof("Jersey Command called by: %s", name)
+			//logger.Infof("Comamnd: %s", spew.Sdump(cmdData))
+			subCmd := cmdData.Options[0]
+			collection := collectionOpt(subCmd.Options[0].UintValue())
+			team := subCmd.Options[1].StringValue()
+			houndID := subCmd.Options[2].UintValue()
+
+			if collection != houndsOpt {
+				err := fmt.Errorf("Unsupported Collection: %s", cmdData.Options[0].Name)
+				logger.Errorf("Error: %s", err)
+				sendErrorResponse(houndID, err, session, interaction)
+				return
+			}
+
+			//TODO: Refactor Getting Metadata and Image into its own method
+			logger.Debugf("Getting metadata for Hound #%d", houndID)
+			metadata, err := houndMetadataFetcher.Fetch(houndID)
+			if err != nil {
+				err := fmt.Errorf("Failed to fetch Metadata for Hound ID %d: %w", houndID, err)
+				logger.Errorf("Error: %s", err)
+				sendErrorResponse(houndID, err, session, interaction)
+				return
+			}
+
+			hound, err := ipfsClient.GetImageFromIPFS(metadata.Image)
+			if err != nil {
+				err := fmt.Errorf("Failed to fetch image from IPFS for Hound ID %d: %w", houndID, err)
+				logger.Errorf("Error: %s", err)
+				sendErrorResponse(houndID, err, session, interaction)
+				return
+			}
+
+			logger.Debugf("Overlaying Image")
+			buff, err := stamper.OverlayHoundJersey(hound, metadata, team)
+			if err != nil {
+				err := fmt.Errorf("Failed to overlay %s %s jersey for Hound ID %d: %w", team, subCmd.Name, houndID, err)
+				logger.Errorf("Error: %s", err)
+				sendErrorResponse(houndID, err, session, interaction)
+				return
+			}
+
+			file := &discordgo.File{
+				Name:        fmt.Sprintf("%s_%s_%s_jersey_%d.png", name, team, strings.ReplaceAll(subCmd.Name, "-", "_"), houndID),
+				ContentType: "image/png",
+				Reader:      buff,
+			}
+
+			response := &discordgo.WebhookEdit{
+				Files: []*discordgo.File{file},
+			}
+
+			logger.Debugf("Uploading image")
+			if _, err := session.InteractionResponseEdit(interaction.Interaction, response); err != nil {
+				logger.Errorf("Error sending message: %s", err)
+			}
+		}()
+	}
 }
 
 func sendErrorResponse(id uint64, err error, session *discordgo.Session, interaction *discordgo.InteractionCreate) {

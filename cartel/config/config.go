@@ -57,14 +57,15 @@ type CoffeeMugMappings struct {
 }
 
 type ImageProcessorConfig struct {
-	GMMappings              map[string]string `yaml:"gm_mappings"`
-	NFDMerchMappings        MerchMappings     `yaml:"nfd_merch_mappings"`
-	SuitMappings            SuitMappings      `yaml:"suit_mappings"`
-	Hands                   map[string]string `yaml:"-"`
-	PledgeHands             PledgeMappings    `yaml:"pledge_hands"`
-	ApeBagMappings          map[string]string `yaml:"ape_bag"`
-	MAYCBackgroundColorKeys map[string]string `yaml:"mayc_background_color_keys"`
-	MAYCCoffeeMugMappings   CoffeeMugMappings `yaml:"mayc_coffee_mug_mappings"`
+	GMMappings              map[string]string            `yaml:"gm_mappings"`
+	NFDMerchMappings        MerchMappings                `yaml:"nfd_merch_mappings"`
+	SuitMappings            SuitMappings                 `yaml:"suit_mappings"`
+	Hands                   map[string]string            `yaml:"-"`
+	PledgeHands             PledgeMappings               `yaml:"pledge_hands"`
+	ApeBagMappings          map[string]string            `yaml:"ape_bag"`
+	MAYCBackgroundColorKeys map[string]string            `yaml:"mayc_background_color_keys"`
+	MAYCCoffeeMugMappings   CoffeeMugMappings            `yaml:"mayc_coffee_mug_mappings"`
+	NFLJerseyMappings       map[string]map[string]string `yaml:"nfl_jersey_mappings"`
 }
 
 func LoadCfg(env, cfgFile string) (Config, error) {
