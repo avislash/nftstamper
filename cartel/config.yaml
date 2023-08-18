@@ -119,6 +119,7 @@ image_processor_mappings:
                 mayc: ./cartel/images/suits/mayc.png
                 nfd: ./cartel/images/suits/nfd.png
                 red hat: ./cartel/images/suits/red_hat.png
+                roc: ./cartel/images/suits/roc.png
                 trippy: ./cartel/images/suits/trippy.png
                 tux: ./cartel/images/suits/tux.png
             m2 bored:
@@ -133,6 +134,7 @@ image_processor_mappings:
                 mayc: ./cartel/images/suits/m2_bored_mayc.png
                 nfd: ./cartel/images/suits/m2_bored_nfd.png
                 red hat: ./cartel/images/suits/m2_bored_red_hat.png
+                roc: ./cartel/images/suits/m2_bored_roc.png
                 trippy: ./cartel/images/suits/m2_bored_trippy.png
                 tux: ./cartel/images/suits/m2_bored_tux.png
     pledge_hands:
@@ -227,3 +229,105 @@ image_processor_mappings:
         m1 tongue out: ./cartel/images/ape_bag/mayc_apebag_m1tongueout.png
         m1 phoneme wah: ./cartel/images/ape_bag/mayc_apebag_m1phonemewah.png
         m1 grin gold grill: ./cartel/images/ape_bag/mayc_apebag_m1grillgoldgrin.png
+
+    mayc_coffee_mug_mappings:
+        liquids:
+            coffee: ./cartel/images/coffee_mugs/liquids/coffee.png
+            serum: ./cartel/images/coffee_mugs/liquids/serum.png
+        steam:
+            coffee: ./cartel/images/coffee_mugs/steam/coffee.png
+            serum: ./cartel/images/coffee_mugs/steam/serum.png
+        logos:
+            albino asylum: ./cartel/images/coffee_mugs/logos/albino.png
+            armoured guards: ./cartel/images/coffee_mugs/logos/armoured.png
+            bionic army:  ./cartel/images/coffee_mugs/logos/bionics.png
+            blood hounds: ./cartel/images/coffee_mugs/logos/bloodhound.png
+            cartel: ./cartel/images/coffee_mugs/logos/cartel.png
+            death pack: ./cartel/images/coffee_mugs/logos/deathpack.png
+            deathbot army: ./cartel/images/coffee_mugs/logos/deathbots.png
+            demon council: ./cartel/images/coffee_mugs/logos/demon_council.png
+            dmt cartel: ./cartel/images/coffee_mugs/logos/dmt_cartel.png
+            flesh eaters: ./cartel/images/coffee_mugs/logos/inside_out.png
+            golem gang: ./cartel/images/coffee_mugs/logos/golem.png
+            haunted howlers: ./cartel/images/coffee_mugs/logos/haunted.png
+            laughing legion: ./cartel/images/coffee_mugs/logos/hyena_v2.png
+            metal militia: ./cartel/images/coffee_mugs/logos/metal_militia.png
+            midnight marauders: ./cartel/images/coffee_mugs/logos/midnight.png
+            noisy syndicate: ./cartel/images/coffee_mugs/logos/noisy_syndicate.png
+            royal hounds: ./cartel/images/coffee_mugs/logos/royals.png
+            skull legion: ./cartel/images/coffee_mugs/logos/skulls.png
+            trippy brigade: ./cartel/images/coffee_mugs/logos/trippy.png
+            wolf pack: ./cartel/images/coffee_mugs/logos/wolf_pack.png
+            zombie horde: ./cartel/images/coffee_mugs/logos/horde.png
+        furs:
+            m1 dark brown: ./cartel/images/coffee_mugs/m1_dark_brown.png
+            m1 brown: ./cartel/images/coffee_mugs/m1_brown.png
+            m1 black: ./cartel/images/coffee_mugs/m1_black.png
+            m1 golden brown: ./cartel/images/coffee_mugs/m1_golden_brown.png
+            m1 cream: ./cartel/images/coffee_mugs/m1_cream.png
+            m1 tan: ./cartel/images/coffee_mugs/m1_tan.png
+            m1 pink: ./cartel/images/coffee_mugs/m1_pink.png
+            m1 gray: ./cartel/images/coffee_mugs/m1_gray.png
+            m1 red: ./cartel/images/coffee_mugs/m1_red.png
+            m1 blue: ./cartel/images/coffee_mugs/m1_blue.png
+            m1 cheetah: ./cartel/images/coffee_mugs/m1_cheetah.png
+            m1 white: ./cartel/images/coffee_mugs/m1_white.png
+            m1 zombie:  ./cartel/images/coffee_mugs/m1_zombie.png
+            m1 robot:  ./cartel/images/coffee_mugs/m1_robot.png
+            m1 dmt:  ./cartel/images/coffee_mugs/m1_dmt.png
+            m1 death bot:  ./cartel/images/coffee_mugs/m1_death_bot.png
+            m1 noise: ./cartel/images/coffee_mugs/m1_noise.png
+            m1 trippy:  ./cartel/images/coffee_mugs/m1_trippy.png
+            m1 solid golid:  ./cartel/images/coffee_mugs/m1_gold.png
+            m2 dark brown: ./cartel/images/coffee_mugs/m2_dark_brown.png
+            m2 brown: ./cartel/images/coffee_mugs/m2_brown.png
+            m2 black: ./cartel/images/coffee_mugs/m2_black.png
+            m2 golden brown: ./cartel/images/coffee_mugs/m2_golden_brown.png
+            m2 cream: ./cartel/images/coffee_mugs/m2_cream.png
+            m2 tan: ./cartel/images/coffee_mugs/m2_tan.png
+            m2 pink: ./cartel/images/coffee_mugs/m2_pink.png
+            m2 gray: ./cartel/images/coffee_mugs/m2_gray.png
+            m2 red: ./cartel/images/coffee_mugs/m2_red.png
+            m2 blue: ./cartel/images/coffee_mugs/m2_blue.png
+            m2 cheetah: ./cartel/images/coffee_mugs/m2_cheetah.png
+            m2 white: ./cartel/images/coffee_mugs/m2_white.png
+            m2 zombie:  ./cartel/images/coffee_mugs/m2_zombie.png
+            m2 robot:  ./cartel/images/coffee_mugs/m2_robot.png
+            m2 dmt:  ./cartel/images/coffee_mugs/m2_dmt.png
+            m2 death bot:  ./cartel/images/coffee_mugs/m2_death_bot.png
+            m2 noise: ./cartel/images/coffee_mugs/m2_noise.png
+            m2 trippy:  ./cartel/images/coffee_mugs/m2_trippy.png
+            m2 solid golid:  ./cartel/images/coffee_mugs/m2_gold.png
+    nfl_jersey_mappings:
+            default:
+                cartel: ./cartel/images/jerseys/nfl/cartel.png
+                49ers: ./cartel/images/jerseys/nfl/49ers.png
+                bears: ./cartel/images/jerseys/nfl/bears.png
+                bengals: ./cartel/images/jerseys/nfl/bengals.png
+                bills: ./cartel/images/jerseys/nfl/bills.png
+                broncos: ./cartel/images/jerseys/nfl/broncos.png
+                buccaneers: ./cartel/images/jerseys/nfl/buccaneers.png
+                cardinals: ./cartel/images/jerseys/nfl/cardinals.png
+                chargers: ./cartel/images/jerseys/nfl/chargers.png
+                chiefs: ./cartel/images/jerseys/nfl/chiefs.png
+                colts: ./cartel/images/jerseys/nfl/colts.png
+                commanders: ./cartel/images/jerseys/nfl/commanders.png
+                cowboys: ./cartel/images/jerseys/nfl/cowboys.png
+                dolphins: ./cartel/images/jerseys/nfl/dolphins.png
+                eagles: ./cartel/images/jerseys/nfl/eagles.png
+                giants: ./cartel/images/jerseys/nfl/giants.png
+                jaguars: ./cartel/images/jerseys/nfl/jaguars.png
+                jets: ./cartel/images/jerseys/nfl/jets.png
+                lions: ./cartel/images/jerseys/nfl/lions.png
+                packers: ./cartel/images/jerseys/nfl/packers.png
+                panthers: ./cartel/images/jerseys/nfl/panthers.png
+                patriots: ./cartel/images/jerseys/nfl/patriots.png
+                raiders: ./cartel/images/jerseys/nfl/raiders.png
+                rams: ./cartel/images/jerseys/nfl/rams.png
+                ravens: ./cartel/images/jerseys/nfl/ravens.png
+                saints: ./cartel/images/jerseys/nfl/saints.png
+                seahawks: ./cartel/images/jerseys/nfl/seahawks.png
+                steelers: ./cartel/images/jerseys/nfl/steelers.png
+                texans: ./cartel/images/jerseys/nfl/texans.png
+                titans: ./cartel/images/jerseys/nfl/titans.png
+                vikings: ./cartel/images/jerseys/nfl/vikings.png

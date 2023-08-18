@@ -47,6 +47,13 @@ type suitMappings struct {
 	suits    map[string]map[string]image.Image
 }
 
+type coffeeMugMappings struct {
+	liquids map[string]image.Image
+	steam   map[string]image.Image
+	logos   map[string]image.Image
+	furs    map[string]image.Image
+}
+
 type Processor struct {
 	image.Combiner
 	bowls                   map[string]image.Image //map of backgrounds to bowls
@@ -55,6 +62,8 @@ type Processor struct {
 	suitMappings            suitMappings //     map[string]image.Image
 	apeBags                 map[string]image.Image
 	maycBackgroundColorKeys map[string]string
+	maycCoffeeMugMappings   coffeeMugMappings
+	nflJerseyMappings       map[string]map[string]image.Image
 }
 
 func NewProcessor(config config.ImageProcessorConfig) (*Processor, error) {
@@ -99,6 +108,20 @@ func NewProcessor(config config.ImageProcessorConfig) (*Processor, error) {
 		return nil, fmt.Errorf("Error building Suit Mappings: %w", err)
 	}
 
+	maycCoffeeMugMappings, err := buildCoffeeMugMappings(config.MAYCCoffeeMugMappings)
+	if err != nil {
+		return nil, fmt.Errorf("Error building MAYC Coffee Mug Mappings: %w", err)
+	}
+
+	jerseyMappings := make(map[string]map[string]image.Image)
+	for key, mappings := range config.NFLJerseyMappings {
+		imgMap, err := buildImageMap(mappings)
+		if err != nil {
+			return nil, fmt.Errorf("Error building NFL Jersey Mappings for %s: %w", key, err)
+		}
+		jerseyMappings[key] = imgMap
+	}
+
 	return &Processor{
 		//Combined Hound images are too big to process and return to discord before timing out
 		Combiner:                image.NewPNGCombiner(image.WithBestSpeedPNGCompression()),
@@ -108,6 +131,8 @@ func NewProcessor(config config.ImageProcessorConfig) (*Processor, error) {
 		suitMappings:            suitMappings,
 		apeBags:                 apeBags,
 		maycBackgroundColorKeys: config.MAYCBackgroundColorKeys,
+		maycCoffeeMugMappings:   maycCoffeeMugMappings,
+		nflJerseyMappings:       jerseyMappings,
 	}, nil
 }
 
@@ -155,6 +180,32 @@ func (p *Processor) OverlaySuit(suit string, ape image.Image, metadata metadata.
 	}
 
 	return p.EncodeImage(p.CombineImages(ape, suitImg))
+}
+
+func (p *Processor) OverlayCoffeeMug(ape image.Image, metadata metadata.MAYCMetadata, liquid, logo string) (*bytes.Buffer, error) {
+	mug, exists := p.maycCoffeeMugMappings.furs[metadata.Fur]
+	if !exists {
+		return nil, fmt.Errorf("No Coffee Mug found for fur: %s", metadata.Fur)
+	}
+
+	liquidImg, exists := p.maycCoffeeMugMappings.liquids[liquid]
+	if !exists {
+		return nil, fmt.Errorf("No Liquid found for liquid: %s", liquid)
+	}
+	steam, _ := p.maycCoffeeMugMappings.steam[liquid] //Steam is optional and not necessary for final image
+
+	logoImg, exists := p.maycCoffeeMugMappings.logos[logo]
+	if !exists {
+		return nil, fmt.Errorf("No Logo found for logo: %s", logo)
+	}
+
+	//Mug goes over liquid layer whilst everything goes over the mug
+	mug = p.CombineImages(liquidImg, mug)
+	if steam != nil {
+		mug = p.CombineImages(mug, steam)
+	}
+	mug = p.CombineImages(mug, logoImg)
+	return p.EncodeImage(p.CombineImages(ape, mug))
 }
 
 func (p *Processor) getSuitMask(metadata metadata.MAYCMetadata) (image.Image, string) {
@@ -264,6 +315,20 @@ func (p *Processor) OverlayApeBag(ape image.Image, metadata metadata.MAYCMetadat
 	return p.EncodeImage(p.CombineImages(ape, bag))
 }
 
+func (p *Processor) OverlayHoundJersey(hound image.Image, metadata metadata.HoundMetadata, team string) (*bytes.Buffer, error) {
+	jerseys, exists := p.nflJerseyMappings["default"]
+	if !exists {
+		return nil, fmt.Errorf("No default Jerseys loaded")
+	}
+
+	jersey, exists := jerseys[team]
+	if !exists {
+		return nil, fmt.Errorf("No jersey loaded for %s", team)
+	}
+
+	return p.EncodeImage(p.CombineImages(hound, jersey))
+}
+
 func buildImageMap(imageFiles map[string]string) (map[string]image.Image, error) {
 	mappings := make(map[string]image.Image)
 	for trait, imageFile := range imageFiles {
@@ -355,6 +420,36 @@ func buildSuitMappings(suitConfig config.SuitMappings) (suitMappings, error) {
 		skipMask: skipMask,
 		suits:    suits,
 	}, nil
+}
+
+func buildCoffeeMugMappings(coffeeMugConfig config.CoffeeMugMappings) (coffeeMugMappings, error) {
+	furs, err := buildImageMap(coffeeMugConfig.Furs)
+	if err != nil {
+		return coffeeMugMappings{}, fmt.Errorf("Error building fur image map: %w", err)
+	}
+
+	logos, err := buildImageMap(coffeeMugConfig.Logos)
+	if err != nil {
+		return coffeeMugMappings{}, fmt.Errorf("Error building logo image map: %w", err)
+	}
+
+	liquids, err := buildImageMap(coffeeMugConfig.Liquids)
+	if err != nil {
+		return coffeeMugMappings{}, fmt.Errorf("Error building liquids image map: %w", err)
+	}
+
+	steam, err := buildImageMap(coffeeMugConfig.Steam)
+	if err != nil {
+		return coffeeMugMappings{}, fmt.Errorf("Error building steam image map: %w", err)
+	}
+
+	return coffeeMugMappings{
+		liquids: liquids,
+		steam:   steam,
+		logos:   logos,
+		furs:    furs,
+	}, nil
+
 }
 
 func getImageFromFile(filename string) (image.Image, error) {
