@@ -63,6 +63,7 @@ type Processor struct {
 	apeBags                 map[string]image.Image
 	maycBackgroundColorKeys map[string]string
 	maycCoffeeMugMappings   coffeeMugMappings
+	nflJerseyMappings       map[string]map[string]image.Image
 }
 
 func NewProcessor(config config.ImageProcessorConfig) (*Processor, error) {
@@ -112,6 +113,15 @@ func NewProcessor(config config.ImageProcessorConfig) (*Processor, error) {
 		return nil, fmt.Errorf("Error building MAYC Coffee Mug Mappings: %w", err)
 	}
 
+	jerseyMappings := make(map[string]map[string]image.Image)
+	for key, mappings := range config.NFLJerseyMappings {
+		imgMap, err := buildImageMap(mappings)
+		if err != nil {
+			return nil, fmt.Errorf("Error building NFL Jersey Mappings for %s: %w", key, err)
+		}
+		jerseyMappings[key] = imgMap
+	}
+
 	return &Processor{
 		//Combined Hound images are too big to process and return to discord before timing out
 		Combiner:                image.NewPNGCombiner(image.WithBestSpeedPNGCompression()),
@@ -122,6 +132,7 @@ func NewProcessor(config config.ImageProcessorConfig) (*Processor, error) {
 		apeBags:                 apeBags,
 		maycBackgroundColorKeys: config.MAYCBackgroundColorKeys,
 		maycCoffeeMugMappings:   maycCoffeeMugMappings,
+		nflJerseyMappings:       jerseyMappings,
 	}, nil
 }
 
@@ -302,6 +313,20 @@ func (p *Processor) OverlayApeBag(ape image.Image, metadata metadata.MAYCMetadat
 		bag = override
 	}
 	return p.EncodeImage(p.CombineImages(ape, bag))
+}
+
+func (p *Processor) OverlayHoundJersey(hound image.Image, metadata metadata.HoundMetadata, team string) (*bytes.Buffer, error) {
+	jerseys, exists := p.nflJerseyMappings["default"]
+	if !exists {
+		return nil, fmt.Errorf("No default Jerseys loaded")
+	}
+
+	jersey, exists := jerseys[team]
+	if !exists {
+		return nil, fmt.Errorf("No jersey loaded for %s", team)
+	}
+
+	return p.EncodeImage(p.CombineImages(hound, jersey))
 }
 
 func buildImageMap(imageFiles map[string]string) (map[string]image.Image, error) {
