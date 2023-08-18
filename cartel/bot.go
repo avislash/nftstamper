@@ -339,11 +339,13 @@ func cartelBot(cmd *cobra.Command, _ []string) error {
 
 	suitChoices := []*discordgo.ApplicationCommandOptionChoice{
 		&discordgo.ApplicationCommandOptionChoice{Name: "ape", Value: "ape"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "black suit", Value: "black suit"},
 		&discordgo.ApplicationCommandOptionChoice{Name: "brown", Value: "brown"},
 		&discordgo.ApplicationCommandOptionChoice{Name: "cartel", Value: "cartel"},
 		&discordgo.ApplicationCommandOptionChoice{Name: "cartel comic", Value: "cartel comic"},
 		&discordgo.ApplicationCommandOptionChoice{Name: "cheetah", Value: "cheetah"},
 		&discordgo.ApplicationCommandOptionChoice{Name: "demon", Value: "demon"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "fuck it", Value: "fuck it"},
 		&discordgo.ApplicationCommandOptionChoice{Name: "kodamara", Value: "kodamara"},
 		&discordgo.ApplicationCommandOptionChoice{Name: "luke", Value: "luke"},
 		&discordgo.ApplicationCommandOptionChoice{Name: "mayc", Value: "mayc"},
@@ -352,6 +354,7 @@ func cartelBot(cmd *cobra.Command, _ []string) error {
 		&discordgo.ApplicationCommandOptionChoice{Name: "roc", Value: "roc"},
 		&discordgo.ApplicationCommandOptionChoice{Name: "trippy", Value: "trippy"},
 		&discordgo.ApplicationCommandOptionChoice{Name: "tux", Value: "tux"},
+		&discordgo.ApplicationCommandOptionChoice{Name: "vip", Value: "vip"},
 	}
 
 	suitOption := &discordgo.ApplicationCommandOption{
@@ -609,7 +612,7 @@ func suitInteraction(session *discordgo.Session, interaction *discordgo.Interact
 				switch suit {
 				case "brown":
 					content = "Well :poop:"
-				case "cartel", "cartel comic":
+				case "cartel", "cartel comic", "vip":
 					content = "I swear by the Apes of old and by all that is sacred to Mutants that I stand with the Mutant Cartel"
 				case "cheetah":
 					content = "Fast AF boi"
@@ -619,7 +622,7 @@ func suitInteraction(session *discordgo.Session, interaction *discordgo.Interact
 					content = "Wtf is a koda?"
 				case "nfd":
 					content = "In NFD we trust"
-				case "roc":
+				case "roc", "fuck it":
 					content = "F*ck It"
 				}
 

@@ -109,11 +109,13 @@ image_processor_mappings:
         suits:
             default:
                 ape: ./cartel/images/suits/ape.png
+                black suit: ./cartel/images/suits/black_suit.png
                 brown: ./cartel/images/suits/brown.png
                 cartel: ./cartel/images/suits/cartel.png
                 cartel comic: ./cartel/images/suits/cartel_comic.png
                 cheetah: ./cartel/images/suits/cheetah.png
                 demon: ./cartel/images/suits/demon.png
+                fuck it: ./cartel/images/suits/fuck_it.png
                 kodamara: ./cartel/images/suits/kodamara.png
                 luke: ./cartel/images/suits/luke.png
                 mayc: ./cartel/images/suits/mayc.png
@@ -122,13 +124,16 @@ image_processor_mappings:
                 roc: ./cartel/images/suits/roc.png
                 trippy: ./cartel/images/suits/trippy.png
                 tux: ./cartel/images/suits/tux.png
+                vip: ./cartel/images/suits/vip.png
             m2 bored:
                 ape: ./cartel/images/suits/m2_bored_ape.png
+                black suit: ./cartel/images/suits/m2_bored_black_suit.png
                 brown: ./cartel/images/suits/m2_bored_brown.png
                 cartel: ./cartel/images/suits/m2_bored_cartel.png
                 cartel comic: ./cartel/images/suits/m2_bored_cartel_comic.png
                 cheetah: ./cartel/images/suits/m2_bored_cheetah.png
                 demon: ./cartel/images/suits/m2_bored_demon.png
+                fuck it: ./cartel/images/suits/m2_bored_fuck_it.png
                 kodamara: ./cartel/images/suits/m2_bored_kodamara.png
                 luke: ./cartel/images/suits/m2_bored_luke.png
                 mayc: ./cartel/images/suits/m2_bored_mayc.png
@@ -137,6 +142,7 @@ image_processor_mappings:
                 roc: ./cartel/images/suits/m2_bored_roc.png
                 trippy: ./cartel/images/suits/m2_bored_trippy.png
                 tux: ./cartel/images/suits/m2_bored_tux.png
+                vip: ./cartel/images/suits/m2_bored_vip.png
     pledge_hands:
         mutant_hounds:
             default:
