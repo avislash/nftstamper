@@ -54,16 +54,27 @@ type coffeeMugMappings struct {
 	furs    map[string]image.Image
 }
 
+type houndTraitMappings struct {
+	faces  map[string]image.Image
+	forms  map[string]image.Image
+	heads  map[string]image.Image
+	legs   map[string]image.Image
+	mouths map[string]image.Image
+	noses  map[string]image.Image
+	torsos map[string]image.Image
+}
+
 type Processor struct {
 	image.Combiner
 	bowls                   map[string]image.Image //map of backgrounds to bowls
-	pledgeHands             pledgeHands            //map[string]map[string]image.Image //map of traits to colorss
+	pledgeHands             pledgeHands            //map of traits to colors
 	nfdMerch                Merch
-	suitMappings            suitMappings //     map[string]image.Image
+	suitMappings            suitMappings
 	apeBags                 map[string]image.Image
 	maycBackgroundColorKeys map[string]string
 	maycCoffeeMugMappings   coffeeMugMappings
 	nflJerseyMappings       map[string]map[string]image.Image
+	houndTraitMappings      houndTraitMappings
 }
 
 func NewProcessor(config config.ImageProcessorConfig) (*Processor, error) {
@@ -122,6 +133,11 @@ func NewProcessor(config config.ImageProcessorConfig) (*Processor, error) {
 		jerseyMappings[key] = imgMap
 	}
 
+	houndTraitMappings, err := buildHoundTraitMappings(config.HoundTraitMappings)
+	if err != nil {
+		return nil, fmt.Errorf("Error building Hound Trait Mappings: %w", err)
+	}
+
 	return &Processor{
 		//Combined Hound images are too big to process and return to discord before timing out
 		Combiner:                image.NewPNGCombiner(image.WithBestSpeedPNGCompression()),
@@ -133,6 +149,7 @@ func NewProcessor(config config.ImageProcessorConfig) (*Processor, error) {
 		maycBackgroundColorKeys: config.MAYCBackgroundColorKeys,
 		maycCoffeeMugMappings:   maycCoffeeMugMappings,
 		nflJerseyMappings:       jerseyMappings,
+		houndTraitMappings:      houndTraitMappings,
 	}, nil
 }
 
@@ -329,6 +346,50 @@ func (p *Processor) OverlayHoundJersey(hound image.Image, metadata metadata.Houn
 	return p.EncodeImage(p.CombineImages(hound, jersey))
 }
 
+func (p *Processor) CutoutHound(metadata metadata.HoundMetadata) (*bytes.Buffer, error) {
+	hound, err := p.generateHound(metadata)
+	if err != nil {
+		return nil, err
+	}
+	return p.EncodeImage(hound)
+}
+
+func (p *Processor) generateHound(metadata metadata.HoundMetadata) (image.Image, error) {
+	var hound image.Image
+	traitMap := p.houndTraitMappings
+
+	hound, exists := traitMap.forms[metadata.Form]
+	if !exists {
+		return hound, fmt.Errorf("No form loaded for: %s", metadata.Form)
+	}
+
+	if leg, exists := traitMap.legs[metadata.Leg]; exists {
+		hound = p.CombineImages(hound, leg)
+	}
+
+	if torso, exists := traitMap.torsos[metadata.Torso]; exists {
+		hound = p.CombineImages(hound, torso)
+	}
+
+	if face, exists := traitMap.faces[metadata.Face]; exists {
+		hound = p.CombineImages(hound, face)
+	}
+
+	if mouth, exists := traitMap.mouths[metadata.Mouth]; exists {
+		hound = p.CombineImages(hound, mouth)
+	}
+
+	if head, exists := traitMap.heads[metadata.Head]; exists {
+		hound = p.CombineImages(hound, head)
+	}
+
+	if nose, exists := traitMap.noses[metadata.Nose]; exists {
+		hound = p.CombineImages(hound, nose)
+	}
+
+	return hound, nil
+}
+
 func buildImageMap(imageFiles map[string]string) (map[string]image.Image, error) {
 	mappings := make(map[string]image.Image)
 	for trait, imageFile := range imageFiles {
@@ -450,6 +511,53 @@ func buildCoffeeMugMappings(coffeeMugConfig config.CoffeeMugMappings) (coffeeMug
 		furs:    furs,
 	}, nil
 
+}
+
+func buildHoundTraitMappings(houndTraitConfig config.HoundTraitMappings) (houndTraitMappings, error) {
+	faces, err := buildImageMap(houndTraitConfig.Faces)
+	if err != nil {
+		return houndTraitMappings{}, fmt.Errorf("Error building face image map: %w", err)
+	}
+
+	forms, err := buildImageMap(houndTraitConfig.Forms)
+	if err != nil {
+		return houndTraitMappings{}, fmt.Errorf("Error building form image map: %w", err)
+	}
+
+	heads, err := buildImageMap(houndTraitConfig.Heads)
+	if err != nil {
+		return houndTraitMappings{}, fmt.Errorf("Error building head image map: %w", err)
+	}
+
+	legs, err := buildImageMap(houndTraitConfig.Legs)
+	if err != nil {
+		return houndTraitMappings{}, fmt.Errorf("Error building leg image map: %w", err)
+	}
+
+	mouths, err := buildImageMap(houndTraitConfig.Mouths)
+	if err != nil {
+		return houndTraitMappings{}, fmt.Errorf("Error building mouth image map: %w", err)
+	}
+
+	noses, err := buildImageMap(houndTraitConfig.Noses)
+	if err != nil {
+		return houndTraitMappings{}, fmt.Errorf("Error building nose image map: %w", err)
+	}
+
+	torsos, err := buildImageMap(houndTraitConfig.Torsos)
+	if err != nil {
+		return houndTraitMappings{}, fmt.Errorf("Error building torso image map: %w", err)
+	}
+
+	return houndTraitMappings{
+		faces:  faces,
+		forms:  forms,
+		heads:  heads,
+		legs:   legs,
+		mouths: mouths,
+		noses:  noses,
+		torsos: torsos,
+	}, nil
 }
 
 func getImageFromFile(filename string) (image.Image, error) {

@@ -91,6 +91,7 @@ func cartelBot(cmd *cobra.Command, _ []string) error {
 	dg.AddHandler(pledgeInteraction)
 	dg.AddHandler(apeBagInteraction)
 	dg.AddHandler(jerseyInteraction)
+	dg.AddHandler(cutoutInteraction)
 
 	if err := dg.Open(); err != nil {
 		return err
@@ -374,6 +375,20 @@ func cartelBot(cmd *cobra.Command, _ []string) error {
 	if err != nil {
 		return err
 	}
+
+	cutoutCollectionChoices := []*discordgo.ApplicationCommandOptionChoice{&discordgo.ApplicationCommandOptionChoice{Name: "hound", Value: houndsOpt}}
+	cutoutCmdCollectionChoices := &discordgo.ApplicationCommandOption{
+		Type:        discordgo.ApplicationCommandOptionInteger,
+		Name:        "collection",
+		Description: "which collection",
+		Required:    true,
+		Choices:     cutoutCollectionChoices,
+	}
+	_, err = dg.ApplicationCommandCreate(botID, "", &discordgo.ApplicationCommand{
+		Name:        "cutout",
+		Description: "Cut subject out from background",
+		Options:     []*discordgo.ApplicationCommandOption{cutoutCmdCollectionChoices, houndID},
+	})
 
 	logger.Info("Bot started")
 
@@ -883,6 +898,80 @@ func jerseyInteraction(session *discordgo.Session, interaction *discordgo.Intera
 
 			file := &discordgo.File{
 				Name:        fmt.Sprintf("%s_%s_%s_jersey_%d.png", name, team, strings.ReplaceAll(subCmd.Name, "-", "_"), houndID),
+				ContentType: "image/png",
+				Reader:      buff,
+			}
+
+			response := &discordgo.WebhookEdit{
+				Files: []*discordgo.File{file},
+			}
+
+			logger.Debugf("Uploading image")
+			if _, err := session.InteractionResponseEdit(interaction.Interaction, response); err != nil {
+				logger.Errorf("Error sending message: %s", err)
+			}
+		}()
+	}
+}
+
+func cutoutInteraction(session *discordgo.Session, interaction *discordgo.InteractionCreate) {
+	var name string //TODO resolving the name can be its own method as well
+	if nil == interaction.Member {
+		name = interaction.User.Username
+	} else {
+		if nil != interaction.Member.User {
+			name = interaction.Member.User.Username
+		}
+	}
+	cmdData := interaction.ApplicationCommandData()
+	if cmdData.Name == "cutout" {
+		//Send ACK To meet the 3s turnaround and allow for more time to upload the image
+		session.InteractionRespond(interaction.Interaction, &discordgo.InteractionResponse{
+			Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
+			Data: &discordgo.InteractionResponseData{}})
+		go func() {
+			//logger.Infof("Jersey Command called by: %s", name)
+			//logger.Infof("Comamnd: %s", spew.Sdump(cmdData))
+			collection := collectionOpt(cmdData.Options[0].UintValue())
+			id := cmdData.Options[1].UintValue()
+
+			if collection != houndsOpt {
+				err := fmt.Errorf("Unsupported Collection: %s", cmdData.Options[0].Name)
+				logger.Errorf("Error: %s", err)
+				sendErrorResponse(id, err, session, interaction)
+				return
+			}
+
+			//TODO: Refactor Getting Metadata and Image into its own method
+			logger.Debugf("Getting metadata for Hound #%d", id)
+			metadata, err := houndMetadataFetcher.Fetch(id)
+			if err != nil {
+				err := fmt.Errorf("Failed to fetch Metadata for Hound ID %d: %w", id, err)
+				logger.Errorf("Error: %s", err)
+				sendErrorResponse(id, err, session, interaction)
+				return
+			}
+
+			//If image doesn't exist then that means hound hasn't been revealed or it's a mega
+			_, err = ipfsClient.GetImageFromIPFS(metadata.Image)
+			if err != nil {
+				err := fmt.Errorf("Failed to fetch image from IPFS for Hound ID %d: %w", id, err)
+				logger.Errorf("Error: %s", err)
+				sendErrorResponse(id, err, session, interaction)
+				return
+			}
+
+			logger.Debugf("Generating Cutout")
+			buff, err := stamper.CutoutHound(metadata)
+			if err != nil {
+				err := fmt.Errorf("Failed to cut out hound #%d: %w", id, err)
+				logger.Errorf("Error: %s", err)
+				sendErrorResponse(id, err, session, interaction)
+				return
+			}
+
+			file := &discordgo.File{
+				Name:        fmt.Sprintf("%s_hound_%d_cutout.png", name, id),
 				ContentType: "image/png",
 				Reader:      buff,
 			}
