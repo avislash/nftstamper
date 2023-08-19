@@ -56,6 +56,16 @@ type CoffeeMugMappings struct {
 	Logos   map[string]string `yaml:"logos"`
 }
 
+type HoundTraitMappings struct {
+	Faces  map[string]string `yaml:"faces"`
+	Forms  map[string]string `yaml:"forms"`
+	Heads  map[string]string `yaml:"heads"`
+	Legs   map[string]string `yaml:"legs"`
+	Mouths map[string]string `yaml:"mouths"`
+	Noses  map[string]string `yaml:"noses"`
+	Torsos map[string]string `yaml:"torsos"`
+}
+
 type ImageProcessorConfig struct {
 	GMMappings              map[string]string            `yaml:"gm_mappings"`
 	NFDMerchMappings        MerchMappings                `yaml:"nfd_merch_mappings"`
@@ -66,6 +76,7 @@ type ImageProcessorConfig struct {
 	MAYCBackgroundColorKeys map[string]string            `yaml:"mayc_background_color_keys"`
 	MAYCCoffeeMugMappings   CoffeeMugMappings            `yaml:"mayc_coffee_mug_mappings"`
 	NFLJerseyMappings       map[string]map[string]string `yaml:"nfl_jersey_mappings"`
+	HoundTraitMappings      HoundTraitMappings           `yaml:"hound_trait_mappings"`
 }
 
 func LoadCfg(env, cfgFile string) (Config, error) {
