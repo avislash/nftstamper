@@ -66,6 +66,11 @@ type HoundTraitMappings struct {
 	Torsos map[string]string `yaml:"torsos"`
 }
 
+type SerumCityMappings struct {
+	MAYCBackground  string `yaml:"mayc_background"`
+	HoundBackground string `yaml:"hound_background"`
+}
+
 type ImageProcessorConfig struct {
 	GMMappings              map[string]string            `yaml:"gm_mappings"`
 	NFDMerchMappings        MerchMappings                `yaml:"nfd_merch_mappings"`
@@ -77,6 +82,7 @@ type ImageProcessorConfig struct {
 	MAYCCoffeeMugMappings   CoffeeMugMappings            `yaml:"mayc_coffee_mug_mappings"`
 	NFLJerseyMappings       map[string]map[string]string `yaml:"nfl_jersey_mappings"`
 	HoundTraitMappings      HoundTraitMappings           `yaml:"hound_trait_mappings"`
+	SerumCityMappings       SerumCityMappings            `yaml:"serum_city_mappings"`
 }
 
 func LoadCfg(env, cfgFile string) (Config, error) {

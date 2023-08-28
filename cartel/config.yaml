@@ -531,6 +531,9 @@ image_processor_mappings:
             volcanic: ./cartel/images/hound_traits/torsos/volcanic.png
             blood bound: ./cartel/images/hound_traits/torsos/blood_bound.png
 
+    serum_city_mappings:
+        mayc_background: ./cartel/images/serum_city/mayc.png
+        hound_background: ./cartel/images/serum_city/hound.png
 
             
 

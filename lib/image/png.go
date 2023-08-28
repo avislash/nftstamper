@@ -72,11 +72,11 @@ func (pc *PNGCombiner) CombineImages(img1, img2 Image) Image {
 	return combinedImg
 }
 
-//Adjusts the image opacity of non-transparent pixels to the specified opacity
-//The opacity adjustment is made using he over-composition mode of the Porter-Duff algorithm.
-//Using over-composition since this (based on observation) allows for the best
-//result when blending foreground over background in the current use case.
-//The other modes can be added later and this function can be refactored if needed.
+// Adjusts the image opacity of non-transparent pixels to the specified opacity
+// The opacity adjustment is made using he over-composition mode of the Porter-Duff algorithm.
+// Using over-composition since this (based on observation) allows for the best
+// result when blending foreground over background in the current use case.
+// The other modes can be added later and this function can be refactored if needed.
 func (pc *PNGCombiner) AdjustImageOpacity(img Image, opacity float64) Image {
 	bounds := img.Bounds()
 	width, height := bounds.Max.X, bounds.Max.Y
@@ -145,6 +145,38 @@ func (pc *PNGCombiner) HexChromaKeySwap(img Image, chromaKey, newColor string) (
 	}
 
 	return dstImg, nil
+}
+
+func (pc *PNGCombiner) FilterOutBackgroundColor(img Image, bgKey string, threshold uint32) (Image, error) {
+	bgColor, err := HexToRGBA(bgKey)
+	if err != nil {
+		return nil, fmt.Errorf("Error converting background key %s to RGBA: %w", bgKey, err)
+	}
+
+	bounds := img.Bounds()
+	subject := image.NewRGBA(bounds)
+
+	// Step 2: Loop over each pixel
+	for y := bounds.Min.Y; y < bounds.Max.Y; y++ {
+		for x := bounds.Min.X; x < bounds.Max.X; x++ {
+
+			r, g, b, a := img.At(x, y).RGBA()
+			pixelColor := color.RGBA{
+				R: uint8(r >> 8),
+				G: uint8(g >> 8),
+				B: uint8(b >> 8),
+				A: uint8(a >> 8),
+			}
+
+			if isSimilar(pixelColor, bgColor, threshold) {
+				subject.Set(x, y, color.Transparent)
+			} else {
+				subject.Set(x, y, pixelColor)
+			}
+		}
+	}
+
+	return subject, nil
 }
 
 func (pc *PNGCombiner) EncodeImage(img Image) (*bytes.Buffer, error) {
