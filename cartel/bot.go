@@ -92,6 +92,7 @@ func cartelBot(cmd *cobra.Command, _ []string) error {
 	dg.AddHandler(apeBagInteraction)
 	dg.AddHandler(jerseyInteraction)
 	dg.AddHandler(cutoutInteraction)
+	dg.AddHandler(serumCityBgInteraction)
 
 	if err := dg.Open(); err != nil {
 		return err
@@ -376,7 +377,8 @@ func cartelBot(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	cutoutCollectionChoices := []*discordgo.ApplicationCommandOptionChoice{&discordgo.ApplicationCommandOptionChoice{Name: "hound", Value: houndsOpt}}
+	cutoutCollectionChoices := []*discordgo.ApplicationCommandOptionChoice{&discordgo.ApplicationCommandOptionChoice{Name: "hound", Value: houndsOpt},
+		&discordgo.ApplicationCommandOptionChoice{Name: "mayc", Value: maycOpt}}
 	cutoutCmdCollectionChoices := &discordgo.ApplicationCommandOption{
 		Type:        discordgo.ApplicationCommandOptionInteger,
 		Name:        "collection",
@@ -387,9 +389,19 @@ func cartelBot(cmd *cobra.Command, _ []string) error {
 	_, err = dg.ApplicationCommandCreate(botID, "", &discordgo.ApplicationCommand{
 		Name:        "cutout",
 		Description: "Cut subject out from background",
-		Options:     []*discordgo.ApplicationCommandOption{cutoutCmdCollectionChoices, houndID},
+		Options:     []*discordgo.ApplicationCommandOption{cutoutCmdCollectionChoices, id},
 	})
-
+	if err != nil {
+		return err
+	}
+	_, err = dg.ApplicationCommandCreate(botID, "", &discordgo.ApplicationCommand{
+		Name:        "serumcity",
+		Description: "Enter Serum City",
+		Options:     []*discordgo.ApplicationCommandOption{cutoutCmdCollectionChoices, id},
+	})
+	if err != nil {
+		return err
+	}
 	logger.Info("Bot started")
 
 	<-cmd.Context().Done()
@@ -930,57 +942,189 @@ func cutoutInteraction(session *discordgo.Session, interaction *discordgo.Intera
 			Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
 			Data: &discordgo.InteractionResponseData{}})
 		go func() {
-			//logger.Infof("Jersey Command called by: %s", name)
-			//logger.Infof("Comamnd: %s", spew.Sdump(cmdData))
+			var (
+				filename string
+				image    *bytes.Buffer
+			)
 			collection := collectionOpt(cmdData.Options[0].UintValue())
 			id := cmdData.Options[1].UintValue()
 
-			if collection != houndsOpt {
+			switch collection {
+			case maycOpt:
+				filename = fmt.Sprintf("%s_mayc_%d_cutout.png", name, id)
+				logger.Debugf("Getting metadata for MAYC  #%d", id)
+				metadata, err := maycMetadataFetcher.Fetch(id)
+				if err != nil {
+					err := fmt.Errorf("Failed to fetch Metadata for MAYC ID %d: %w", id, err)
+					logger.Errorf("Error: %s", err)
+					sendErrorResponse(id, err, session, interaction)
+					return
+				}
+				mayc, err := maycIpfsClient.GetImageFromIPFS(metadata.Image)
+				if err != nil {
+					err := fmt.Errorf("Failed to retrieve MAYC #%d image from IPFS: %w", id, err)
+					logger.Errorf("Error: %w", err)
+					sendErrorResponse(id, err, session, interaction)
+					return
+				}
+
+				image, err = stamper.CutoutMAYC(mayc, metadata)
+				if err != nil {
+					err := fmt.Errorf("Failed to cut out MAYC #%d: %w", id, err)
+					logger.Errorf("Error: %s", err)
+					sendErrorResponse(id, err, session, interaction)
+					return
+				}
+
+			case houndsOpt:
+				//TODO: Refactor Getting Metadata and Image into its own method
+				filename = fmt.Sprintf("%s_hound_%d_cutout.png", name, id)
+				logger.Debugf("Getting metadata for Hound #%d", id)
+				metadata, err := houndMetadataFetcher.Fetch(id)
+				if err != nil {
+					err := fmt.Errorf("Failed to fetch Metadata for Hound ID %d: %w", id, err)
+					logger.Errorf("Error: %s", err)
+					sendErrorResponse(id, err, session, interaction)
+					return
+				}
+
+				//If image doesn't exist then that means hound hasn't been revealed or it's a mega
+				_, err = ipfsClient.GetImageFromIPFS(metadata.Image)
+				if err != nil {
+					err := fmt.Errorf("Failed to fetch image from IPFS for Hound ID %d: %w", id, err)
+					logger.Errorf("Error: %s", err)
+					sendErrorResponse(id, err, session, interaction)
+					return
+				}
+
+				logger.Debugf("Generating Cutout")
+				image, err = stamper.CutoutHound(metadata)
+				if err != nil {
+					err := fmt.Errorf("Failed to cut out hound #%d: %w", id, err)
+					logger.Errorf("Error: %s", err)
+					sendErrorResponse(id, err, session, interaction)
+					return
+				}
+
+			default:
 				err := fmt.Errorf("Unsupported Collection: %s", cmdData.Options[0].Name)
 				logger.Errorf("Error: %s", err)
 				sendErrorResponse(id, err, session, interaction)
 				return
-			}
 
-			//TODO: Refactor Getting Metadata and Image into its own method
-			logger.Debugf("Getting metadata for Hound #%d", id)
-			metadata, err := houndMetadataFetcher.Fetch(id)
-			if err != nil {
-				err := fmt.Errorf("Failed to fetch Metadata for Hound ID %d: %w", id, err)
-				logger.Errorf("Error: %s", err)
-				sendErrorResponse(id, err, session, interaction)
-				return
 			}
-
-			//If image doesn't exist then that means hound hasn't been revealed or it's a mega
-			_, err = ipfsClient.GetImageFromIPFS(metadata.Image)
-			if err != nil {
-				err := fmt.Errorf("Failed to fetch image from IPFS for Hound ID %d: %w", id, err)
-				logger.Errorf("Error: %s", err)
-				sendErrorResponse(id, err, session, interaction)
-				return
-			}
-
-			logger.Debugf("Generating Cutout")
-			buff, err := stamper.CutoutHound(metadata)
-			if err != nil {
-				err := fmt.Errorf("Failed to cut out hound #%d: %w", id, err)
-				logger.Errorf("Error: %s", err)
-				sendErrorResponse(id, err, session, interaction)
-				return
-			}
-
+			logger.Debugf("Uploading image")
 			file := &discordgo.File{
-				Name:        fmt.Sprintf("%s_hound_%d_cutout.png", name, id),
+				Name:        filename,
 				ContentType: "image/png",
-				Reader:      buff,
+				Reader:      image,
 			}
-
 			response := &discordgo.WebhookEdit{
 				Files: []*discordgo.File{file},
 			}
+			if _, err := session.InteractionResponseEdit(interaction.Interaction, response); err != nil {
+				logger.Errorf("Error sending message: %s", err)
+			}
+		}()
+	}
+}
 
+func serumCityBgInteraction(session *discordgo.Session, interaction *discordgo.InteractionCreate) {
+	var name string //TODO resolving the name can be its own method as well
+	if nil == interaction.Member {
+		name = interaction.User.Username
+	} else {
+		if nil != interaction.Member.User {
+			name = interaction.Member.User.Username
+		}
+	}
+	cmdData := interaction.ApplicationCommandData()
+	if cmdData.Name == "serumcity" {
+		//Send ACK To meet the 3s turnaround and allow for more time to upload the image
+		session.InteractionRespond(interaction.Interaction, &discordgo.InteractionResponse{
+			Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
+			Data: &discordgo.InteractionResponseData{}})
+		go func() {
+			var (
+				filename string
+				image    *bytes.Buffer
+			)
+			collection := collectionOpt(cmdData.Options[0].UintValue())
+			id := cmdData.Options[1].UintValue()
+
+			switch collection {
+			case maycOpt:
+				filename = fmt.Sprintf("%s_mayc_%d_serumcity.png", name, id)
+				logger.Debugf("Getting metadata for MAYC  #%d", id)
+				metadata, err := maycMetadataFetcher.Fetch(id)
+				if err != nil {
+					err := fmt.Errorf("Failed to fetch Metadata for MAYC ID %d: %w", id, err)
+					logger.Errorf("Error: %s", err)
+					sendErrorResponse(id, err, session, interaction)
+					return
+				}
+				mayc, err := maycIpfsClient.GetImageFromIPFS(metadata.Image)
+				if err != nil {
+					err := fmt.Errorf("Failed to retrieve MAYC #%d image from IPFS: %w", id, err)
+					logger.Errorf("Error: %w", err)
+					sendErrorResponse(id, err, session, interaction)
+					return
+				}
+
+				image, err = stamper.OverlaySerumCityBgMAYC(mayc, metadata)
+				if err != nil {
+					err := fmt.Errorf("Failed to place MAYC #%d in SErum City: %w", id, err)
+					logger.Errorf("Error: %s", err)
+					sendErrorResponse(id, err, session, interaction)
+					return
+				}
+
+			case houndsOpt:
+				//TODO: Refactor Getting Metadata and Image into its own method
+				filename = fmt.Sprintf("%s_hound_%d_serumcity.png", name, id)
+				logger.Debugf("Getting metadata for Hound #%d", id)
+				metadata, err := houndMetadataFetcher.Fetch(id)
+				if err != nil {
+					err := fmt.Errorf("Failed to fetch Metadata for Hound ID %d: %w", id, err)
+					logger.Errorf("Error: %s", err)
+					sendErrorResponse(id, err, session, interaction)
+					return
+				}
+
+				//If image doesn't exist then that means hound hasn't been revealed or it's a mega
+				_, err = ipfsClient.GetImageFromIPFS(metadata.Image)
+				if err != nil {
+					err := fmt.Errorf("Failed to fetch image from IPFS for Hound ID %d: %w", id, err)
+					logger.Errorf("Error: %s", err)
+					sendErrorResponse(id, err, session, interaction)
+					return
+				}
+
+				logger.Debugf("Generating placement")
+				image, err = stamper.OverlaySerumCityBgHound(metadata)
+				if err != nil {
+					err := fmt.Errorf("Failed to place Hound  #%d in Serum City: %w", id, err)
+					logger.Errorf("Error: %s", err)
+					sendErrorResponse(id, err, session, interaction)
+					return
+				}
+
+			default:
+				err := fmt.Errorf("Unsupported Collection: %s", cmdData.Options[0].Name)
+				logger.Errorf("Error: %s", err)
+				sendErrorResponse(id, err, session, interaction)
+				return
+
+			}
 			logger.Debugf("Uploading image")
+			file := &discordgo.File{
+				Name:        filename,
+				ContentType: "image/png",
+				Reader:      image,
+			}
+			response := &discordgo.WebhookEdit{
+				Files: []*discordgo.File{file},
+			}
 			if _, err := session.InteractionResponseEdit(interaction.Interaction, response); err != nil {
 				logger.Errorf("Error sending message: %s", err)
 			}
