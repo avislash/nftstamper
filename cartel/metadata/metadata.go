@@ -9,9 +9,12 @@ type HoundMetadata struct {
 	Name       string
 	Image      string
 	Background string
+	Head       string
 	Face       string
-	Form       string
+	Nose       string
 	Mouth      string
+	Form       string
+	Leg        string
 	Torso      string
 }
 
@@ -38,16 +41,28 @@ func (hmd *HoundMetadata) UnmarshalJSON(data []byte) error {
 			hmd.Background = strings.TrimSpace(strings.ToLower(attribute["value"]))
 		}
 
+		if attribute["trait_type"] == "Head" {
+			hmd.Head = strings.TrimSpace(strings.ToLower(attribute["value"]))
+		}
+
 		if attribute["trait_type"] == "Face" {
 			hmd.Face = strings.TrimSpace(strings.ToLower(attribute["value"]))
+		}
+
+		if attribute["trait_type"] == "Nose" {
+			hmd.Nose = strings.TrimSpace(strings.ToLower(attribute["value"]))
+		}
+
+		if attribute["trait_type"] == "Mouth" {
+			hmd.Mouth = strings.TrimSpace(strings.ToLower(attribute["value"]))
 		}
 
 		if attribute["trait_type"] == "Forms" {
 			hmd.Form = strings.TrimSpace(strings.ToLower(attribute["value"]))
 		}
 
-		if attribute["trait_type"] == "Mouth" {
-			hmd.Mouth = strings.TrimSpace(strings.ToLower(attribute["value"]))
+		if attribute["trait_type"] == "Leg" {
+			hmd.Leg = strings.TrimSpace(strings.ToLower(attribute["value"]))
 		}
 
 		if attribute["trait_type"] == "Torso" {
