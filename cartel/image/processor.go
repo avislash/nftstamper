@@ -64,6 +64,11 @@ type houndTraitMappings struct {
 	torsos map[string]image.Image
 }
 
+type serumCityMappings struct {
+	maycBg  image.Image
+	houndBg image.Image
+}
+
 type Processor struct {
 	image.Combiner
 	bowls                   map[string]image.Image //map of backgrounds to bowls
@@ -75,6 +80,7 @@ type Processor struct {
 	maycCoffeeMugMappings   coffeeMugMappings
 	nflJerseyMappings       map[string]map[string]image.Image
 	houndTraitMappings      houndTraitMappings
+	serumCityMappings       serumCityMappings
 }
 
 func NewProcessor(config config.ImageProcessorConfig) (*Processor, error) {
@@ -138,6 +144,11 @@ func NewProcessor(config config.ImageProcessorConfig) (*Processor, error) {
 		return nil, fmt.Errorf("Error building Hound Trait Mappings: %w", err)
 	}
 
+	serumCityMappings, err := buildSerumCityImageMap(config.SerumCityMappings)
+	if err != nil {
+		return nil, fmt.Errorf("Error building Serum City Image Map: %w", err)
+	}
+
 	return &Processor{
 		//Combined Hound images are too big to process and return to discord before timing out
 		Combiner:                image.NewPNGCombiner(image.WithBestSpeedPNGCompression()),
@@ -150,6 +161,7 @@ func NewProcessor(config config.ImageProcessorConfig) (*Processor, error) {
 		maycCoffeeMugMappings:   maycCoffeeMugMappings,
 		nflJerseyMappings:       jerseyMappings,
 		houndTraitMappings:      houndTraitMappings,
+		serumCityMappings:       serumCityMappings,
 	}, nil
 }
 
@@ -352,6 +364,60 @@ func (p *Processor) CutoutHound(metadata metadata.HoundMetadata) (*bytes.Buffer,
 		return nil, err
 	}
 	return p.EncodeImage(hound)
+}
+
+func (p *Processor) CutoutMAYC(mayc image.Image, metadata metadata.MAYCMetadata) (*bytes.Buffer, error) {
+	mayc, err := p.cutoutMAYC(mayc, metadata)
+	if err != nil {
+		return nil, fmt.Errorf("Error cuting out MAYC: %w", err)
+	}
+	return p.EncodeImage(mayc)
+}
+
+func (p *Processor) OverlaySerumCityBgMAYC(mayc image.Image, metadata metadata.MAYCMetadata) (*bytes.Buffer, error) {
+	cutout, err := p.cutoutMAYC(mayc, metadata)
+	if err != nil {
+		return nil, fmt.Errorf("Error generating MAYC Cutout: %w", err)
+	}
+
+	return p.EncodeImage(p.CombineImages(p.serumCityMappings.maycBg, cutout))
+}
+
+func (p *Processor) OverlaySerumCityBgHound(metadata metadata.HoundMetadata) (*bytes.Buffer, error) {
+	cutout, err := p.generateHound(metadata)
+	if err != nil {
+		return nil, fmt.Errorf("Error generating Hound Cutout: %w", err)
+	}
+
+	return p.EncodeImage(p.CombineImages(p.serumCityMappings.houndBg, cutout))
+}
+
+func (p *Processor) cutoutMAYC(mayc image.Image, metadata metadata.MAYCMetadata) (image.Image, error) {
+	if strings.Contains(metadata.Name, "mega") {
+		return nil, fmt.Errorf("Mega Mutants not supported")
+	}
+	background := metadata.Background[3:]
+	bgKey, exists := p.maycBackgroundColorKeys[background]
+	if !exists {
+		return nil, fmt.Errorf("No background key defined for %s", background)
+	}
+
+	var threshold uint32 = 500
+
+	if background == "orange" {
+		if metadata.Fur == "m1 brown" {
+			//		threshold = 250 good try lower
+			//threshold = 200
+			//		threshold = 150
+			//		threshold = 100
+			//		threshold = 75
+			//		threshold = 50
+			threshold = 12
+			//threshold = 10 workable
+		}
+	}
+
+	return p.FilterOutBackgroundColor(mayc, bgKey, threshold)
 }
 
 func (p *Processor) generateHound(metadata metadata.HoundMetadata) (image.Image, error) {
@@ -557,6 +623,23 @@ func buildHoundTraitMappings(houndTraitConfig config.HoundTraitMappings) (houndT
 		mouths: mouths,
 		noses:  noses,
 		torsos: torsos,
+	}, nil
+}
+
+func buildSerumCityImageMap(serumCityConfig config.SerumCityMappings) (serumCityMappings, error) {
+	maycBg, err := getImageFromFile(serumCityConfig.MAYCBackground)
+	if err != nil {
+		return serumCityMappings{}, fmt.Errorf("Error loading MAYC BG: %w", err)
+	}
+
+	houndBg, err := getImageFromFile(serumCityConfig.HoundBackground)
+	if err != nil {
+		return serumCityMappings{}, fmt.Errorf("Error loading Hound BG: %w", err)
+	}
+
+	return serumCityMappings{
+		maycBg:  maycBg,
+		houndBg: houndBg,
 	}, nil
 }
 
