@@ -2,6 +2,7 @@ package ipfs
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -32,8 +33,20 @@ func NewWebClient(endpoint string, options ...Option) (*WebClient, error) {
 }
 
 func (c *WebClient) GetImageFromIPFS(imagePath string) (image.Image, error) {
-	// Image CID
-	cid := path.New(strings.TrimPrefix(imagePath, "ipfs://"))
+
+	file, err := c.GetFileFromIPFS(imagePath)
+	defer file.Close()
+	img, err := c.ImageDecoder.Decode(file)
+	if err != nil {
+		return nil, fmt.Errorf("Error decoding IPFS File as image: %w", err)
+	}
+
+	return img, nil
+}
+
+func (c *WebClient) GetFileFromIPFS(filePath string) (io.ReadCloser, error) {
+	// CID
+	cid := path.New(strings.TrimPrefix(filePath, "ipfs://"))
 	path := c.endpoint + cid.String()
 
 	// Retrieve the file from IPFS
@@ -41,14 +54,8 @@ func (c *WebClient) GetImageFromIPFS(imagePath string) (image.Image, error) {
 	if err != nil {
 		return nil, fmt.Errorf("Error fetching IPFS Image from %s: %w", path, err)
 	}
-	defer response.Body.Close()
 
-	img, err := c.ImageDecoder.Decode(response.Body)
-	if err != nil {
-		return nil, fmt.Errorf("Error decoding IPFS File as image: %w", err)
-	}
-
-	return img, nil
+	return response.Body, nil
 }
 
 func (c *WebClient) setImageDecoder(decoder image.Decoder) {
