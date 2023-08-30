@@ -9,6 +9,7 @@ import (
 type Config struct {
 	HoundsMetadataEndpoint string               `yaml:"hounds_metadata_endpoint"`
 	MAYCMetadataEndpoint   string               `yaml:"mayc_metadata_endpoint"`
+	BAYCMetadataEndpoint   string               `yaml:"bayc_metadata_endpoint"`
 	BotToken               string               `yaml:"discord_bot_token"`
 	IPFSEndpoint           string               `yaml:"ipfs_endpoint"`
 	ImageProcessorConfig   ImageProcessorConfig `yaml:"image_processor_mappings"`
@@ -67,8 +68,15 @@ type HoundTraitMappings struct {
 }
 
 type SerumCityMappings struct {
-	MAYCBackground  string `yaml:"mayc_background"`
+	BAYCBackground  string `yaml:"bayc_background"`
 	HoundBackground string `yaml:"hound_background"`
+	MAYCBackground  string `yaml:"mayc_background"`
+}
+
+type BAYCBackgroundMappings struct {
+	BAYCCornerMask          string              `yaml:"bayc_corner_mask"`
+	BAYCCornerMaskChromaKey string              `yaml:"bayc_corner_mask_chroma_key"`
+	BAYCBackgroundColorKeys map[string][]string `yaml:"bayc_background_color_keys"`
 }
 
 type ImageProcessorConfig struct {
@@ -78,6 +86,7 @@ type ImageProcessorConfig struct {
 	Hands                   map[string]string            `yaml:"-"`
 	PledgeHands             PledgeMappings               `yaml:"pledge_hands"`
 	ApeBagMappings          map[string]string            `yaml:"ape_bag"`
+	BAYCBackgroundMappings  BAYCBackgroundMappings       `yaml:"bayc_background_mappings"`
 	MAYCBackgroundColorKeys map[string]string            `yaml:"mayc_background_color_keys"`
 	MAYCCoffeeMugMappings   CoffeeMugMappings            `yaml:"mayc_coffee_mug_mappings"`
 	NFLJerseyMappings       map[string]map[string]string `yaml:"nfl_jersey_mappings"`

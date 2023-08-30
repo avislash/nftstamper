@@ -18,9 +18,11 @@ import (
 var (
 	ipfsClient           ipfs.Client
 	maycIpfsClient       ipfs.Client
+	baycIpfsClient       ipfs.Client
 	stamper              *image.Processor
 	houndMetadataFetcher *metadata.HoundMetadataFetcher
 	maycMetadataFetcher  *metadata.MAYCMetadataFetcher
+	baycMetadataFetcher  *metadata.BAYCMetadataFetcher
 	logger               *log.SugaredLogger
 	configFile           string
 	botToken             string
@@ -32,6 +34,7 @@ type collectionOpt int
 const (
 	houndsOpt collectionOpt = iota
 	maycOpt
+	baycOpt
 )
 
 var cmd = &cobra.Command{
@@ -75,6 +78,17 @@ func botInit(_ *cobra.Command, _ []string) error {
 	}
 	houndMetadataFetcher = metadata.NewHoundMetadataFetcher(cfg.HoundsMetadataEndpoint)
 	maycMetadataFetcher = metadata.NewMAYCMetadataFetcher(cfg.MAYCMetadataEndpoint)
+
+	baycMetadataFetcher, err = metadata.NewBAYCMetadataFetcher(cfg.IPFSEndpoint, cfg.BAYCMetadataEndpoint)
+	if err != nil {
+		return fmt.Errorf("Error creating BAYC Metadata Fetcher: %w", err)
+	}
+
+	baycIpfsClient, err = ipfs.NewClient(cfg.IPFSEndpoint, ipfs.WithPNGDecoder())
+	if err != nil {
+		return fmt.Errorf("Error creating IPFS Client: %w", err)
+	}
+
 	botToken = "Bot " + cfg.BotToken
 	return nil
 }
@@ -378,7 +392,9 @@ func cartelBot(cmd *cobra.Command, _ []string) error {
 	}
 
 	cutoutCollectionChoices := []*discordgo.ApplicationCommandOptionChoice{&discordgo.ApplicationCommandOptionChoice{Name: "hound", Value: houndsOpt},
-		&discordgo.ApplicationCommandOptionChoice{Name: "mayc", Value: maycOpt}}
+		&discordgo.ApplicationCommandOptionChoice{Name: "mayc", Value: maycOpt},
+		&discordgo.ApplicationCommandOptionChoice{Name: "bayc", Value: baycOpt},
+	}
 	cutoutCmdCollectionChoices := &discordgo.ApplicationCommandOption{
 		Type:        discordgo.ApplicationCommandOptionInteger,
 		Name:        "collection",
@@ -1006,6 +1022,34 @@ func cutoutInteraction(session *discordgo.Session, interaction *discordgo.Intera
 					return
 				}
 
+			case baycOpt:
+				//TODO: Refactor Getting Metadata and Image into its own method
+				filename = fmt.Sprintf("%s_bayc_%d_cutout.png", name, id)
+				logger.Debugf("Getting metadata for BAYC #%d", id)
+				metadata, err := baycMetadataFetcher.Fetch(id)
+				if err != nil {
+					err := fmt.Errorf("Failed to fetch Metadata for BAYC ID %d: %w", id, err)
+					logger.Errorf("Error: %s", err)
+					sendErrorResponse(id, err, session, interaction)
+					return
+				}
+				logger.Debugf("Metadata: %+v", metadata)
+
+				bayc, err := baycIpfsClient.GetImageFromIPFS(metadata.Image)
+				if err != nil {
+					err := fmt.Errorf("Failed to fetch image from IPFS for Hound ID %d: %w", id, err)
+					logger.Errorf("Error: %s", err)
+					sendErrorResponse(id, err, session, interaction)
+					return
+				}
+				logger.Debugf("Got Image")
+				image, err = stamper.CutoutBAYC(bayc, metadata)
+				if err != nil {
+					err := fmt.Errorf("Failed to cut out BAYC #%d: %w", id, err)
+					logger.Errorf("Error: %s", err)
+					sendErrorResponse(id, err, session, interaction)
+					return
+				}
 			default:
 				err := fmt.Errorf("Unsupported Collection: %s", cmdData.Options[0].Name)
 				logger.Errorf("Error: %s", err)
@@ -1053,6 +1097,31 @@ func serumCityBgInteraction(session *discordgo.Session, interaction *discordgo.I
 			id := cmdData.Options[1].UintValue()
 
 			switch collection {
+			case baycOpt:
+				filename = fmt.Sprintf("%s_bayc_%d_serumcity.png", name, id)
+				logger.Debugf("Getting metadata for BAYC  #%d", id)
+				metadata, err := baycMetadataFetcher.Fetch(id)
+				if err != nil {
+					err := fmt.Errorf("Failed to fetch Metadata for BAYC ID %d: %w", id, err)
+					logger.Errorf("Error: %s", err)
+					sendErrorResponse(id, err, session, interaction)
+					return
+				}
+				bayc, err := baycIpfsClient.GetImageFromIPFS(metadata.Image)
+				if err != nil {
+					err := fmt.Errorf("Failed to retrieve BAYC #%d image from IPFS: %w", id, err)
+					logger.Errorf("Error: %w", err)
+					sendErrorResponse(id, err, session, interaction)
+					return
+				}
+
+				image, err = stamper.OverlaySerumCityBgBAYC(bayc, metadata)
+				if err != nil {
+					err := fmt.Errorf("Failed to place BAYC #%d in Serum City: %w", id, err)
+					logger.Errorf("Error: %s", err)
+					sendErrorResponse(id, err, session, interaction)
+					return
+				}
 			case maycOpt:
 				filename = fmt.Sprintf("%s_mayc_%d_serumcity.png", name, id)
 				logger.Debugf("Getting metadata for MAYC  #%d", id)
@@ -1073,7 +1142,7 @@ func serumCityBgInteraction(session *discordgo.Session, interaction *discordgo.I
 
 				image, err = stamper.OverlaySerumCityBgMAYC(mayc, metadata)
 				if err != nil {
-					err := fmt.Errorf("Failed to place MAYC #%d in SErum City: %w", id, err)
+					err := fmt.Errorf("Failed to place MAYC #%d in Serum City: %w", id, err)
 					logger.Errorf("Error: %s", err)
 					sendErrorResponse(id, err, session, interaction)
 					return
