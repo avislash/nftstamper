@@ -1,6 +1,7 @@
 package ipfs
 
 import (
+	"io"
 	"strings"
 
 	"github.com/avislash/nftstamper/lib/image"
@@ -8,6 +9,7 @@ import (
 
 type Client interface {
 	GetImageFromIPFS(imagePath string) (image.Image, error)
+	GetFileFromIPFS(filePath string) (io.ReadCloser, error)
 	setImageDecoder(decoder image.Decoder)
 }
 
