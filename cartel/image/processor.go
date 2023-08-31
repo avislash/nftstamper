@@ -64,9 +64,16 @@ type houndTraitMappings struct {
 	torsos map[string]image.Image
 }
 
+type baycBackgroundMappings struct {
+	baycCornerMask          image.Image
+	baycCornerMaskChromaKey string
+	baycBackgroundColorKeys map[string][]string
+}
+
 type serumCityMappings struct {
-	maycBg  image.Image
+	baycBg  image.Image
 	houndBg image.Image
+	maycBg  image.Image
 }
 
 type Processor struct {
@@ -76,6 +83,7 @@ type Processor struct {
 	nfdMerch                Merch
 	suitMappings            suitMappings
 	apeBags                 map[string]image.Image
+	baycBackgroundMappings  baycBackgroundMappings
 	maycBackgroundColorKeys map[string]string
 	maycCoffeeMugMappings   coffeeMugMappings
 	nflJerseyMappings       map[string]map[string]image.Image
@@ -149,6 +157,11 @@ func NewProcessor(config config.ImageProcessorConfig) (*Processor, error) {
 		return nil, fmt.Errorf("Error building Serum City Image Map: %w", err)
 	}
 
+	baycBackgroundMappings, err := buildBaycBackgroundMappings(config.BAYCBackgroundMappings)
+	if err != nil {
+		return nil, fmt.Errorf("Error building BAYC Background Mappings: %w", err)
+	}
+
 	return &Processor{
 		//Combined Hound images are too big to process and return to discord before timing out
 		Combiner:                image.NewPNGCombiner(image.WithBestSpeedPNGCompression()),
@@ -162,6 +175,7 @@ func NewProcessor(config config.ImageProcessorConfig) (*Processor, error) {
 		nflJerseyMappings:       jerseyMappings,
 		houndTraitMappings:      houndTraitMappings,
 		serumCityMappings:       serumCityMappings,
+		baycBackgroundMappings:  baycBackgroundMappings,
 	}, nil
 }
 
@@ -374,6 +388,14 @@ func (p *Processor) CutoutMAYC(mayc image.Image, metadata metadata.MAYCMetadata)
 	return p.EncodeImage(mayc)
 }
 
+func (p *Processor) CutoutBAYC(bayc image.Image, metadata metadata.BAYCMetadata) (*bytes.Buffer, error) {
+	cutout, err := p.cutoutBAYC(bayc, metadata)
+	if err != nil {
+		return nil, fmt.Errorf("Error generating BAYC Cutout: %w", err)
+	}
+	return p.EncodeImage(cutout)
+}
+
 func (p *Processor) OverlaySerumCityBgMAYC(mayc image.Image, metadata metadata.MAYCMetadata) (*bytes.Buffer, error) {
 	cutout, err := p.cutoutMAYC(mayc, metadata)
 	if err != nil {
@@ -390,6 +412,15 @@ func (p *Processor) OverlaySerumCityBgHound(metadata metadata.HoundMetadata) (*b
 	}
 
 	return p.EncodeImage(p.CombineImages(p.serumCityMappings.houndBg, cutout))
+}
+
+func (p *Processor) OverlaySerumCityBgBAYC(bayc image.Image, metadata metadata.BAYCMetadata) (*bytes.Buffer, error) {
+	cutout, err := p.cutoutBAYC(bayc, metadata)
+	if err != nil {
+		return nil, fmt.Errorf("Error generating Hound Cutout: %w", err)
+	}
+
+	return p.EncodeImage(p.CombineImages(p.serumCityMappings.baycBg, cutout))
 }
 
 func (p *Processor) cutoutMAYC(mayc image.Image, metadata metadata.MAYCMetadata) (image.Image, error) {
@@ -418,6 +449,29 @@ func (p *Processor) cutoutMAYC(mayc image.Image, metadata metadata.MAYCMetadata)
 	}
 
 	return p.FilterOutBackgroundColor(mayc, bgKey, threshold)
+}
+
+func (p *Processor) cutoutBAYC(bayc image.Image, metadata metadata.BAYCMetadata) (image.Image, error) {
+	var threshold uint32 = 500
+
+	bgKeys, exists := p.baycBackgroundMappings.baycBackgroundColorKeys[metadata.Background]
+	if !exists || len(bgKeys) == 0 {
+		return nil, fmt.Errorf("No background color key(s) defined for background color %s", metadata.Background)
+	}
+
+	mask, chromaKey := p.baycBackgroundMappings.baycCornerMask, p.baycBackgroundMappings.baycCornerMaskChromaKey
+
+	mask, err := p.HexChromaKeySwap(mask, chromaKey, bgKeys[0])
+	bayc = p.CombineImages(bayc, mask)
+
+	for i, bgKey := range bgKeys {
+		bayc, err = p.FilterOutBackgroundColor(bayc, bgKey, threshold)
+		if err != nil {
+			return nil, fmt.Errorf("Error filtering out bg key %d (#%s): %w", i, bgKey, err)
+		}
+	}
+
+	return bayc, nil
 }
 
 func (p *Processor) generateHound(metadata metadata.HoundMetadata) (image.Image, error) {
@@ -627,9 +681,9 @@ func buildHoundTraitMappings(houndTraitConfig config.HoundTraitMappings) (houndT
 }
 
 func buildSerumCityImageMap(serumCityConfig config.SerumCityMappings) (serumCityMappings, error) {
-	maycBg, err := getImageFromFile(serumCityConfig.MAYCBackground)
+	baycBg, err := getImageFromFile(serumCityConfig.BAYCBackground)
 	if err != nil {
-		return serumCityMappings{}, fmt.Errorf("Error loading MAYC BG: %w", err)
+		return serumCityMappings{}, fmt.Errorf("Error loading BAYC BG: %w", err)
 	}
 
 	houndBg, err := getImageFromFile(serumCityConfig.HoundBackground)
@@ -637,9 +691,28 @@ func buildSerumCityImageMap(serumCityConfig config.SerumCityMappings) (serumCity
 		return serumCityMappings{}, fmt.Errorf("Error loading Hound BG: %w", err)
 	}
 
+	maycBg, err := getImageFromFile(serumCityConfig.MAYCBackground)
+	if err != nil {
+		return serumCityMappings{}, fmt.Errorf("Error loading MAYC BG: %w", err)
+	}
+
 	return serumCityMappings{
-		maycBg:  maycBg,
+		baycBg:  baycBg,
 		houndBg: houndBg,
+		maycBg:  maycBg,
+	}, nil
+}
+
+func buildBaycBackgroundMappings(baycBackgroundConfig config.BAYCBackgroundMappings) (baycBackgroundMappings, error) {
+	cornerMask, err := getImageFromFile(baycBackgroundConfig.BAYCCornerMask)
+	if err != nil {
+		return baycBackgroundMappings{}, fmt.Errorf("Error loading BAYC Corner Mask from %s: %w", baycBackgroundConfig.BAYCCornerMask, err)
+	}
+
+	return baycBackgroundMappings{
+		baycCornerMask:          cornerMask,
+		baycCornerMaskChromaKey: baycBackgroundConfig.BAYCCornerMaskChromaKey,
+		baycBackgroundColorKeys: baycBackgroundConfig.BAYCBackgroundColorKeys,
 	}, nil
 }
 

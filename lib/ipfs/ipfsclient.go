@@ -3,6 +3,7 @@ package ipfs
 import (
 	"context"
 	"fmt"
+	"io"
 	"strings"
 
 	"github.com/avislash/nftstamper/lib/image"
@@ -20,7 +21,7 @@ type IPFSClient struct {
 	ImageDecoder image.Decoder
 }
 
-//endpoint must be in MultiAddr Format as specified under https://github.com/multiformats/multiaddr#encoding
+// endpoint must be in MultiAddr Format as specified under https://github.com/multiformats/multiaddr#encoding
 func NewIPFSClient(endpoint string, options ...Option) (*IPFSClient, error) {
 	addr, err := multiAddr.NewMultiaddr(endpoint)
 	if err != nil {
@@ -42,16 +43,11 @@ func NewIPFSClient(endpoint string, options ...Option) (*IPFSClient, error) {
 }
 
 func (c *IPFSClient) GetImageFromIPFS(imagePath string) (image.Image, error) {
-	// Image CID
-	cid := path.New(strings.TrimPrefix(imagePath, "ipfs://"))
 
-	// Retrieve the file from IPFS
-	node, err := c.Unixfs().Get(context.Background(), cid)
+	file, err := c.GetFileFromIPFS(imagePath)
 	if err != nil {
-		return nil, fmt.Errorf("Error retrieving centinel from IPFS Hash %s: %w", cid, err)
+		return nil, err
 	}
-
-	file := files.ToFile((node))
 	defer file.Close()
 
 	img, err := c.ImageDecoder.Decode(file)
@@ -60,6 +56,21 @@ func (c *IPFSClient) GetImageFromIPFS(imagePath string) (image.Image, error) {
 	}
 
 	return img, nil
+}
+
+func (c *IPFSClient) GetFileFromIPFS(filePath string) (io.ReadCloser, error) {
+	// CID
+	cid := path.New(strings.TrimPrefix(filePath, "ipfs://"))
+
+	// Retrieve the file from IPFS
+	node, err := c.Unixfs().Get(context.Background(), cid)
+	if err != nil {
+		return nil, fmt.Errorf("Error retrieving file from IPFS Hash %s: %w", cid, err)
+	}
+
+	file := files.ToFile((node))
+
+	return file, nil
 }
 
 func (c *IPFSClient) setImageDecoder(decoder image.Decoder) {

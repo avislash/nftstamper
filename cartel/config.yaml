@@ -2,6 +2,7 @@
 ipfs_endpoint: https://gateway.ipfs.io
 hounds_metadata_endpoint: https://api.mutantdao.com/hounds/metadata
 mayc_metadata_endpoint: https://boredapeyachtclub.com/api/mutants/
+bayc_metadata_endpoint: ipfs://QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtq/
 discord_bot_token: CARTEL_DISCORD_BOT_TOKEN #can set in env as CARTEL_DISCORD_BOT_TOKEN
 image_processor_mappings:
     gm_mappings:
@@ -14,7 +15,6 @@ image_processor_mappings:
         Temple Room: ./cartel/images/bowls/temple_room.png
         Warehouse: ./cartel/images/bowls/warehouse.png
         Docks: ./cartel/images/bowls/docks.png
- 
     nfd_merch_mappings:
         default: ./cartel/images/nfd/nfd_shirt.png
         default_flame: ./cartel/images/nfd/nfd_shirt_flame.png
@@ -51,6 +51,30 @@ image_processor_mappings:
         hats:
             cartel hat: ./cartel/images/nfd/nfd_merch_hat.png
             cartel hat orange: ./cartel/images/nfd/nfd_merch_hat.png
+    bayc_background_mappings:
+        bayc_corner_mask: ./cartel/images/bayc/corner_mask.png
+        bayc_corner_mask_chroma_key: ff00ff
+        bayc_background_color_keys:
+            purple: 
+              - 6f5d70
+              - 5d4e5e
+            yellow: 
+              - e4e4a8
+              - d1daa0
+            orange: 
+              - ef972c
+            aquamarine: 
+              - 17e6b7
+            army green: 
+              - "727234"
+            blue:
+              - a2e5f4
+              - 98d5df
+            new punk blue: 
+              - 3a677d
+            gray:
+              - cccdce
+              - bdbec1
     mayc_background_color_keys:
         #m1 and m2 bgs are same color
         yellow: f6c946
@@ -532,8 +556,9 @@ image_processor_mappings:
             blood bound: ./cartel/images/hound_traits/torsos/blood_bound.png
 
     serum_city_mappings:
-        mayc_background: ./cartel/images/serum_city/mayc.png
+        bayc_background: ./cartel/images/serum_city/bayc.png
         hound_background: ./cartel/images/serum_city/hound.png
+        mayc_background: ./cartel/images/serum_city/mayc.png
 
             
 
