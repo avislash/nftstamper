@@ -67,7 +67,7 @@ type HoundTraitMappings struct {
 	Torsos map[string]string `yaml:"torsos"`
 }
 
-type SerumCityMappings struct {
+type BackgroundImagePlacementMappings struct {
 	BAYCBackground  string `yaml:"bayc_background"`
 	HoundBackground string `yaml:"hound_background"`
 	MAYCBackground  string `yaml:"mayc_background"`
@@ -80,18 +80,19 @@ type BAYCBackgroundMappings struct {
 }
 
 type ImageProcessorConfig struct {
-	GMMappings              map[string]string            `yaml:"gm_mappings"`
-	NFDMerchMappings        MerchMappings                `yaml:"nfd_merch_mappings"`
-	SuitMappings            SuitMappings                 `yaml:"suit_mappings"`
-	Hands                   map[string]string            `yaml:"-"`
-	PledgeHands             PledgeMappings               `yaml:"pledge_hands"`
-	ApeBagMappings          map[string]string            `yaml:"ape_bag"`
-	BAYCBackgroundMappings  BAYCBackgroundMappings       `yaml:"bayc_background_mappings"`
-	MAYCBackgroundColorKeys map[string]string            `yaml:"mayc_background_color_keys"`
-	MAYCCoffeeMugMappings   CoffeeMugMappings            `yaml:"mayc_coffee_mug_mappings"`
-	NFLJerseyMappings       map[string]map[string]string `yaml:"nfl_jersey_mappings"`
-	HoundTraitMappings      HoundTraitMappings           `yaml:"hound_trait_mappings"`
-	SerumCityMappings       SerumCityMappings            `yaml:"serum_city_mappings"`
+	GMMappings                       map[string]string                `yaml:"gm_mappings"`
+	NFDMerchMappings                 MerchMappings                    `yaml:"nfd_merch_mappings"`
+	SuitMappings                     SuitMappings                     `yaml:"suit_mappings"`
+	Hands                            map[string]string                `yaml:"-"`
+	PledgeHands                      PledgeMappings                   `yaml:"pledge_hands"`
+	ApeBagMappings                   map[string]string                `yaml:"ape_bag"`
+	BAYCBackgroundMappings           BAYCBackgroundMappings           `yaml:"bayc_background_mappings"`
+	MAYCBackgroundColorKeys          map[string]string                `yaml:"mayc_background_color_keys"`
+	MAYCCoffeeMugMappings            CoffeeMugMappings                `yaml:"mayc_coffee_mug_mappings"`
+	NFLJerseyMappings                map[string]map[string]string     `yaml:"nfl_jersey_mappings"`
+	HoundTraitMappings               HoundTraitMappings               `yaml:"hound_trait_mappings"`
+	SerumCityBackgroundImageMappings BackgroundImagePlacementMappings `yaml:"serum_city_background_image_mappings"`
+	ApeCoinBackgroundImageMappings   BackgroundImagePlacementMappings `yaml:"apecoin_background_image_mappings"`
 }
 
 func LoadCfg(env, cfgFile string) (Config, error) {

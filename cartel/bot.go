@@ -106,7 +106,7 @@ func cartelBot(cmd *cobra.Command, _ []string) error {
 	dg.AddHandler(apeBagInteraction)
 	dg.AddHandler(jerseyInteraction)
 	dg.AddHandler(cutoutInteraction)
-	dg.AddHandler(serumCityBgInteraction)
+	dg.AddHandler(bgReplacementInteraction)
 
 	if err := dg.Open(); err != nil {
 		return err
@@ -418,6 +418,16 @@ func cartelBot(cmd *cobra.Command, _ []string) error {
 	if err != nil {
 		return err
 	}
+
+	_, err = dg.ApplicationCommandCreate(botID, "", &discordgo.ApplicationCommand{
+		Name:        "apecoin",
+		Description: "Replace background with an ApeCoin Background",
+		Options:     []*discordgo.ApplicationCommandOption{cutoutCmdCollectionChoices, id},
+	})
+	if err != nil {
+		return err
+	}
+
 	logger.Info("Bot started")
 
 	<-cmd.Context().Done()
@@ -1073,7 +1083,7 @@ func cutoutInteraction(session *discordgo.Session, interaction *discordgo.Intera
 	}
 }
 
-func serumCityBgInteraction(session *discordgo.Session, interaction *discordgo.InteractionCreate) {
+func bgReplacementInteraction(session *discordgo.Session, interaction *discordgo.InteractionCreate) {
 	var name string //TODO resolving the name can be its own method as well
 	if nil == interaction.Member {
 		name = interaction.User.Username
@@ -1083,7 +1093,7 @@ func serumCityBgInteraction(session *discordgo.Session, interaction *discordgo.I
 		}
 	}
 	cmdData := interaction.ApplicationCommandData()
-	if cmdData.Name == "serumcity" {
+	if cmdData.Name == "serumcity" || cmdData.Name == "apecoin" {
 		//Send ACK To meet the 3s turnaround and allow for more time to upload the image
 		session.InteractionRespond(interaction.Interaction, &discordgo.InteractionResponse{
 			Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
@@ -1091,14 +1101,22 @@ func serumCityBgInteraction(session *discordgo.Session, interaction *discordgo.I
 		go func() {
 			var (
 				filename string
-				image    *bytes.Buffer
+				_image   *bytes.Buffer
 			)
 			collection := collectionOpt(cmdData.Options[0].UintValue())
 			id := cmdData.Options[1].UintValue()
 
+			var bgImgOpt image.BackgroundImgOpt //= image.UNKNOWN_BG
+			switch cmdData.Name {
+			case "apecoin":
+				bgImgOpt = image.APECOIN_BG
+			case "serumcity":
+				bgImgOpt = image.SERUMCITY_BG
+			}
+
 			switch collection {
 			case baycOpt:
-				filename = fmt.Sprintf("%s_bayc_%d_serumcity.png", name, id)
+				filename = fmt.Sprintf("%s_bayc_%d_%s.png", name, id, bgImgOpt)
 				logger.Debugf("Getting metadata for BAYC  #%d", id)
 				metadata, err := baycMetadataFetcher.Fetch(id)
 				if err != nil {
@@ -1115,7 +1133,7 @@ func serumCityBgInteraction(session *discordgo.Session, interaction *discordgo.I
 					return
 				}
 
-				image, err = stamper.OverlaySerumCityBgBAYC(bayc, metadata)
+				_image, err = stamper.OverlayBgBAYC(bayc, metadata, bgImgOpt)
 				if err != nil {
 					err := fmt.Errorf("Failed to place BAYC #%d in Serum City: %w", id, err)
 					logger.Errorf("Error: %s", err)
@@ -1123,7 +1141,7 @@ func serumCityBgInteraction(session *discordgo.Session, interaction *discordgo.I
 					return
 				}
 			case maycOpt:
-				filename = fmt.Sprintf("%s_mayc_%d_serumcity.png", name, id)
+				filename = fmt.Sprintf("%s_mayc_%d_%s.png", name, id, bgImgOpt)
 				logger.Debugf("Getting metadata for MAYC  #%d", id)
 				metadata, err := maycMetadataFetcher.Fetch(id)
 				if err != nil {
@@ -1140,7 +1158,7 @@ func serumCityBgInteraction(session *discordgo.Session, interaction *discordgo.I
 					return
 				}
 
-				image, err = stamper.OverlaySerumCityBgMAYC(mayc, metadata)
+				_image, err = stamper.OverlayBgMAYC(mayc, metadata, bgImgOpt)
 				if err != nil {
 					err := fmt.Errorf("Failed to place MAYC #%d in Serum City: %w", id, err)
 					logger.Errorf("Error: %s", err)
@@ -1150,7 +1168,7 @@ func serumCityBgInteraction(session *discordgo.Session, interaction *discordgo.I
 
 			case houndsOpt:
 				//TODO: Refactor Getting Metadata and Image into its own method
-				filename = fmt.Sprintf("%s_hound_%d_serumcity.png", name, id)
+				filename = fmt.Sprintf("%s_hound_%d_%s.png", name, id, bgImgOpt)
 				logger.Debugf("Getting metadata for Hound #%d", id)
 				metadata, err := houndMetadataFetcher.Fetch(id)
 				if err != nil {
@@ -1170,7 +1188,7 @@ func serumCityBgInteraction(session *discordgo.Session, interaction *discordgo.I
 				}
 
 				logger.Debugf("Generating placement")
-				image, err = stamper.OverlaySerumCityBgHound(metadata)
+				_image, err = stamper.OverlayBgHound(metadata, bgImgOpt)
 				if err != nil {
 					err := fmt.Errorf("Failed to place Hound  #%d in Serum City: %w", id, err)
 					logger.Errorf("Error: %s", err)
@@ -1189,7 +1207,7 @@ func serumCityBgInteraction(session *discordgo.Session, interaction *discordgo.I
 			file := &discordgo.File{
 				Name:        filename,
 				ContentType: "image/png",
-				Reader:      image,
+				Reader:      _image,
 			}
 			response := &discordgo.WebhookEdit{
 				Files: []*discordgo.File{file},

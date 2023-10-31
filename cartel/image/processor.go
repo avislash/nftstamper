@@ -11,6 +11,24 @@ import (
 	"github.com/avislash/nftstamper/lib/image"
 )
 
+type BackgroundImgOpt uint
+
+const (
+	UNKNOWN_BG BackgroundImgOpt = iota
+	APECOIN_BG
+	SERUMCITY_BG
+)
+
+func (b BackgroundImgOpt) String() string {
+	switch b {
+	case APECOIN_BG:
+		return "apecoin"
+	case SERUMCITY_BG:
+		return "serumcity"
+	}
+	return "unknown_bg"
+}
+
 type Merch struct {
 	Default     image.Image
 	XL          image.Image
@@ -70,7 +88,7 @@ type baycBackgroundMappings struct {
 	baycBackgroundColorKeys map[string][]string
 }
 
-type serumCityMappings struct {
+type backgroundImagePlacementMappings struct {
 	baycBg  image.Image
 	houndBg image.Image
 	maycBg  image.Image
@@ -78,17 +96,18 @@ type serumCityMappings struct {
 
 type Processor struct {
 	image.Combiner
-	bowls                   map[string]image.Image //map of backgrounds to bowls
-	pledgeHands             pledgeHands            //map of traits to colors
-	nfdMerch                Merch
-	suitMappings            suitMappings
-	apeBags                 map[string]image.Image
-	baycBackgroundMappings  baycBackgroundMappings
-	maycBackgroundColorKeys map[string]string
-	maycCoffeeMugMappings   coffeeMugMappings
-	nflJerseyMappings       map[string]map[string]image.Image
-	houndTraitMappings      houndTraitMappings
-	serumCityMappings       serumCityMappings
+	bowls                     map[string]image.Image //map of backgrounds to bowls
+	pledgeHands               pledgeHands            //map of traits to colors
+	nfdMerch                  Merch
+	suitMappings              suitMappings
+	apeBags                   map[string]image.Image
+	baycBackgroundMappings    baycBackgroundMappings
+	maycBackgroundColorKeys   map[string]string
+	maycCoffeeMugMappings     coffeeMugMappings
+	nflJerseyMappings         map[string]map[string]image.Image
+	houndTraitMappings        houndTraitMappings
+	serumCityMappings         backgroundImagePlacementMappings
+	apecoinBackgroundMappings backgroundImagePlacementMappings
 }
 
 func NewProcessor(config config.ImageProcessorConfig) (*Processor, error) {
@@ -152,9 +171,14 @@ func NewProcessor(config config.ImageProcessorConfig) (*Processor, error) {
 		return nil, fmt.Errorf("Error building Hound Trait Mappings: %w", err)
 	}
 
-	serumCityMappings, err := buildSerumCityImageMap(config.SerumCityMappings)
+	serumCityMappings, err := buildBackgroundImagePlacements(config.SerumCityBackgroundImageMappings)
 	if err != nil {
-		return nil, fmt.Errorf("Error building Serum City Image Map: %w", err)
+		return nil, fmt.Errorf("Error building Serum City Background Image Placements: %w", err)
+	}
+
+	apecoinBackgroundMappings, err := buildBackgroundImagePlacements(config.ApeCoinBackgroundImageMappings)
+	if err != nil {
+		return nil, fmt.Errorf("Error building Serum City Background Image Placements: %w", err)
 	}
 
 	baycBackgroundMappings, err := buildBaycBackgroundMappings(config.BAYCBackgroundMappings)
@@ -164,18 +188,19 @@ func NewProcessor(config config.ImageProcessorConfig) (*Processor, error) {
 
 	return &Processor{
 		//Combined Hound images are too big to process and return to discord before timing out
-		Combiner:                image.NewPNGCombiner(image.WithBestSpeedPNGCompression()),
-		bowls:                   bowls,
-		pledgeHands:             pledgeHands,
-		nfdMerch:                nfdMerch,
-		suitMappings:            suitMappings,
-		apeBags:                 apeBags,
-		maycBackgroundColorKeys: config.MAYCBackgroundColorKeys,
-		maycCoffeeMugMappings:   maycCoffeeMugMappings,
-		nflJerseyMappings:       jerseyMappings,
-		houndTraitMappings:      houndTraitMappings,
-		serumCityMappings:       serumCityMappings,
-		baycBackgroundMappings:  baycBackgroundMappings,
+		Combiner:                  image.NewPNGCombiner(image.WithBestSpeedPNGCompression()),
+		bowls:                     bowls,
+		pledgeHands:               pledgeHands,
+		nfdMerch:                  nfdMerch,
+		suitMappings:              suitMappings,
+		apeBags:                   apeBags,
+		maycBackgroundColorKeys:   config.MAYCBackgroundColorKeys,
+		maycCoffeeMugMappings:     maycCoffeeMugMappings,
+		nflJerseyMappings:         jerseyMappings,
+		houndTraitMappings:        houndTraitMappings,
+		serumCityMappings:         serumCityMappings,
+		apecoinBackgroundMappings: apecoinBackgroundMappings,
+		baycBackgroundMappings:    baycBackgroundMappings,
 	}, nil
 }
 
@@ -396,31 +421,61 @@ func (p *Processor) CutoutBAYC(bayc image.Image, metadata metadata.BAYCMetadata)
 	return p.EncodeImage(cutout)
 }
 
-func (p *Processor) OverlaySerumCityBgMAYC(mayc image.Image, metadata metadata.MAYCMetadata) (*bytes.Buffer, error) {
+func (p *Processor) OverlayBgMAYC(mayc image.Image, metadata metadata.MAYCMetadata, background BackgroundImgOpt) (*bytes.Buffer, error) {
+	var bg image.Image
+	switch background {
+	case APECOIN_BG:
+		bg = p.apecoinBackgroundMappings.maycBg
+	case SERUMCITY_BG:
+		bg = p.serumCityMappings.maycBg
+	default:
+		return nil, fmt.Errorf("Unknown background image option: %d", background)
+	}
+
 	cutout, err := p.cutoutMAYC(mayc, metadata)
 	if err != nil {
 		return nil, fmt.Errorf("Error generating MAYC Cutout: %w", err)
 	}
 
-	return p.EncodeImage(p.CombineImages(p.serumCityMappings.maycBg, cutout))
+	return p.EncodeImage(p.CombineImages(bg, cutout))
 }
 
-func (p *Processor) OverlaySerumCityBgHound(metadata metadata.HoundMetadata) (*bytes.Buffer, error) {
+func (p *Processor) OverlayBgHound(metadata metadata.HoundMetadata, background BackgroundImgOpt) (*bytes.Buffer, error) {
+	var bg image.Image
+	switch background {
+	case APECOIN_BG:
+		bg = p.apecoinBackgroundMappings.houndBg
+	case SERUMCITY_BG:
+		bg = p.serumCityMappings.houndBg
+	default:
+		return nil, fmt.Errorf("Unknown background image option: %d", background)
+	}
+
 	cutout, err := p.generateHound(metadata)
 	if err != nil {
 		return nil, fmt.Errorf("Error generating Hound Cutout: %w", err)
 	}
 
-	return p.EncodeImage(p.CombineImages(p.serumCityMappings.houndBg, cutout))
+	return p.EncodeImage(p.CombineImages(bg, cutout))
 }
 
-func (p *Processor) OverlaySerumCityBgBAYC(bayc image.Image, metadata metadata.BAYCMetadata) (*bytes.Buffer, error) {
-	cutout, err := p.cutoutBAYC(bayc, metadata)
-	if err != nil {
-		return nil, fmt.Errorf("Error generating Hound Cutout: %w", err)
+func (p *Processor) OverlayBgBAYC(bayc image.Image, metadata metadata.BAYCMetadata, background BackgroundImgOpt) (*bytes.Buffer, error) {
+	var bg image.Image
+	switch background {
+	case APECOIN_BG:
+		bg = p.apecoinBackgroundMappings.baycBg
+	case SERUMCITY_BG:
+		bg = p.serumCityMappings.baycBg
+	default:
+		return nil, fmt.Errorf("Unknown background image option: %d", background)
 	}
 
-	return p.EncodeImage(p.CombineImages(p.serumCityMappings.baycBg, cutout))
+	cutout, err := p.cutoutBAYC(bayc, metadata)
+	if err != nil {
+		return nil, fmt.Errorf("Error generating BAYC Cutout: %w", err)
+	}
+
+	return p.EncodeImage(p.CombineImages(bg, cutout))
 }
 
 func (p *Processor) cutoutMAYC(mayc image.Image, metadata metadata.MAYCMetadata) (image.Image, error) {
@@ -680,23 +735,23 @@ func buildHoundTraitMappings(houndTraitConfig config.HoundTraitMappings) (houndT
 	}, nil
 }
 
-func buildSerumCityImageMap(serumCityConfig config.SerumCityMappings) (serumCityMappings, error) {
+func buildBackgroundImagePlacements(serumCityConfig config.BackgroundImagePlacementMappings) (backgroundImagePlacementMappings, error) {
 	baycBg, err := getImageFromFile(serumCityConfig.BAYCBackground)
 	if err != nil {
-		return serumCityMappings{}, fmt.Errorf("Error loading BAYC BG: %w", err)
+		return backgroundImagePlacementMappings{}, fmt.Errorf("Error loading BAYC BG: %w", err)
 	}
 
 	houndBg, err := getImageFromFile(serumCityConfig.HoundBackground)
 	if err != nil {
-		return serumCityMappings{}, fmt.Errorf("Error loading Hound BG: %w", err)
+		return backgroundImagePlacementMappings{}, fmt.Errorf("Error loading Hound BG: %w", err)
 	}
 
 	maycBg, err := getImageFromFile(serumCityConfig.MAYCBackground)
 	if err != nil {
-		return serumCityMappings{}, fmt.Errorf("Error loading MAYC BG: %w", err)
+		return backgroundImagePlacementMappings{}, fmt.Errorf("Error loading MAYC BG: %w", err)
 	}
 
-	return serumCityMappings{
+	return backgroundImagePlacementMappings{
 		baycBg:  baycBg,
 		houndBg: houndBg,
 		maycBg:  maycBg,
