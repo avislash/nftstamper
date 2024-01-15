@@ -79,6 +79,11 @@ type BAYCBackgroundMappings struct {
 	BAYCBackgroundColorKeys map[string][]string `yaml:"bayc_background_color_keys"`
 }
 
+type LegendaryStampMappings struct {
+	Backgrounds map[string]string `yaml:"backgrounds"`
+	Stamps      map[string]string `yaml:"stamps"`
+}
+
 type ImageProcessorConfig struct {
 	GMMappings                       map[string]string                `yaml:"gm_mappings"`
 	NFDMerchMappings                 MerchMappings                    `yaml:"nfd_merch_mappings"`
@@ -93,6 +98,7 @@ type ImageProcessorConfig struct {
 	HoundTraitMappings               HoundTraitMappings               `yaml:"hound_trait_mappings"`
 	SerumCityBackgroundImageMappings BackgroundImagePlacementMappings `yaml:"serum_city_background_image_mappings"`
 	ApeCoinBackgroundImageMappings   BackgroundImagePlacementMappings `yaml:"apecoin_background_image_mappings"`
+	LegendaryStampImageMappings      LegendaryStampMappings           `yaml:"legendary_image_mappings"`
 }
 
 func LoadCfg(env, cfgFile string) (Config, error) {
