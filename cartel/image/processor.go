@@ -11,6 +11,24 @@ import (
 	"github.com/avislash/nftstamper/lib/image"
 )
 
+type BackgroundImgOpt uint
+
+const (
+	UNKNOWN_BG BackgroundImgOpt = iota
+	APECOIN_BG
+	SERUMCITY_BG
+)
+
+func (b BackgroundImgOpt) String() string {
+	switch b {
+	case APECOIN_BG:
+		return "apecoin"
+	case SERUMCITY_BG:
+		return "serumcity"
+	}
+	return "unknown_bg"
+}
+
 type Merch struct {
 	Default     image.Image
 	XL          image.Image
@@ -47,14 +65,49 @@ type suitMappings struct {
 	suits    map[string]map[string]image.Image
 }
 
+type coffeeMugMappings struct {
+	liquids map[string]image.Image
+	steam   map[string]image.Image
+	logos   map[string]image.Image
+	furs    map[string]image.Image
+}
+
+type houndTraitMappings struct {
+	faces  map[string]image.Image
+	forms  map[string]image.Image
+	heads  map[string]image.Image
+	legs   map[string]image.Image
+	mouths map[string]image.Image
+	noses  map[string]image.Image
+	torsos map[string]image.Image
+}
+
+type baycBackgroundMappings struct {
+	baycCornerMask          image.Image
+	baycCornerMaskChromaKey string
+	baycBackgroundColorKeys map[string][]string
+}
+
+type backgroundImagePlacementMappings struct {
+	baycBg  image.Image
+	houndBg image.Image
+	maycBg  image.Image
+}
+
 type Processor struct {
 	image.Combiner
-	bowls                   map[string]image.Image //map of backgrounds to bowls
-	pledgeHands             pledgeHands            //map[string]map[string]image.Image //map of traits to colorss
-	nfdMerch                Merch
-	suitMappings            suitMappings //     map[string]image.Image
-	apeBags                 map[string]image.Image
-	maycBackgroundColorKeys map[string]string
+	bowls                     map[string]image.Image //map of backgrounds to bowls
+	pledgeHands               pledgeHands            //map of traits to colors
+	nfdMerch                  Merch
+	suitMappings              suitMappings
+	apeBags                   map[string]image.Image
+	baycBackgroundMappings    baycBackgroundMappings
+	maycBackgroundColorKeys   map[string]string
+	maycCoffeeMugMappings     coffeeMugMappings
+	nflJerseyMappings         map[string]map[string]image.Image
+	houndTraitMappings        houndTraitMappings
+	serumCityMappings         backgroundImagePlacementMappings
+	apecoinBackgroundMappings backgroundImagePlacementMappings
 }
 
 func NewProcessor(config config.ImageProcessorConfig) (*Processor, error) {
@@ -99,15 +152,55 @@ func NewProcessor(config config.ImageProcessorConfig) (*Processor, error) {
 		return nil, fmt.Errorf("Error building Suit Mappings: %w", err)
 	}
 
+	maycCoffeeMugMappings, err := buildCoffeeMugMappings(config.MAYCCoffeeMugMappings)
+	if err != nil {
+		return nil, fmt.Errorf("Error building MAYC Coffee Mug Mappings: %w", err)
+	}
+
+	jerseyMappings := make(map[string]map[string]image.Image)
+	for key, mappings := range config.NFLJerseyMappings {
+		imgMap, err := buildImageMap(mappings)
+		if err != nil {
+			return nil, fmt.Errorf("Error building NFL Jersey Mappings for %s: %w", key, err)
+		}
+		jerseyMappings[key] = imgMap
+	}
+
+	houndTraitMappings, err := buildHoundTraitMappings(config.HoundTraitMappings)
+	if err != nil {
+		return nil, fmt.Errorf("Error building Hound Trait Mappings: %w", err)
+	}
+
+	serumCityMappings, err := buildBackgroundImagePlacements(config.SerumCityBackgroundImageMappings)
+	if err != nil {
+		return nil, fmt.Errorf("Error building Serum City Background Image Placements: %w", err)
+	}
+
+	apecoinBackgroundMappings, err := buildBackgroundImagePlacements(config.ApeCoinBackgroundImageMappings)
+	if err != nil {
+		return nil, fmt.Errorf("Error building Serum City Background Image Placements: %w", err)
+	}
+
+	baycBackgroundMappings, err := buildBaycBackgroundMappings(config.BAYCBackgroundMappings)
+	if err != nil {
+		return nil, fmt.Errorf("Error building BAYC Background Mappings: %w", err)
+	}
+
 	return &Processor{
 		//Combined Hound images are too big to process and return to discord before timing out
-		Combiner:                image.NewPNGCombiner(image.WithBestSpeedPNGCompression()),
-		bowls:                   bowls,
-		pledgeHands:             pledgeHands,
-		nfdMerch:                nfdMerch,
-		suitMappings:            suitMappings,
-		apeBags:                 apeBags,
-		maycBackgroundColorKeys: config.MAYCBackgroundColorKeys,
+		Combiner:                  image.NewPNGCombiner(image.WithBestSpeedPNGCompression()),
+		bowls:                     bowls,
+		pledgeHands:               pledgeHands,
+		nfdMerch:                  nfdMerch,
+		suitMappings:              suitMappings,
+		apeBags:                   apeBags,
+		maycBackgroundColorKeys:   config.MAYCBackgroundColorKeys,
+		maycCoffeeMugMappings:     maycCoffeeMugMappings,
+		nflJerseyMappings:         jerseyMappings,
+		houndTraitMappings:        houndTraitMappings,
+		serumCityMappings:         serumCityMappings,
+		apecoinBackgroundMappings: apecoinBackgroundMappings,
+		baycBackgroundMappings:    baycBackgroundMappings,
 	}, nil
 }
 
@@ -155,6 +248,32 @@ func (p *Processor) OverlaySuit(suit string, ape image.Image, metadata metadata.
 	}
 
 	return p.EncodeImage(p.CombineImages(ape, suitImg))
+}
+
+func (p *Processor) OverlayCoffeeMug(ape image.Image, metadata metadata.MAYCMetadata, liquid, logo string) (*bytes.Buffer, error) {
+	mug, exists := p.maycCoffeeMugMappings.furs[metadata.Fur]
+	if !exists {
+		return nil, fmt.Errorf("No Coffee Mug found for fur: %s", metadata.Fur)
+	}
+
+	liquidImg, exists := p.maycCoffeeMugMappings.liquids[liquid]
+	if !exists {
+		return nil, fmt.Errorf("No Liquid found for liquid: %s", liquid)
+	}
+	steam, _ := p.maycCoffeeMugMappings.steam[liquid] //Steam is optional and not necessary for final image
+
+	logoImg, exists := p.maycCoffeeMugMappings.logos[logo]
+	if !exists {
+		return nil, fmt.Errorf("No Logo found for logo: %s", logo)
+	}
+
+	//Mug goes over liquid layer whilst everything goes over the mug
+	mug = p.CombineImages(liquidImg, mug)
+	if steam != nil {
+		mug = p.CombineImages(mug, steam)
+	}
+	mug = p.CombineImages(mug, logoImg)
+	return p.EncodeImage(p.CombineImages(ape, mug))
 }
 
 func (p *Processor) getSuitMask(metadata metadata.MAYCMetadata) (image.Image, string) {
@@ -264,6 +383,188 @@ func (p *Processor) OverlayApeBag(ape image.Image, metadata metadata.MAYCMetadat
 	return p.EncodeImage(p.CombineImages(ape, bag))
 }
 
+func (p *Processor) OverlayHoundJersey(hound image.Image, metadata metadata.HoundMetadata, team string) (*bytes.Buffer, error) {
+	jerseys, exists := p.nflJerseyMappings["default"]
+	if !exists {
+		return nil, fmt.Errorf("No default Jerseys loaded")
+	}
+
+	jersey, exists := jerseys[team]
+	if !exists {
+		return nil, fmt.Errorf("No jersey loaded for %s", team)
+	}
+
+	return p.EncodeImage(p.CombineImages(hound, jersey))
+}
+
+func (p *Processor) CutoutHound(metadata metadata.HoundMetadata) (*bytes.Buffer, error) {
+	hound, err := p.generateHound(metadata)
+	if err != nil {
+		return nil, err
+	}
+	return p.EncodeImage(hound)
+}
+
+func (p *Processor) CutoutMAYC(mayc image.Image, metadata metadata.MAYCMetadata) (*bytes.Buffer, error) {
+	mayc, err := p.cutoutMAYC(mayc, metadata)
+	if err != nil {
+		return nil, fmt.Errorf("Error cuting out MAYC: %w", err)
+	}
+	return p.EncodeImage(mayc)
+}
+
+func (p *Processor) CutoutBAYC(bayc image.Image, metadata metadata.BAYCMetadata) (*bytes.Buffer, error) {
+	cutout, err := p.cutoutBAYC(bayc, metadata)
+	if err != nil {
+		return nil, fmt.Errorf("Error generating BAYC Cutout: %w", err)
+	}
+	return p.EncodeImage(cutout)
+}
+
+func (p *Processor) OverlayBgMAYC(mayc image.Image, metadata metadata.MAYCMetadata, background BackgroundImgOpt) (*bytes.Buffer, error) {
+	var bg image.Image
+	switch background {
+	case APECOIN_BG:
+		bg = p.apecoinBackgroundMappings.maycBg
+	case SERUMCITY_BG:
+		bg = p.serumCityMappings.maycBg
+	default:
+		return nil, fmt.Errorf("Unknown background image option: %d", background)
+	}
+
+	cutout, err := p.cutoutMAYC(mayc, metadata)
+	if err != nil {
+		return nil, fmt.Errorf("Error generating MAYC Cutout: %w", err)
+	}
+
+	return p.EncodeImage(p.CombineImages(bg, cutout))
+}
+
+func (p *Processor) OverlayBgHound(metadata metadata.HoundMetadata, background BackgroundImgOpt) (*bytes.Buffer, error) {
+	var bg image.Image
+	switch background {
+	case APECOIN_BG:
+		bg = p.apecoinBackgroundMappings.houndBg
+	case SERUMCITY_BG:
+		bg = p.serumCityMappings.houndBg
+	default:
+		return nil, fmt.Errorf("Unknown background image option: %d", background)
+	}
+
+	cutout, err := p.generateHound(metadata)
+	if err != nil {
+		return nil, fmt.Errorf("Error generating Hound Cutout: %w", err)
+	}
+
+	return p.EncodeImage(p.CombineImages(bg, cutout))
+}
+
+func (p *Processor) OverlayBgBAYC(bayc image.Image, metadata metadata.BAYCMetadata, background BackgroundImgOpt) (*bytes.Buffer, error) {
+	var bg image.Image
+	switch background {
+	case APECOIN_BG:
+		bg = p.apecoinBackgroundMappings.baycBg
+	case SERUMCITY_BG:
+		bg = p.serumCityMappings.baycBg
+	default:
+		return nil, fmt.Errorf("Unknown background image option: %d", background)
+	}
+
+	cutout, err := p.cutoutBAYC(bayc, metadata)
+	if err != nil {
+		return nil, fmt.Errorf("Error generating BAYC Cutout: %w", err)
+	}
+
+	return p.EncodeImage(p.CombineImages(bg, cutout))
+}
+
+func (p *Processor) cutoutMAYC(mayc image.Image, metadata metadata.MAYCMetadata) (image.Image, error) {
+	if strings.Contains(metadata.Name, "mega") {
+		return nil, fmt.Errorf("Mega Mutants not supported")
+	}
+	background := metadata.Background[3:]
+	bgKey, exists := p.maycBackgroundColorKeys[background]
+	if !exists {
+		return nil, fmt.Errorf("No background key defined for %s", background)
+	}
+
+	var threshold uint32 = 500
+
+	if background == "orange" {
+		if metadata.Fur == "m1 brown" {
+			//		threshold = 250 good try lower
+			//threshold = 200
+			//		threshold = 150
+			//		threshold = 100
+			//		threshold = 75
+			//		threshold = 50
+			threshold = 12
+			//threshold = 10 workable
+		}
+	}
+
+	return p.FilterOutBackgroundColor(mayc, bgKey, threshold)
+}
+
+func (p *Processor) cutoutBAYC(bayc image.Image, metadata metadata.BAYCMetadata) (image.Image, error) {
+	var threshold uint32 = 500
+
+	bgKeys, exists := p.baycBackgroundMappings.baycBackgroundColorKeys[metadata.Background]
+	if !exists || len(bgKeys) == 0 {
+		return nil, fmt.Errorf("No background color key(s) defined for background color %s", metadata.Background)
+	}
+
+	mask, chromaKey := p.baycBackgroundMappings.baycCornerMask, p.baycBackgroundMappings.baycCornerMaskChromaKey
+
+	mask, err := p.HexChromaKeySwap(mask, chromaKey, bgKeys[0])
+	bayc = p.CombineImages(bayc, mask)
+
+	for i, bgKey := range bgKeys {
+		bayc, err = p.FilterOutBackgroundColor(bayc, bgKey, threshold)
+		if err != nil {
+			return nil, fmt.Errorf("Error filtering out bg key %d (#%s): %w", i, bgKey, err)
+		}
+	}
+
+	return bayc, nil
+}
+
+func (p *Processor) generateHound(metadata metadata.HoundMetadata) (image.Image, error) {
+	var hound image.Image
+	traitMap := p.houndTraitMappings
+
+	hound, exists := traitMap.forms[metadata.Form]
+	if !exists {
+		return hound, fmt.Errorf("No form loaded for: %s", metadata.Form)
+	}
+
+	if leg, exists := traitMap.legs[metadata.Leg]; exists {
+		hound = p.CombineImages(hound, leg)
+	}
+
+	if torso, exists := traitMap.torsos[metadata.Torso]; exists {
+		hound = p.CombineImages(hound, torso)
+	}
+
+	if face, exists := traitMap.faces[metadata.Face]; exists {
+		hound = p.CombineImages(hound, face)
+	}
+
+	if mouth, exists := traitMap.mouths[metadata.Mouth]; exists {
+		hound = p.CombineImages(hound, mouth)
+	}
+
+	if head, exists := traitMap.heads[metadata.Head]; exists {
+		hound = p.CombineImages(hound, head)
+	}
+
+	if nose, exists := traitMap.noses[metadata.Nose]; exists {
+		hound = p.CombineImages(hound, nose)
+	}
+
+	return hound, nil
+}
+
 func buildImageMap(imageFiles map[string]string) (map[string]image.Image, error) {
 	mappings := make(map[string]image.Image)
 	for trait, imageFile := range imageFiles {
@@ -354,6 +655,119 @@ func buildSuitMappings(suitConfig config.SuitMappings) (suitMappings, error) {
 		masks:    masks,
 		skipMask: skipMask,
 		suits:    suits,
+	}, nil
+}
+
+func buildCoffeeMugMappings(coffeeMugConfig config.CoffeeMugMappings) (coffeeMugMappings, error) {
+	furs, err := buildImageMap(coffeeMugConfig.Furs)
+	if err != nil {
+		return coffeeMugMappings{}, fmt.Errorf("Error building fur image map: %w", err)
+	}
+
+	logos, err := buildImageMap(coffeeMugConfig.Logos)
+	if err != nil {
+		return coffeeMugMappings{}, fmt.Errorf("Error building logo image map: %w", err)
+	}
+
+	liquids, err := buildImageMap(coffeeMugConfig.Liquids)
+	if err != nil {
+		return coffeeMugMappings{}, fmt.Errorf("Error building liquids image map: %w", err)
+	}
+
+	steam, err := buildImageMap(coffeeMugConfig.Steam)
+	if err != nil {
+		return coffeeMugMappings{}, fmt.Errorf("Error building steam image map: %w", err)
+	}
+
+	return coffeeMugMappings{
+		liquids: liquids,
+		steam:   steam,
+		logos:   logos,
+		furs:    furs,
+	}, nil
+
+}
+
+func buildHoundTraitMappings(houndTraitConfig config.HoundTraitMappings) (houndTraitMappings, error) {
+	faces, err := buildImageMap(houndTraitConfig.Faces)
+	if err != nil {
+		return houndTraitMappings{}, fmt.Errorf("Error building face image map: %w", err)
+	}
+
+	forms, err := buildImageMap(houndTraitConfig.Forms)
+	if err != nil {
+		return houndTraitMappings{}, fmt.Errorf("Error building form image map: %w", err)
+	}
+
+	heads, err := buildImageMap(houndTraitConfig.Heads)
+	if err != nil {
+		return houndTraitMappings{}, fmt.Errorf("Error building head image map: %w", err)
+	}
+
+	legs, err := buildImageMap(houndTraitConfig.Legs)
+	if err != nil {
+		return houndTraitMappings{}, fmt.Errorf("Error building leg image map: %w", err)
+	}
+
+	mouths, err := buildImageMap(houndTraitConfig.Mouths)
+	if err != nil {
+		return houndTraitMappings{}, fmt.Errorf("Error building mouth image map: %w", err)
+	}
+
+	noses, err := buildImageMap(houndTraitConfig.Noses)
+	if err != nil {
+		return houndTraitMappings{}, fmt.Errorf("Error building nose image map: %w", err)
+	}
+
+	torsos, err := buildImageMap(houndTraitConfig.Torsos)
+	if err != nil {
+		return houndTraitMappings{}, fmt.Errorf("Error building torso image map: %w", err)
+	}
+
+	return houndTraitMappings{
+		faces:  faces,
+		forms:  forms,
+		heads:  heads,
+		legs:   legs,
+		mouths: mouths,
+		noses:  noses,
+		torsos: torsos,
+	}, nil
+}
+
+func buildBackgroundImagePlacements(serumCityConfig config.BackgroundImagePlacementMappings) (backgroundImagePlacementMappings, error) {
+	baycBg, err := getImageFromFile(serumCityConfig.BAYCBackground)
+	if err != nil {
+		return backgroundImagePlacementMappings{}, fmt.Errorf("Error loading BAYC BG: %w", err)
+	}
+
+	houndBg, err := getImageFromFile(serumCityConfig.HoundBackground)
+	if err != nil {
+		return backgroundImagePlacementMappings{}, fmt.Errorf("Error loading Hound BG: %w", err)
+	}
+
+	maycBg, err := getImageFromFile(serumCityConfig.MAYCBackground)
+	if err != nil {
+		return backgroundImagePlacementMappings{}, fmt.Errorf("Error loading MAYC BG: %w", err)
+	}
+
+	return backgroundImagePlacementMappings{
+		baycBg:  baycBg,
+		houndBg: houndBg,
+		maycBg:  maycBg,
+	}, nil
+}
+
+func buildBaycBackgroundMappings(baycBackgroundConfig config.BAYCBackgroundMappings) (baycBackgroundMappings, error) {
+	cornerMask, err := getImageFromFile(baycBackgroundConfig.BAYCCornerMask)
+	if err != nil {
+		return baycBackgroundMappings{}, fmt.Errorf("Error loading BAYC Corner Mask from %s: %w", baycBackgroundConfig.BAYCCornerMask, err)
+	}
+
+	return baycBackgroundMappings{
+		baycCornerMask:          cornerMask,
+		baycCornerMaskChromaKey: baycBackgroundConfig.BAYCCornerMaskChromaKey,
+		baycBackgroundColorKeys: baycBackgroundConfig.BAYCBackgroundColorKeys,
 	}, nil
 }
 

@@ -2,6 +2,7 @@
 ipfs_endpoint: https://gateway.ipfs.io
 hounds_metadata_endpoint: https://api.mutantdao.com/hounds/metadata
 mayc_metadata_endpoint: https://boredapeyachtclub.com/api/mutants/
+bayc_metadata_endpoint: ipfs://QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtq/
 discord_bot_token: CARTEL_DISCORD_BOT_TOKEN #can set in env as CARTEL_DISCORD_BOT_TOKEN
 image_processor_mappings:
     gm_mappings:
@@ -14,7 +15,6 @@ image_processor_mappings:
         Temple Room: ./cartel/images/bowls/temple_room.png
         Warehouse: ./cartel/images/bowls/warehouse.png
         Docks: ./cartel/images/bowls/docks.png
- 
     nfd_merch_mappings:
         default: ./cartel/images/nfd/nfd_shirt.png
         default_flame: ./cartel/images/nfd/nfd_shirt_flame.png
@@ -51,6 +51,30 @@ image_processor_mappings:
         hats:
             cartel hat: ./cartel/images/nfd/nfd_merch_hat.png
             cartel hat orange: ./cartel/images/nfd/nfd_merch_hat.png
+    bayc_background_mappings:
+        bayc_corner_mask: ./cartel/images/bayc/corner_mask.png
+        bayc_corner_mask_chroma_key: ff00ff
+        bayc_background_color_keys:
+            purple: 
+              - 6f5d70
+              - 5d4e5e
+            yellow: 
+              - e4e4a8
+              - d1daa0
+            orange: 
+              - ef972c
+            aquamarine: 
+              - 17e6b7
+            army green: 
+              - "727234"
+            blue:
+              - a2e5f4
+              - 98d5df
+            new punk blue: 
+              - 3a677d
+            gray:
+              - cccdce
+              - bdbec1
     mayc_background_color_keys:
         #m1 and m2 bgs are same color
         yellow: f6c946
@@ -109,32 +133,40 @@ image_processor_mappings:
         suits:
             default:
                 ape: ./cartel/images/suits/ape.png
+                black suit: ./cartel/images/suits/black_suit.png
                 brown: ./cartel/images/suits/brown.png
                 cartel: ./cartel/images/suits/cartel.png
                 cartel comic: ./cartel/images/suits/cartel_comic.png
                 cheetah: ./cartel/images/suits/cheetah.png
                 demon: ./cartel/images/suits/demon.png
+                fuck it: ./cartel/images/suits/fuck_it.png
                 kodamara: ./cartel/images/suits/kodamara.png
                 luke: ./cartel/images/suits/luke.png
                 mayc: ./cartel/images/suits/mayc.png
                 nfd: ./cartel/images/suits/nfd.png
                 red hat: ./cartel/images/suits/red_hat.png
+                roc: ./cartel/images/suits/roc.png
                 trippy: ./cartel/images/suits/trippy.png
                 tux: ./cartel/images/suits/tux.png
+                vip: ./cartel/images/suits/vip.png
             m2 bored:
                 ape: ./cartel/images/suits/m2_bored_ape.png
+                black suit: ./cartel/images/suits/m2_bored_black_suit.png
                 brown: ./cartel/images/suits/m2_bored_brown.png
                 cartel: ./cartel/images/suits/m2_bored_cartel.png
                 cartel comic: ./cartel/images/suits/m2_bored_cartel_comic.png
                 cheetah: ./cartel/images/suits/m2_bored_cheetah.png
                 demon: ./cartel/images/suits/m2_bored_demon.png
+                fuck it: ./cartel/images/suits/m2_bored_fuck_it.png
                 kodamara: ./cartel/images/suits/m2_bored_kodamara.png
                 luke: ./cartel/images/suits/m2_bored_luke.png
                 mayc: ./cartel/images/suits/m2_bored_mayc.png
                 nfd: ./cartel/images/suits/m2_bored_nfd.png
                 red hat: ./cartel/images/suits/m2_bored_red_hat.png
+                roc: ./cartel/images/suits/m2_bored_roc.png
                 trippy: ./cartel/images/suits/m2_bored_trippy.png
                 tux: ./cartel/images/suits/m2_bored_tux.png
+                vip: ./cartel/images/suits/m2_bored_vip.png
     pledge_hands:
         mutant_hounds:
             default:
@@ -227,3 +259,332 @@ image_processor_mappings:
         m1 tongue out: ./cartel/images/ape_bag/mayc_apebag_m1tongueout.png
         m1 phoneme wah: ./cartel/images/ape_bag/mayc_apebag_m1phonemewah.png
         m1 grin gold grill: ./cartel/images/ape_bag/mayc_apebag_m1grillgoldgrin.png
+
+    mayc_coffee_mug_mappings:
+        liquids:
+            coffee: ./cartel/images/coffee_mugs/liquids/coffee.png
+            serum: ./cartel/images/coffee_mugs/liquids/serum.png
+        steam:
+            coffee: ./cartel/images/coffee_mugs/steam/coffee.png
+            serum: ./cartel/images/coffee_mugs/steam/serum.png
+        logos:
+            albino asylum: ./cartel/images/coffee_mugs/logos/albino.png
+            armoured guards: ./cartel/images/coffee_mugs/logos/armoured.png
+            bionic army:  ./cartel/images/coffee_mugs/logos/bionics.png
+            blood hounds: ./cartel/images/coffee_mugs/logos/bloodhound.png
+            cartel: ./cartel/images/coffee_mugs/logos/cartel.png
+            death pack: ./cartel/images/coffee_mugs/logos/deathpack.png
+            deathbot army: ./cartel/images/coffee_mugs/logos/deathbots.png
+            demon council: ./cartel/images/coffee_mugs/logos/demon_council.png
+            dmt cartel: ./cartel/images/coffee_mugs/logos/dmt_cartel.png
+            flesh eaters: ./cartel/images/coffee_mugs/logos/inside_out.png
+            golem gang: ./cartel/images/coffee_mugs/logos/golem.png
+            haunted howlers: ./cartel/images/coffee_mugs/logos/haunted.png
+            laughing legion: ./cartel/images/coffee_mugs/logos/hyena_v2.png
+            metal militia: ./cartel/images/coffee_mugs/logos/metal_militia.png
+            midnight marauders: ./cartel/images/coffee_mugs/logos/midnight.png
+            noisy syndicate: ./cartel/images/coffee_mugs/logos/noisy_syndicate.png
+            royal hounds: ./cartel/images/coffee_mugs/logos/royals.png
+            skull legion: ./cartel/images/coffee_mugs/logos/skulls.png
+            trippy brigade: ./cartel/images/coffee_mugs/logos/trippy.png
+            wolf pack: ./cartel/images/coffee_mugs/logos/wolf_pack.png
+            zombie horde: ./cartel/images/coffee_mugs/logos/horde.png
+        furs:
+            m1 dark brown: ./cartel/images/coffee_mugs/m1_dark_brown.png
+            m1 brown: ./cartel/images/coffee_mugs/m1_brown.png
+            m1 black: ./cartel/images/coffee_mugs/m1_black.png
+            m1 golden brown: ./cartel/images/coffee_mugs/m1_golden_brown.png
+            m1 cream: ./cartel/images/coffee_mugs/m1_cream.png
+            m1 tan: ./cartel/images/coffee_mugs/m1_tan.png
+            m1 pink: ./cartel/images/coffee_mugs/m1_pink.png
+            m1 gray: ./cartel/images/coffee_mugs/m1_gray.png
+            m1 red: ./cartel/images/coffee_mugs/m1_red.png
+            m1 blue: ./cartel/images/coffee_mugs/m1_blue.png
+            m1 cheetah: ./cartel/images/coffee_mugs/m1_cheetah.png
+            m1 white: ./cartel/images/coffee_mugs/m1_white.png
+            m1 zombie:  ./cartel/images/coffee_mugs/m1_zombie.png
+            m1 robot:  ./cartel/images/coffee_mugs/m1_robot.png
+            m1 dmt:  ./cartel/images/coffee_mugs/m1_dmt.png
+            m1 death bot:  ./cartel/images/coffee_mugs/m1_death_bot.png
+            m1 noise: ./cartel/images/coffee_mugs/m1_noise.png
+            m1 trippy:  ./cartel/images/coffee_mugs/m1_trippy.png
+            m1 solid golid:  ./cartel/images/coffee_mugs/m1_gold.png
+            m2 dark brown: ./cartel/images/coffee_mugs/m2_dark_brown.png
+            m2 brown: ./cartel/images/coffee_mugs/m2_brown.png
+            m2 black: ./cartel/images/coffee_mugs/m2_black.png
+            m2 golden brown: ./cartel/images/coffee_mugs/m2_golden_brown.png
+            m2 cream: ./cartel/images/coffee_mugs/m2_cream.png
+            m2 tan: ./cartel/images/coffee_mugs/m2_tan.png
+            m2 pink: ./cartel/images/coffee_mugs/m2_pink.png
+            m2 gray: ./cartel/images/coffee_mugs/m2_gray.png
+            m2 red: ./cartel/images/coffee_mugs/m2_red.png
+            m2 blue: ./cartel/images/coffee_mugs/m2_blue.png
+            m2 cheetah: ./cartel/images/coffee_mugs/m2_cheetah.png
+            m2 white: ./cartel/images/coffee_mugs/m2_white.png
+            m2 zombie:  ./cartel/images/coffee_mugs/m2_zombie.png
+            m2 robot:  ./cartel/images/coffee_mugs/m2_robot.png
+            m2 dmt:  ./cartel/images/coffee_mugs/m2_dmt.png
+            m2 death bot:  ./cartel/images/coffee_mugs/m2_death_bot.png
+            m2 noise: ./cartel/images/coffee_mugs/m2_noise.png
+            m2 trippy:  ./cartel/images/coffee_mugs/m2_trippy.png
+            m2 solid golid:  ./cartel/images/coffee_mugs/m2_gold.png
+    nfl_jersey_mappings:
+        default:
+            cartel: ./cartel/images/jerseys/nfl/cartel.png
+            49ers: ./cartel/images/jerseys/nfl/49ers.png
+            bears: ./cartel/images/jerseys/nfl/bears.png
+            bengals: ./cartel/images/jerseys/nfl/bengals.png
+            bills: ./cartel/images/jerseys/nfl/bills.png
+            broncos: ./cartel/images/jerseys/nfl/broncos.png
+            buccaneers: ./cartel/images/jerseys/nfl/buccaneers.png
+            cardinals: ./cartel/images/jerseys/nfl/cardinals.png
+            chargers: ./cartel/images/jerseys/nfl/chargers.png
+            chiefs: ./cartel/images/jerseys/nfl/chiefs.png
+            colts: ./cartel/images/jerseys/nfl/colts.png
+            commanders: ./cartel/images/jerseys/nfl/commanders.png
+            cowboys: ./cartel/images/jerseys/nfl/cowboys.png
+            dolphins: ./cartel/images/jerseys/nfl/dolphins.png
+            eagles: ./cartel/images/jerseys/nfl/eagles.png
+            giants: ./cartel/images/jerseys/nfl/giants.png
+            jaguars: ./cartel/images/jerseys/nfl/jaguars.png
+            jets: ./cartel/images/jerseys/nfl/jets.png
+            lions: ./cartel/images/jerseys/nfl/lions.png
+            packers: ./cartel/images/jerseys/nfl/packers.png
+            panthers: ./cartel/images/jerseys/nfl/panthers.png
+            patriots: ./cartel/images/jerseys/nfl/patriots.png
+            raiders: ./cartel/images/jerseys/nfl/raiders.png
+            rams: ./cartel/images/jerseys/nfl/rams.png
+            ravens: ./cartel/images/jerseys/nfl/ravens.png
+            saints: ./cartel/images/jerseys/nfl/saints.png
+            seahawks: ./cartel/images/jerseys/nfl/seahawks.png
+            steelers: ./cartel/images/jerseys/nfl/steelers.png
+            texans: ./cartel/images/jerseys/nfl/texans.png
+            titans: ./cartel/images/jerseys/nfl/titans.png
+            vikings: ./cartel/images/jerseys/nfl/vikings.png
+    hound_trait_mappings:
+        faces:
+            bored: ./cartel/images/hound_traits/faces/bored.png
+            eye patch: ./cartel/images/hound_traits/faces/eye_patch.png
+            skeletal: ./cartel/images/hound_traits/faces/skeletal.png
+            heterochromia: ./cartel/images/hound_traits/faces/heterochromia.png
+            3d glasses: ./cartel/images/hound_traits/faces/3d_glasses.png
+            albino: ./cartel/images/hound_traits/faces/albino.png
+            cartel hat: ./cartel/images/hound_traits/faces/cartel_hat.png
+            orange smoke: ./cartel/images/hound_traits/faces/orange_smoke.png
+            broken glasses: ./cartel/images/hound_traits/faces/broken_glasses.png
+            double eyes: ./cartel/images/hound_traits/faces/double_eyes.png
+            ruby eyes: ./cartel/images/hound_traits/faces/ruby_eyes.png
+            bionic eyes: ./cartel/images/hound_traits/faces/bionic_eyes.png
+            screaming cavity: ./cartel/images/hound_traits/faces/screaming_cavity.png
+            cartel hat orange: ./cartel/images/hound_traits/faces/cartel_hat_orange.png
+            multiple eyes: ./cartel/images/hound_traits/faces/multiple_eyes.png
+            creature cavity: ./cartel/images/hound_traits/faces/creature_cavity.png
+            relaxed: ./cartel/images/hound_traits/faces/relaxed.png
+            cavity: ./cartel/images/hound_traits/faces/cavity.png
+            zombie: ./cartel/images/hound_traits/faces/zombie.png
+            samurai silver: ./cartel/images/hound_traits/faces/samurai_silver.png
+            robot eyes: ./cartel/images/hound_traits/faces/robot_eyes.png
+            shroom eyes: ./cartel/images/hound_traits/faces/shroom_eyes.png
+            robot blue: ./cartel/images/hound_traits/faces/robot_blue.png
+            diving mask: ./cartel/images/hound_traits/faces/diving_mask.png
+            haunted woods: ./cartel/images/hound_traits/faces/haunted_woods.png
+            samurai gold: ./cartel/images/hound_traits/faces/samurai_gold.png
+            ghost eyes: ./cartel/images/hound_traits/faces/ghost_eyes.png
+            demon eyes: ./cartel/images/hound_traits/faces/demon_eyes.png
+            laser eyes: ./cartel/images/hound_traits/faces/laser_eyes.png
+            blue beams: ./cartel/images/hound_traits/faces/blue_beams.png
+            fiery eyes: ./cartel/images/hound_traits/faces/fiery_eyes.png
+            mega ghost: ./cartel/images/hound_traits/faces/mega_ghost.png
+        forms: 
+            midnight: ./cartel/images/hound_traits/forms/midnight.png
+            rabid: ./cartel/images/hound_traits/forms/rabid.png
+            hyena: ./cartel/images/hound_traits/forms/hyena.png
+            albino: ./cartel/images/hound_traits/forms/albino.png
+            dirty: ./cartel/images/hound_traits/forms/dirty.png
+            skeletal bloody: ./cartel/images/hound_traits/forms/skeletal_bloody.png
+            metal: ./cartel/images/hound_traits/forms/metal.png
+            inside out: ./cartel/images/hound_traits/forms/inside_out.png
+            armoured: ./cartel/images/hound_traits/forms/armoured.png
+            bionic: ./cartel/images/hound_traits/forms/bionic.png
+            skeletal dark: ./cartel/images/hound_traits/forms/skeletal_dark.png
+            golem clay: ./cartel/images/hound_traits/forms/golem_clay.png
+            ghost: ./cartel/images/hound_traits/forms/ghost.png
+            demon: ./cartel/images/hound_traits/forms/demon.png
+            dmt: ./cartel/images/hound_traits/forms/dmt.png
+            bionic bloody: ./cartel/images/hound_traits/forms/bionic_bloody.png
+            blood bound: ./cartel/images/hound_traits/forms/blood_bound.png
+            deathbot: ./cartel/images/hound_traits/forms/deathbot.png
+            wolf: ./cartel/images/hound_traits/forms/wolf.png
+            zombie: ./cartel/images/hound_traits/forms/zombie.png
+            rock golem: ./cartel/images/hound_traits/forms/rock_golem.png
+            haunted wood: ./cartel/images/hound_traits/forms/haunted_wood.png
+            trippy: ./cartel/images/hound_traits/forms/trippy.png
+            dragon: ./cartel/images/hound_traits/forms/dragon.png
+            noise: ./cartel/images/hound_traits/forms/noise.png
+            trippy 2: ./cartel/images/hound_traits/forms/trippy_2.png
+            gold: ./cartel/images/hound_traits/forms/gold.png
+            diamond: ./cartel/images/hound_traits/forms/diamond.png
+            fire: ./cartel/images/hound_traits/forms/fire.png
+            icy: ./cartel/images/hound_traits/forms/icy.png
+        heads:
+            dragon: ./cartel/images/hound_traits/heads/dragon.png
+            eagle eyes: ./cartel/images/hound_traits/heads/eagle_eyes.png
+            gladiator serum: ./cartel/images/hound_traits/heads/gladiator_serum.png
+            horned beast: ./cartel/images/hound_traits/heads/horned_beast.png
+            icy shards: ./cartel/images/hound_traits/heads/icy_shards.png
+            burning antlers: ./cartel/images/hound_traits/heads/burning_antlers.png
+            fiery horns: ./cartel/images/hound_traits/heads/fiery_horns.png
+            frigid hypnosis: ./cartel/images/hound_traits/heads/frigid_hypnosis.png
+            legendary bionic: ./cartel/images/hound_traits/heads/legendary_bionic.png
+            legendary bionic bloody: ./cartel/images/hound_traits/heads/legendary_bionic_bloody.png
+            legendary blood bound: ./cartel/images/hound_traits/heads/legendary_blood_bound.png
+            legendary diamond: ./cartel/images/hound_traits/heads/legendary_diamond.png
+            legendary haunted: ./cartel/images/hound_traits/heads/legendary_haunted.png
+            legendary hyena: ./cartel/images/hound_traits/heads/legendary_hyena.png
+            legendary midnight: ./cartel/images/hound_traits/heads/legendary_midnight.png
+        legs: 
+            mecha: ./cartel/images/hound_traits/legs/mecha.png
+            midnight: ./cartel/images/hound_traits/legs/midnight.png
+            armoured: ./cartel/images/hound_traits/legs/armoured.png
+            bionic: ./cartel/images/hound_traits/legs/bionic.png
+            demon: ./cartel/images/hound_traits/legs/demon.png
+            haunted woods: ./cartel/images/hound_traits/legs/haunted_woods.png
+            bionic bloody full: ./cartel/images/hound_traits/legs/bionic_bloody_full.png
+            rock golem: ./cartel/images/hound_traits/legs/rock_golem.png
+            dragon: ./cartel/images/hound_traits/legs/dragon.png
+            bionic bloody: ./cartel/images/hound_traits/legs/bionic_bloody.png
+            death bot: ./cartel/images/hound_traits/legs/death_bot.png
+        mouths: 
+            monster: ./cartel/images/hound_traits/mouths/monster.png
+            feral: ./cartel/images/hound_traits/mouths/feral.png
+            bloody: ./cartel/images/hound_traits/mouths/bloody.png
+            grin: ./cartel/images/hound_traits/mouths/grin.png
+            growl: ./cartel/images/hound_traits/mouths/growl.png
+            gnarly: ./cartel/images/hound_traits/mouths/gnarly.png
+            broken fang: ./cartel/images/hound_traits/mouths/broken_fang.png
+            gold tooth: ./cartel/images/hound_traits/mouths/gold_tooth.png
+            big bone: ./cartel/images/hound_traits/mouths/big_bone.png
+            steak: ./cartel/images/hound_traits/mouths/steak.png
+            zombie mouth: ./cartel/images/hound_traits/mouths/zombie_mouth.png
+            ape arm: ./cartel/images/hound_traits/mouths/ape_arm.png
+            ruby fang: ./cartel/images/hound_traits/mouths/ruby_fang.png
+            big growl: ./cartel/images/hound_traits/mouths/big_growl.png
+            nuke: ./cartel/images/hound_traits/mouths/nuke.png
+            goblin: ./cartel/images/hound_traits/mouths/goblin.png
+            rabid: ./cartel/images/hound_traits/mouths/rabid.png
+            diamond fang: ./cartel/images/hound_traits/mouths/diamond_fang.png
+            ruby grill: ./cartel/images/hound_traits/mouths/ruby_grill.png
+            doggo: ./cartel/images/hound_traits/mouths/doggo.png
+            sam’s toy: ./cartel/images/hound_traits/mouths/sams_toy.png
+            gold grill: ./cartel/images/hound_traits/mouths/gold_grill.png
+            diamond grill: ./cartel/images/hound_traits/mouths/diamond_grill.png
+            ape head: ./cartel/images/hound_traits/mouths/ape_head.png
+            serum laser: ./cartel/images/hound_traits/mouths/serum_laser.png
+            blue beam: ./cartel/images/hound_traits/mouths/blue_beam.png
+            blue flame: ./cartel/images/hound_traits/mouths/blue_flame.png
+            orange flame: ./cartel/images/hound_traits/mouths/orange_flame.png
+            death ray: ./cartel/images/hound_traits/mouths/death_ray.png
+            volcanic: ./cartel/images/hound_traits/mouths/volcanic.png
+            arctic: ./cartel/images/hound_traits/mouths/arctic.png
+            burning: ./cartel/images/hound_traits/mouths/burning.png
+            frozen: ./cartel/images/hound_traits/mouths/frozen.png
+            hot cigar: ./cartel/images/hound_traits/mouths/hot_cigar.png
+            legendary ghost: ./cartel/images/hound_traits/mouths/legendary_ghost.png
+        noses:
+            silver nose ring: ./cartel/images/hound_traits/noses/silver_nose_ring.png
+            gold bull ring: ./cartel/images/hound_traits/noses/gold_bull_ring.png
+            gold nose ring: ./cartel/images/hound_traits/noses/gold_nose_ring.png
+            ruby stud: ./cartel/images/hound_traits/noses/ruby_stud.png
+            skull nose: ./cartel/images/hound_traits/noses/skull_nose.png
+            diamond nosering: ./cartel/images/hound_traits/noses/diamond_nosering.png
+            diamond stud: ./cartel/images/hound_traits/noses/diamond_stud.png
+        torsos:
+            shredded tee: ./cartel/images/hound_traits/torsos/shredded_tee.png
+            cartel t: ./cartel/images/hound_traits/torsos/cartel_t.png
+            gorilla chest: ./cartel/images/hound_traits/torsos/gorilla_chest.png
+            rope: ./cartel/images/hound_traits/torsos/rope.png
+            cartel t serum soaked: ./cartel/images/hound_traits/torsos/cartel_t_serum_soaked.png
+            kensei: ./cartel/images/hound_traits/torsos/kensei.png
+            sharp chain: ./cartel/images/hound_traits/torsos/sharp_chain.png
+            gladiator: ./cartel/images/hound_traits/torsos/gladiator.png
+            leather: ./cartel/images/hound_traits/torsos/leather.png
+            x-ray: ./cartel/images/hound_traits/torsos/x_ray.png
+            studded: ./cartel/images/hound_traits/torsos/studded.png
+            k-9: ./cartel/images/hound_traits/torsos/k_9.png
+            eyeballs: ./cartel/images/hound_traits/torsos/eyeballs.png
+            cartel hoodie: ./cartel/images/hound_traits/torsos/cartel_hoodie.png
+            haunted woods: ./cartel/images/hound_traits/torsos/haunted_woods.png
+            leopard collar: ./cartel/images/hound_traits/torsos/leopard_collar.png
+            bionic rocket launcher: ./cartel/images/hound_traits/torsos/bionic_rocket_launcher.png
+            skeletal armour: ./cartel/images/hound_traits/torsos/skeletal_armour.png
+            skull tunic: ./cartel/images/hound_traits/torsos/skull_tunic.png
+            bone saddle: ./cartel/images/hound_traits/torsos/bone_saddle.png
+            dragon scales: ./cartel/images/hound_traits/torsos/dragon_scales.png
+            samurai: ./cartel/images/hound_traits/torsos/samurai.png
+            fox kill: ./cartel/images/hound_traits/torsos/fox_kill.png
+            bionic: ./cartel/images/hound_traits/torsos/bionic.png
+            goop collar: ./cartel/images/hound_traits/torsos/goop_collar.png
+            serpent venomous: ./cartel/images/hound_traits/torsos/serpent_venomous.png
+            abominable: ./cartel/images/hound_traits/torsos/abominable.png
+            hounds collar: ./cartel/images/hound_traits/torsos/hounds_collar.png
+            jet pack: ./cartel/images/hound_traits/torsos/jet_pack.png
+            deathbot rocket launcher: ./cartel/images/hound_traits/torsos/deathbot_rocket_launcher.png
+            piranha: ./cartel/images/hound_traits/torsos/piranha.png
+            mutant saddle: ./cartel/images/hound_traits/torsos/mutant_saddle.png
+            eye plants: ./cartel/images/hound_traits/torsos/eye_plants.png
+            leather saddle: ./cartel/images/hound_traits/torsos/leather_saddle.png
+            heavy chain: ./cartel/images/hound_traits/torsos/heavy_chain.png
+            mech saddle: ./cartel/images/hound_traits/torsos/mech_saddle.png
+            scuba gear: ./cartel/images/hound_traits/torsos/scuba_gear.png
+            serpent: ./cartel/images/hound_traits/torsos/serpent.png
+            angel wings: ./cartel/images/hound_traits/torsos/angel_wings.png
+            tv: ./cartel/images/hound_traits/torsos/tv.png
+            tiger saddle: ./cartel/images/hound_traits/torsos/tiger_saddle.png
+            demon wings: ./cartel/images/hound_traits/torsos/demon_wings.png
+            dragon wings: ./cartel/images/hound_traits/torsos/dragon_wings.png
+            evil twin: ./cartel/images/hound_traits/torsos/evil_twin.png
+            ritual robe: ./cartel/images/hound_traits/torsos/ritual_robe.png
+            kensei gold: ./cartel/images/hound_traits/torsos/kensei_gold.png
+            gold hound collar: ./cartel/images/hound_traits/torsos/gold_hound_collar.png
+            golden angel wings: ./cartel/images/hound_traits/torsos/golden_angel_wings.png
+            gladiator gold: ./cartel/images/hound_traits/torsos/gladiator_gold.png
+            golden saddle: ./cartel/images/hound_traits/torsos/golden_saddle.png
+            fire leash: ./cartel/images/hound_traits/torsos/fire_leash.png
+            fiery skulls: ./cartel/images/hound_traits/torsos/fiery_skulls.png
+            frigid armour: ./cartel/images/hound_traits/torsos/frigid_armour.png
+            volcanic: ./cartel/images/hound_traits/torsos/volcanic.png
+            blood bound: ./cartel/images/hound_traits/torsos/blood_bound.png
+
+    serum_city_background_image_mappings:
+        bayc_background: ./cartel/images/serum_city/bayc.png
+        hound_background: ./cartel/images/serum_city/hound.png
+        mayc_background: ./cartel/images/serum_city/mayc.png
+
+    apecoin_background_image_mappings:
+        bayc_background: ./cartel/images/apecoin_background/bayc.png
+        hound_background: ./cartel/images/apecoin_background/hound.png
+        mayc_background: ./cartel/images/apecoin_background/mayc.png
+            
+
+            
+
+
+
+
+
+
+
+
+
+            
+
+
+
+
+
+         
+            
+
+
+            
+

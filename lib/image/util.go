@@ -28,3 +28,16 @@ func HexToRGBA(hexColor string) (color.RGBA, error) {
 
 	return color.RGBA{uint8(r), uint8(g), uint8(b), 255}, nil
 }
+
+// Calculate Euclidan Distance between the two pixles
+func MeasureColorEuclideanDist(c1, c2 color.RGBA) uint32 {
+	dr := int32(c1.R) - int32(c2.R)
+	dg := int32(c1.G) - int32(c2.G)
+	db := int32(c1.B) - int32(c2.B)
+	return uint32(dr*dr + dg*dg + db*db)
+}
+
+// Compare how similar two pixels are
+func isSimilar(c1, c2 color.RGBA, threshold uint32) bool {
+	return MeasureColorEuclideanDist(c1, c2) < threshold
+}
