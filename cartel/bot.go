@@ -107,6 +107,7 @@ func cartelBot(cmd *cobra.Command, _ []string) error {
 	dg.AddHandler(jerseyInteraction)
 	dg.AddHandler(cutoutInteraction)
 	dg.AddHandler(bgReplacementInteraction)
+	dg.AddHandler(legendarytInteraction)
 
 	if err := dg.Open(); err != nil {
 		return err
@@ -422,6 +423,14 @@ func cartelBot(cmd *cobra.Command, _ []string) error {
 	_, err = dg.ApplicationCommandCreate(botID, "", &discordgo.ApplicationCommand{
 		Name:        "apecoin",
 		Description: "Replace background with an ApeCoin Background",
+		Options:     []*discordgo.ApplicationCommandOption{cutoutCmdCollectionChoices, id},
+	})
+	if err != nil {
+		return err
+	}
+	_, err = dg.ApplicationCommandCreate(botID, "", &discordgo.ApplicationCommand{
+		Name:        "legendary",
+		Description: "Mark your image as legendary",
 		Options:     []*discordgo.ApplicationCommandOption{cutoutCmdCollectionChoices, id},
 	})
 	if err != nil {
@@ -1208,6 +1217,137 @@ func bgReplacementInteraction(session *discordgo.Session, interaction *discordgo
 				Name:        filename,
 				ContentType: "image/png",
 				Reader:      _image,
+			}
+			response := &discordgo.WebhookEdit{
+				Files: []*discordgo.File{file},
+			}
+			if _, err := session.InteractionResponseEdit(interaction.Interaction, response); err != nil {
+				logger.Errorf("Error sending message: %s", err)
+			}
+		}()
+	}
+}
+
+func legendarytInteraction(session *discordgo.Session, interaction *discordgo.InteractionCreate) {
+	var name string //TODO resolving the name can be its own method as well
+	if nil == interaction.Member {
+		name = interaction.User.Username
+	} else {
+		if nil != interaction.Member.User {
+			name = interaction.Member.User.Username
+		}
+	}
+	cmdData := interaction.ApplicationCommandData()
+	if cmdData.Name == "legendary" {
+		//Send ACK To meet the 3s turnaround and allow for more time to upload the image
+		session.InteractionRespond(interaction.Interaction, &discordgo.InteractionResponse{
+			Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
+			Data: &discordgo.InteractionResponseData{}})
+		go func() {
+			var (
+				filename string
+				image    *bytes.Buffer
+			)
+			collection := collectionOpt(cmdData.Options[0].UintValue())
+			id := cmdData.Options[1].UintValue()
+
+			switch collection {
+			case maycOpt:
+				filename = fmt.Sprintf("%s_mayc_%d_legendary.png", name, id)
+				logger.Debugf("Getting metadata for MAYC  #%d", id)
+				metadata, err := maycMetadataFetcher.Fetch(id)
+				if err != nil {
+					err := fmt.Errorf("Failed to fetch Metadata for MAYC ID %d: %w", id, err)
+					logger.Errorf("Error: %s", err)
+					sendErrorResponse(id, err, session, interaction)
+					return
+				}
+				mayc, err := maycIpfsClient.GetImageFromIPFS(metadata.Image)
+				if err != nil {
+					err := fmt.Errorf("Failed to retrieve MAYC #%d image from IPFS: %w", id, err)
+					logger.Errorf("Error: %w", err)
+					sendErrorResponse(id, err, session, interaction)
+					return
+				}
+
+				image, err = stamper.OverlayLegendary(mayc, metadata, "mayc")
+				if err != nil {
+					err := fmt.Errorf("Failed to cut out MAYC #%d: %w", id, err)
+					logger.Errorf("Error: %s", err)
+					sendErrorResponse(id, err, session, interaction)
+					return
+				}
+
+			case houndsOpt:
+				//TODO: Refactor Getting Metadata and Image into its own method
+				filename = fmt.Sprintf("%s_hound_%d_legendary.png", name, id)
+				logger.Debugf("Getting metadata for Hound #%d", id)
+				metadata, err := houndMetadataFetcher.Fetch(id)
+				if err != nil {
+					err := fmt.Errorf("Failed to fetch Metadata for Hound ID %d: %w", id, err)
+					logger.Errorf("Error: %s", err)
+					sendErrorResponse(id, err, session, interaction)
+					return
+				}
+
+				//If image doesn't exist then that means hound hasn't been revealed or it's a mega
+				_, err = ipfsClient.GetImageFromIPFS(metadata.Image)
+				if err != nil {
+					err := fmt.Errorf("Failed to fetch image from IPFS for Hound ID %d: %w", id, err)
+					logger.Errorf("Error: %s", err)
+					sendErrorResponse(id, err, session, interaction)
+					return
+				}
+
+				logger.Debugf("Generating Cutout")
+				image, err = stamper.OverlayLegendary(nil, metadata, "hound")
+				if err != nil {
+					err := fmt.Errorf("Failed to cut out hound #%d: %w", id, err)
+					logger.Errorf("Error: %s", err)
+					sendErrorResponse(id, err, session, interaction)
+					return
+				}
+
+			case baycOpt:
+				//TODO: Refactor Getting Metadata and Image into its own method
+				filename = fmt.Sprintf("%s_bayc_%d_legendary.png", name, id)
+				logger.Debugf("Getting metadata for BAYC #%d", id)
+				metadata, err := baycMetadataFetcher.Fetch(id)
+				if err != nil {
+					err := fmt.Errorf("Failed to fetch Metadata for BAYC ID %d: %w", id, err)
+					logger.Errorf("Error: %s", err)
+					sendErrorResponse(id, err, session, interaction)
+					return
+				}
+				logger.Debugf("Metadata: %+v", metadata)
+
+				bayc, err := baycIpfsClient.GetImageFromIPFS(metadata.Image)
+				if err != nil {
+					err := fmt.Errorf("Failed to fetch image from IPFS for Hound ID %d: %w", id, err)
+					logger.Errorf("Error: %s", err)
+					sendErrorResponse(id, err, session, interaction)
+					return
+				}
+				logger.Debugf("Got Image")
+				image, err = stamper.OverlayLegendary(bayc, metadata, "bayc")
+				if err != nil {
+					err := fmt.Errorf("Failed to cut out BAYC #%d: %w", id, err)
+					logger.Errorf("Error: %s", err)
+					sendErrorResponse(id, err, session, interaction)
+					return
+				}
+			default:
+				err := fmt.Errorf("Unsupported Collection: %s", cmdData.Options[0].Name)
+				logger.Errorf("Error: %s", err)
+				sendErrorResponse(id, err, session, interaction)
+				return
+
+			}
+			logger.Debugf("Uploading image")
+			file := &discordgo.File{
+				Name:        filename,
+				ContentType: "image/png",
+				Reader:      image,
 			}
 			response := &discordgo.WebhookEdit{
 				Files: []*discordgo.File{file},

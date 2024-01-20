@@ -564,27 +564,12 @@ image_processor_mappings:
         bayc_background: ./cartel/images/apecoin_background/bayc.png
         hound_background: ./cartel/images/apecoin_background/hound.png
         mayc_background: ./cartel/images/apecoin_background/mayc.png
-            
-
-            
-
-
-
-
-
-
-
-
-
-            
-
-
-
-
-
-         
-            
-
-
-            
-
+    legendary_image_mappings:
+        backgrounds:
+            bayc: ./cartel/images/legendary/bayc_bg.png
+            mayc: ./cartel/images/legendary/mayc_bg.png
+            hound: ./cartel/images/legendary/hound_bg.png
+        stamps:
+            bayc: ./cartel/images/legendary/bayc_stamp.png
+            mayc: ./cartel/images/legendary/mayc_stamp.png
+            hound: ./cartel/images/legendary/hound_stamp.png

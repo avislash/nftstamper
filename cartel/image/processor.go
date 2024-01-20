@@ -94,6 +94,11 @@ type backgroundImagePlacementMappings struct {
 	maycBg  image.Image
 }
 
+type legendaryImagePlacementMappings struct {
+	backgrounds map[string]image.Image
+	stamps      map[string]image.Image
+}
+
 type Processor struct {
 	image.Combiner
 	bowls                     map[string]image.Image //map of backgrounds to bowls
@@ -108,6 +113,7 @@ type Processor struct {
 	houndTraitMappings        houndTraitMappings
 	serumCityMappings         backgroundImagePlacementMappings
 	apecoinBackgroundMappings backgroundImagePlacementMappings
+	legendaryStampMappings    legendaryImagePlacementMappings
 }
 
 func NewProcessor(config config.ImageProcessorConfig) (*Processor, error) {
@@ -186,6 +192,16 @@ func NewProcessor(config config.ImageProcessorConfig) (*Processor, error) {
 		return nil, fmt.Errorf("Error building BAYC Background Mappings: %w", err)
 	}
 
+	legendaryBackgroundMappings, err := buildImageMap(config.LegendaryStampImageMappings.Backgrounds)
+	if err != nil {
+		return nil, fmt.Errorf("Error building Legendary Stamp Background Image Mappings: %w", err)
+	}
+
+	legendaryStampMappings, err := buildImageMap(config.LegendaryStampImageMappings.Stamps)
+	if err != nil {
+		return nil, fmt.Errorf("Error building Legendary Stamp Background Image Mappings: %w", err)
+	}
+
 	return &Processor{
 		//Combined Hound images are too big to process and return to discord before timing out
 		Combiner:                  image.NewPNGCombiner(image.WithBestSpeedPNGCompression()),
@@ -201,6 +217,10 @@ func NewProcessor(config config.ImageProcessorConfig) (*Processor, error) {
 		serumCityMappings:         serumCityMappings,
 		apecoinBackgroundMappings: apecoinBackgroundMappings,
 		baycBackgroundMappings:    baycBackgroundMappings,
+		legendaryStampMappings: legendaryImagePlacementMappings{
+			backgrounds: legendaryBackgroundMappings,
+			stamps:      legendaryStampMappings,
+		},
 	}, nil
 }
 
@@ -395,6 +415,42 @@ func (p *Processor) OverlayHoundJersey(hound image.Image, metadata metadata.Houn
 	}
 
 	return p.EncodeImage(p.CombineImages(hound, jersey))
+}
+
+func (p *Processor) OverlayLegendary(img image.Image, imgMetadata any, option string) (*bytes.Buffer, error) {
+	bg, found := p.legendaryStampMappings.backgrounds[option]
+	if !found {
+		return nil, fmt.Errorf("No Background loaded for %s", option)
+	}
+
+	stamp, found := p.legendaryStampMappings.stamps[option]
+	if !found {
+		return nil, fmt.Errorf("No Stamp loaded for %s", option)
+	}
+
+	var cutout image.Image
+	var err error
+	switch option {
+	case "bayc":
+		cutout, err = p.cutoutBAYC(img, imgMetadata.(metadata.BAYCMetadata))
+		if err != nil {
+			return nil, err
+		}
+	case "mayc":
+		cutout, err = p.cutoutMAYC(img, imgMetadata.(metadata.MAYCMetadata))
+		if err != nil {
+			return nil, err
+		}
+	case "hound":
+		cutout, err = p.generateHound(imgMetadata.(metadata.HoundMetadata))
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	img = p.CombineImages(bg, cutout)
+
+	return p.EncodeImage(p.CombineImages(img, stamp))
 }
 
 func (p *Processor) CutoutHound(metadata metadata.HoundMetadata) (*bytes.Buffer, error) {
